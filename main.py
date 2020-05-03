@@ -3,12 +3,12 @@
 
 import numpy as np
 import random as rd
-import classes
 import json
+import src.classes
 
 def initGame():
     streets = []
-
+    jsonDict = json.loads("boxes.json")
 
 
 
