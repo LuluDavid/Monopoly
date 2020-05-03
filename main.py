@@ -7,6 +7,7 @@ import classes
 import json
 
 def initGame():
+    streets = []
 
 
 

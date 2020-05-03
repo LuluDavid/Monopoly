@@ -8,36 +8,27 @@ NB_CASES = 40
 
 class User:
     "A simple class to describe the lambda monopoly player"
-    def __init__(self, name, money, position, goods):
+    def __init__(self, name, money = INITIAL_MONEY, position = 0, goods = []):
         self.name = name
         self.money = money
         self.position = position
         self.goods = goods
 
-    def __init__(self, name):
-        self.name = name
-        self.money = INITIAL_MONEY
-        self.position = 0
-        self.goods = []
-
-
 class Box:
      "A simple class to describe each box"
-     def __init__(self, players, street):
+     def __init__(self, name, players):
+         self.name = name
          self.players = players    #which player is on this box
          self.type = type
 
-class Street(Box)
+class Street(Box):
     "A simple class to describe a good on the board, like LES GALERIES LAFAYETTE"
-    def __init__(self, owner, price, rent, color):
+    def __init__(self, name, price, rent, players = [], owner = None, color = 0):
+        super().__init__(name, players)
         self.owner = owner
         self.price = price
         self.rent = rent
-
-    def __init__(self, price, rent, color):
-        self.owner = None
-        self.price = price
-        self.rent = rent
+        self.color = color
 
 class Board:
     "A simple class to describe the board"
