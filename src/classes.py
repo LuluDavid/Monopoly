@@ -31,12 +31,13 @@ class Box:
 
 class Street(Box):
     """"A simple class to describe a good on the board, like LES GALERIES LAFAYETTE"""
-    def __init__(self, index,  box_type, name, price, rent, players=None, owner=None, color=0):
+    def __init__(self, index,  box_type, name, price, rent,  color, players=None, owner=None, home=0):
         super().__init__(index,  box_type, name, players)
         self.owner = owner
         self.price = price
         self.rent = rent
         self.color = color
+        self.home = home
 
 
 class Board:

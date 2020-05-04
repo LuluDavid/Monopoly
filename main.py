@@ -5,6 +5,19 @@ import json
 import random
 from src.classes import User, Board, Street, Box, Game
 
+def main():
+    board = initGame()
+    #for box in board.boxes:
+        #print("{} - TYPE : {} \t\t NAME : {}".format(box.index, box.box_type, box.name))
+    listOfPlayers = initPlayers()    
+    numberOfPlayers = len(listOfPlayers)
+    order = orderOfPlayers(listOfPlayers)
+    while len(order)>=2:
+        order = turn(order)
+    print(""+order[0].name+"!! TU AS GAGNE !!!!!!")
+    
+    
+    
 
 
 def initGame():
@@ -61,7 +74,80 @@ def actualizePosition(order, i, dice):
         order[i].position = oldPosition + dice
     else :
         order[i].position = (oldPosition+dice-40)
-        
+     
+     
+def playerHasAllColorStreets(player):
+    pos = player.position
+    streetColor = board.boxes[pos].color
+    if (streetColor == "pink" or streetColor=="dark-blue"):
+        count = 0
+        n=len(player.goods)
+        for i in range(n):
+            if (player.goods[i].color == streetColor):
+                count = count +1 
+        if (count == 2):
+            return True
+        else: 
+            return False
+    else: 
+        count = 0
+        n=len(owner.goods)
+        for i in range(n):
+            if (owner.goods[i].color == streetColor):
+                count = count +1 
+        if (count == 3):
+            return True
+        else:
+            return False
+    
+    
+      
+def getRent(player):
+    pos = player.position
+    numberOfHomes = board.boxes[pos].home
+    rent = board.boxes[pos].rent[0]
+    streetColor = board.boxes[pos].color
+    owner = board.boxes[pos].owner
+    if (streetColor == "pink" or streetColor=="dark-blue"):
+        count = 0
+        n=len(owner.goods)
+        for i in range(n):
+            if (owner.goods[i].color == streetColor):
+                count = count +1 
+        if (count == 2):
+            rent = rent*2
+    else: 
+        count = 0
+        n=len(owner.goods)
+        for i in range(n):
+            if (owner.goods[i].color == streetColor):
+                count = count +1 
+        if (count == 3):
+            rent = rent*2
+    return rent
+    
+    
+    
+def putHomes(player):
+    pos = player.position
+    numberOfHomes = board.boxes[pos].home
+    priceOfHome = board.boxes[pos].price[1]
+    houseAvailable = 5-numberOfHomes
+    if (playerHasAllColorStreets(player) == True):
+        if (houseAvailable != 0):
+            choice = input("Vous pouvez placer "+str(houseAvailable)+" maison(s) sur cette propriété, une maison coûte "+ str(priceOfHome)+"€. Souhaitez-vous construire ?")
+            if(choice.lower() == "oui".lower()):
+                nbOfHouses = input("Combien de maison souhaitez-vous construire ?")
+                while (int(nbOfHouses) > houseAvailable):
+                    nbOfHouses = input("Vous pouvez construire maximum "+str(houseAvailable)+" maisons, combien souhaitez-vous en construire ?")
+                board.boxes[pos].home = board.boxes[pos].home + int(nbOfHouses)
+                player.money = player.money - priceOfHome
+                input("Vous avez construit" +str(nbOfHouses) + " maisons. Il vous reste" + str(player.money) + "€")
+            else:
+                input("Vous avez choisi de ne pas construire de maison")
+                
+                
+                
         
 def buyAStreetOrNot(player):
     pos = player.position
@@ -75,6 +161,7 @@ def buyAStreetOrNot(player):
                 board.boxes[pos].owner = player
                 player.money = player.money - price
                 input("Vous venez d'acheter la propriété "+ str(case.name) +". Il vous reste "+str(player.money)+ " euros.")
+                putHomes(player)
             else : 
                 input("Vous avez décider de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
         else : 
@@ -83,9 +170,10 @@ def buyAStreetOrNot(player):
             else :      #the street belongs to someone
                 ownerName = case.owner.name
                 if (case.owner == player):
-                    input("Cette propriété vous appartient. Vous ne pouvez rien faire")
+                    input("Cette propriété vous appartient")
+                    putHomes(player)
                 else:
-                    rent = case.rent[0]
+                    rent = getRent(player)
                     print("Cette propriété appartient à "+ownerName+", vous lui devez "+str(rent)+" euros.")
                     player.money = player.money - rent
                     print("Il vous reste "+str(player.money)+" euros.")
@@ -106,9 +194,10 @@ def turn(order):                         #one turn
         playerStreetPosition = board.boxes[pos].name
         input("Tu es sur la case : " + playerStreetPosition)
         buyAStreetOrNot(order[i])
-    for player in order:
         if (player.money <0):
             input(""+ player.name+ ", tu as perdu! Tu n'as plus d'argent.")
+    for player in order:
+        if (player.money <0):
             order.remove(player)
     return order
     
@@ -117,15 +206,7 @@ def turn(order):                         #one turn
 
 
 if __name__ == "__main__":
-    board = initGame()
-    #for box in board.boxes:
-        #print("{} - TYPE : {} \t\t NAME : {}".format(box.index, box.box_type, box.name))
-    listOfPlayers = initPlayers()
-    numberOfPlayers = len(listOfPlayers)
-    order = orderOfPlayers(listOfPlayers)
-    while len(order)>=2:
-        order = turn(order)
-    print(""+order[0].name+"!! TU AS GAGNE !!!!!!")
+    main()
     
         
     

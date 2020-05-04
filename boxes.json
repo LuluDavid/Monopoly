@@ -163,21 +163,20 @@
     "name": "Place de la Bourse",
     "price": [260,150],
     "rent": [22,110,330,800,975,1150],
-    "color": "red"
+    "color": "yellow"
   },
   "28": {
     "type": "public-service",
     "name": "Compagnie de distribution des eaux",
     "price": 150,
-    "rent": 0,
-    "color": "red"
+    "rent": 0
   },
   "29": {
     "type": "street",
     "name": "Rue de la Fayette",
     "price": [280,150],
     "rent": [24,120,360,850,1025,1200],
-    "color": "red"
+    "color": "yellow"
   },
   "30": {
     "type": "to-jail",
