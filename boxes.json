@@ -6,8 +6,8 @@
   "1": {
     "type": "street",
     "name": "Boulevard de Bellevile",
-    "price": 60,
-    "rent": 2,
+    "price": [60,50],
+    "rent": [2,10,30,90,160,250],
     "color": "pink"
   },
   "2": {
@@ -17,8 +17,8 @@
   "3": {
     "type": "street",
     "name": "Rue Lecourbe",
-    "price": 60,
-    "rent": 4,
+    "price": [60,50],
+    "rent": [4,20,60,180,320,450],
     "color": "pink"
   },
   "4": {
@@ -34,8 +34,8 @@
   "6": {
     "type": "street",
     "name": "Rue de Vaugirard",
-    "price": 100,
-    "rent": 6,
+    "price": [100,50],
+    "rent": [6, 30,90,270,400,550],
     "color": "light-blue"
   },
   "7": {
@@ -45,15 +45,15 @@
   "8": {
     "type": "street",
     "name": "Rue de Courcelles",
-    "price": 100,
-    "rent": 6,
+    "price": [100,50],
+    "rent": [6, 30,90,270,400,550],
     "color": "light-blue"
   },
   "9": {
     "type": "street",
     "name": "Avenue de la Republique",
-    "price": 120,
-    "rent": 8,
+    "price": [120,50],
+    "rent": [8,40,100,300,450,600],
     "color": "light-blue"
   },
   "10": {
@@ -63,8 +63,8 @@
   "11": {
     "type": "street",
     "name": "Boulevard de la Vilette",
-    "price": 140,
-    "rent": 10,
+    "price": [140,100],
+    "rent": [10,50,150,450,625,750],
     "color": "purple"
   },
   "12": {
@@ -76,15 +76,15 @@
   "13": {
     "type": "street",
     "name": "Avenue de Neuilly",
-    "price": 140,
-    "rent": 10,
+    "price": [140,100],
+    "rent": [10,50,150,450,625,750],
     "color": "purple"
   },
   "14": {
     "type": "street",
     "name": "Rue de paradis",
-    "price": 160,
-    "rent": 12,
+    "price": [160,100],
+    "rent": [12,60,180,500,700,900],
     "color": "purple"
   },
   "15": {
@@ -95,8 +95,8 @@
   "16": {
     "type": "street",
     "name": "Avenue Mozart",
-    "price": 180,
-    "rent": 14,
+    "price": [180,100],
+    "rent": [14,70,200,550,750,950],
     "color": "orange"
   },
   "17": {
@@ -106,15 +106,15 @@
   "18": {
     "type": "street",
     "name": "Boulevard Saint-Michel",
-    "price": 180,
-    "rent": 14,
+    "price": [180,100],
+    "rent": [14,70,200,550,750,950],
     "color": "orange"
   },
   "19": {
     "type": "street",
     "name": "Place Pigale",
-    "price": 200,
-    "rent": 16,
+    "price": [200,100],
+    "rent": [16,80,220,600,800,1000],
     "color": "orange"
   },
   "20": {
@@ -124,8 +124,8 @@
   "21": {
     "type": "street",
     "name": "Avenue Matignon",
-    "price": 220,
-    "rent": 18,
+    "price": [220,150],
+    "rent": [18,90,250,700,875,1050],
     "color": "red"
   },
   "22": {
@@ -135,15 +135,15 @@
   "23": {
     "type": "street",
     "name": "Boulevard Malesherbes",
-    "price": 220,
-    "rent": 18,
+    "price": [220,150],
+    "rent": [18,90,250,700,875,1050],
     "color": "red"
   },
   "24": {
     "type": "street",
     "name": "Avenue Henri-Martin",
-    "price": 240,
-    "rent": 20,
+    "price": [240,150],
+    "rent": [20,100,300,750,925,1100],
     "color": "red"
   },
   "25": {
@@ -154,15 +154,15 @@
   "26": {
     "type": "street",
     "name": "Faubourd Saint-Honore",
-    "price": 260,
-    "rent": 22,
+    "price": [260,150],
+    "rent": [22,110,330,800,975,1150],
     "color": "yellow"
   },
   "27": {
     "type": "street",
     "name": "Place de la Bourse",
-    "price": 260,
-    "rent": 22,
+    "price": [260,150],
+    "rent": [22,110,330,800,975,1150],
     "color": "red"
   },
   "28": {
@@ -175,8 +175,8 @@
   "29": {
     "type": "street",
     "name": "Rue de la Fayette",
-    "price": 280,
-    "rent": 24,
+    "price": [280,150],
+    "rent": [24,120,360,850,1025,1200],
     "color": "red"
   },
   "30": {
@@ -186,15 +186,15 @@
   "31": {
     "type": "street",
     "name": "Avenue de Breteuil",
-    "price": 300,
-    "rent": 26,
+    "price": [300,200],
+    "rent": [26,130,390,900,1100,1275],
     "color": "green"
   },
   "32": {
     "type": "street",
     "name": "Avenue Foch",
-    "price": 300,
-    "rent": 26,
+    "price": [300,200],
+    "rent": [26,130,390,900,1100,1275],
     "color": "green"
   },
   "33": {
@@ -204,8 +204,8 @@
   "34": {
     "type": "street",
     "name": "Boulevard des Capucines",
-    "price": 320,
-    "rent": 28,
+    "price": [320,200],
+    "rent": [28,150,450,1000,1200,1400],
     "color": "green"
   },
   "35": {
@@ -220,8 +220,8 @@
   "37": {
     "type": "street",
     "name": "Avenue des Champs Elysees",
-    "price": 350,
-    "rent": 35,
+    "price": [350,200],
+    "rent": [35,175,500,1100,1300,1500],
     "color": "dark-blue"
   },
   "38": {
@@ -231,8 +231,8 @@
   "39": {
     "type": "street",
     "name": "Rue de la Paix",
-    "price": 400,
-    "rent": 50,
+    "price": [400,200],
+    "rent": [50,200,600,1400,1700,2000],
     "color": "dark-blue"
   }
 }

@@ -67,10 +67,10 @@ def buyAStreetOrNot(player):
     pos = player.position
     case=board.boxes[pos]
     if (case.box_type == "street"):
-        price = case.price
+        price = case.price[0]
         if (case.owner == None  and player.money>=price):
             choice = input("Cette propriété est libre, son prix est de "+str(price)+" euros. Voulez-vous l'acheter ? (Il vous reste "+str(player.money)+ " euros)")
-            if (choice == "oui"):
+            if (choice.lower() == "oui".lower()):
                 player.goods.append(board.boxes[pos])
                 board.boxes[pos].owner = player
                 player.money = player.money - price
@@ -81,16 +81,16 @@ def buyAStreetOrNot(player):
             if (case.owner == None and player.money<price):
                 input("Cette propriété est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
             else :      #the street belongs to someone
-                owner = case.owner.name
+                ownerName = case.owner.name
                 if (case.owner == player):
                     input("Cette propriété vous appartient. Vous ne pouvez rien faire")
                 else:
-                    rent = case.rent
-                    print("Cette propriété appartient à "+owner+", vous lui devez "+str(rent)+" euros.")
+                    rent = case.rent[0]
+                    print("Cette propriété appartient à "+ownerName+", vous lui devez "+str(rent)+" euros.")
                     player.money = player.money - rent
                     print("Il vous reste "+str(player.money)+" euros.")
                     case.owner.money = case.owner.money + rent
-                    input(""+owner+" gagne "+str(rent)+" euros, il lui reste "+str(case.owner.money)+" euros.")
+                    input(""+ownerName+" gagne "+str(rent)+" euros, il lui reste "+str(case.owner.money)+" euros.")
     else:
         input("ce n'est pas une rue, pour l'instant vous ne pouvez pas l'acheter.")
                 
@@ -99,7 +99,7 @@ def buyAStreetOrNot(player):
 def turn(order):                         #one turn
     numberOfPlayers = len(order)
     for i in range(numberOfPlayers):
-        dice=random.randint(1,12)
+        dice=random.randint(2,12)
         print(""+order[i].name+", tu as fait "+ str(dice))
         actualizePosition(order,i,dice)
         pos = order[i].position
