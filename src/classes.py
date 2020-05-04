@@ -1,31 +1,37 @@
 # Those are the classes to represent the game
 
-INITIAL_MONEY = 1500
+INITIAL_MONEY = 800
 NB_CASES = 40
 
 
 class User:
     """A simple class to describe the lambda monopoly player"""
-    def __init__(self, name, money=INITIAL_MONEY, position=0, goods=[]):
+    def __init__(self, name, money=INITIAL_MONEY, position=0, goods=None):
         self.name = name
         self.money = money
         self.position = position
-        self.goods = goods
+        if goods is None:
+            self.goods = []
+        else:
+            self.goods = goods
 
 
 class Box:
     """A simple class to describe each box"""
 
-    def __init__(self, index, box_type, name, players=[]):
+    def __init__(self, index, box_type, name, players=None):
         self.index = index
         self.box_type = box_type
         self.name = name
-        self.players = players  # which players are on this box
+        if players is None:
+            self.players = []
+        else:
+            self.players = players 
 
 
 class Street(Box):
     """"A simple class to describe a good on the board, like LES GALERIES LAFAYETTE"""
-    def __init__(self, index,  box_type, name, price, rent, players=[], owner=None, color=0):
+    def __init__(self, index,  box_type, name, price, rent, players=None, owner=None, color=0):
         super().__init__(index,  box_type, name, players)
         self.owner = owner
         self.price = price
