@@ -6,9 +6,11 @@ function init() {
 	pawnHeight = 2
 	pawnRadius = 0.5
 	coverRatio = 0.7
+	epsilon = 1
+	currentPawn = 0
 
-	caseWidth = (cardboardWidth/12.25)
-	caseHeight = 1.625*caseWidth
+	caseWidth = cardboardWidth/12.2
+	caseHeight = 1.6*caseWidth
 	numberOfPawns = 18
 	caseCenter = new THREE.Vector2(caseHeight/2,caseHeight/2)
 
@@ -22,7 +24,7 @@ function init() {
 	view.camera.up.fromArray( view.up );
 
 	scene = new THREE.Scene();
-	var controls = new THREE.OrbitControls( view.camera );
+	controls = new THREE.OrbitControls( view.camera );
 
 	// renderer settings
 	renderer = new THREE.WebGLRenderer( { antialias: true} );
@@ -41,12 +43,13 @@ function init() {
 	ground = createGround(scene);
 	// create cardboard
 	cardboard = createCardboard(cardboardWidth, scene);
-	cardboard.rotateZ(-Math.PI/2);
+	cardboard.rotateZ(Math.PI/2);
 	cardboard.castShadow = true;
 	cardboard.receiveShadow = true;
 	// create one pawn
 	let pawns = createPawns(numberOfPawns, caseCenter, caseHeight, caseHeight);
 	addPawns(pawns, scene);
+	positions = initPositions();
 
 	$(document).on('click',() => incrementPositions());
 
@@ -57,19 +60,58 @@ function init() {
 
 // ANIMATE AND UPDATE FUNCTIONS
 
-function incrementPositions(){
-	currentCase++;
-	if (currentCase == 40){
-		currentCase = 0;
+function initPositions(){
+	var positions = {}
+	positions[0] = Array.from(Array(numberOfPawns).keys())
+	for (let i = 1; i<numberOfPawns; i++){
+		positions[i] = []
 	}
-	let box = boxes[currentCase]
-	let center = new THREE.Vector2(box.x, box.y);
-	let height = box.isW?caseWidth:caseHeight;
-	let width = box.isH?caseHeight:caseWidth;
+	return positions
+}
 
-	newPawns  = createPawns(numberOfPawns, center, width, height);
-	for (let i = 3; i<scene.children.length; i++){
-		scene.children[i] = newPawns[i-3];
+function emptyPositions(){
+	var positions = {}
+	for (let i = 0; i<40; i++){
+		positions[i] = []
+	}
+	return positions
+}
+
+function updatePositions(){
+	positions = emptyPositions();
+	for (let i = 0; i<numberOfPawns; i++){
+		let box = Object.assign(scene.children[3+i].currentCase);
+		positions[box].push(i);
+	}
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * Math.floor(max-min+1))+min;
+}
+
+function randomDices(){
+	return getRandomInt(1,12); 
+}
+
+function incrementPositions(){
+
+	var dices = randomDices();
+
+	console.log("Vous obtenez un score de "+dices)
+
+	var pawn = Object.assign(scene.children[3+currentPawn])
+	var currentCase = Object.assign(pawn.currentCase)
+
+	currentCase += dices;
+	if (currentCase >= 40){
+		currentCase -= 40;
+	}
+
+	translateCase(currentPawn, currentCase);
+
+	currentPawn++;
+	if (currentPawn == numberOfPawns){
+		currentPawn = 0;
 	}
 }
 
@@ -79,6 +121,42 @@ function animate(){
 	requestAnimationFrame( animate );
 }
 
+function distance(v1, v2){
+	return v1.clone().distanceTo(v2.clone());
+}
+
+function translateCase(i, j){
+	let box = boxes[j]
+	dt = 1 // duration to go to next case
+	translate(i, new THREE.Vector3(box.x, box.y, pawnHeight/2 + 0.05), dt)
+	scene.children[3+i].currentCase = j;
+	updatePositions();
+}
+
+function translate(i, goalPosition, duration){
+	var fps = 60;           // seconds
+	var step = 1 / (duration * fps);  // t-step per frame
+	var t = 0;
+	object = scene.children[3+i];
+	console.log(object.position)
+
+	function translation(a, b, t) {return a + (b - a) * t}
+
+	function loop() {
+	  var newX = translation(object.position.x, goalPosition.x, ease(t));   // interpolate between a and b where
+	  var newY = translation(object.position.y, goalPosition.y, ease(t));   // t is first passed through a easing
+	  var newZ = translation(object.position.z, goalPosition.z, ease(t));   // function in this example.
+	  object.position.set(newX, newY, newZ);  // set new position
+	  t += step;
+	  if (t <= 0 || t >=1) { console.log("Tour fini"); return; }
+	  requestAnimationFrame(loop)
+	}
+
+	function ease(t) { return 4*(t-t*t)} // add inertia
+
+	loop();
+	renderer.render(scene, view.camera);
+}
 
 function render() {
 
@@ -119,16 +197,16 @@ function updateSize() {
 
 function addPawns(pawns, parentNode){
 	for (let i = 0; i<pawns.length; i++){
+		pawns[i].currentCase = 0;
 		parentNode.add(pawns[i]);
 	}
 }
 
 function createPawns(number, caseCenter, width, height){
-	var positions = getPawnPositions(number, caseCenter, width*coverRatio, height*coverRatio);
+	var positions = getPawnPositions(number, caseCenter, width, height);
 	let pawns = []
 	for (var i = 0; i<number; i++){
-		let clr = getRandomColor();
-		var pawn = createPawn(clr, positions[i]);
+		var pawn = createPawn(positions[i]);
 		pawn.castShadow = true;
 		pawn.receiveShadow = true;
 		pawns[i] = pawn;
@@ -151,7 +229,8 @@ function getPawnPositions(number, caseCenter, width, height){
 	|___________________________|
 
 	*/
-
+	widthRatio = coverRatio*width
+	heightRatio = coverRatio*height
 	let nbLines = Math.ceil(Math.sqrt(number));
 	let nbPawnsPerLine = number/nbLines;
 	let nbPawnsLastLine;
@@ -162,11 +241,11 @@ function getPawnPositions(number, caseCenter, width, height){
 		nbPawnsPerLine = Math.ceil(nbPawnsPerLine)
 		nbPawnsLastLine = number - (nbLines-1)*nbPawnsPerLine
 	}
-	let initialX = caseCenter.x-height/2
-	let initialY = caseCenter.y-width/2
+	let initialX = caseCenter.x-heightRatio/2
+	let initialY = caseCenter.y-widthRatio/2
 
-	let stepX = width/nbPawnsPerLine
-	let stepY = height/nbPawnsPerLine
+	let stepX = widthRatio/nbPawnsPerLine
+	let stepY = heightRatio/nbPawnsPerLine
 	var positions = []
 	for (let j=0; j<nbLines-1; j++){
 		for (let k=0; k<nbPawnsPerLine; k++){
@@ -174,14 +253,15 @@ function getPawnPositions(number, caseCenter, width, height){
 		}
 	}
 
-	let stepY2 = width/nbPawnsLastLine
+	let stepY2 = height/nbPawnsLastLine
 	for (let k=0; k<nbPawnsLastLine; k++){
 		positions.push(new THREE.Vector2(initialX + stepX*(nbLines-1),initialY + stepY2*k))
 	}
 	return positions
 }
 
-function createPawn(clr, position){
+function createPawn(position){
+	let clr = getRandomColor();
 	let geometry = new THREE.CylinderGeometry( pawnRadius, pawnRadius, pawnHeight, 32);
 	let material = new THREE.MeshPhongMaterial({color: clr});
 	let pawn = new THREE.Mesh( geometry, material );
@@ -243,8 +323,8 @@ function getRandomColor() {
 	}
 
 function getBoxesPositions(L) {
-    var l = L / 12.25
-    var h = l * 1.625
+    var l = L / 12.2
+    var h = l * 1.6
 
     var axCoords = {
       0: h/2,
