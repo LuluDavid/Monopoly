@@ -1,0 +1,15 @@
+{% extends "layout.html.jinja2" %}
+{% set page_title = "Monopoly" %}
+
+{% block body %}
+
+  <script>
+    let gameId = {{ game_id }};
+    let playerId = {{ player_id }};
+    let playerName = "{{ player_name }}";
+    //sockets(gameId, playerId, playerName)
+  </script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "layout.html.jinja2" %}
+{% set page_title = "Home" %}
+
+{% block body %}
+
+<h1 class="h3 my-5">Home</h1>
+
+  <button onclick="createGame()">Create Game</button> - <button onclick="joinGame()">Join Game</button>
+
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    // verify our websocket connection is established
+    socket.on('connect', function() {
+        console.log('connect');
+        console.log('Websocket connected!');
+    });
+
+    // message handler for the 'join_room' channel
+    socket.on('join_room', function(msg) {
+        console.log('join_room');
+        console.log(msg);
+    });
+    socket.on('join', function(msg) {
+        console.log('join');
+        console.log(msg);
+    });
+
+    // createGame onclick - emit a message on the 'create' channel to
+    // create a new game with default parameters
+    function createGame() {
+      console.log('Creating game...');
+      socket.emit('create', {size: 'normal', teams: 2, dictionary: 'Simple'});
+    }
+    function joinGame() {
+      console.log('Joining game...');
+      socket.emit('join', {room: 29});
+    }
+  </script>
+
+{% endblock %}
