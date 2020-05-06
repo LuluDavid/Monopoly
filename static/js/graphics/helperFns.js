@@ -19,24 +19,37 @@ function init() {
 	boxes = getBoxesPositions(cardboardWidth)
 	// Accuracy for pawn motion
 	epsilon = 1
+	coverMotion = 0.9
 	// Whose turns it is
 	currentPawn = 0
 	// Pawn motion
-	tMotion = 0.5 // duration to go to next case (seconds)
+	tMotion = 2 // duration to go to next case (seconds)
 	// Pawn positions on boxes
 	boxes = getBoxesPositions(cardboardWidth);
 	// Pawn positions per box (where to put them to make them fit in)
 	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+	// Incrementing boolean to avoid multi-calls
+	incrementing = false;
 
 
 	/*
 	 * Build scene
 	 */
+	// General camera
 	container = document.getElementById( 'container' );
 	view.camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, view.near, view.far );
 	view.camera.position.fromArray( view.eye );
 	view.camera.up.fromArray( view.up );
+	// Close camera
+	closeView.camera = new THREE.PerspectiveCamera( closeView.fov, window.innerWidth / window.innerHeight, closeView.near, closeView.far );
+	closeView.camera.position.fromArray( closeView.eye );
+	closeView.camera.up.fromArray( closeView.up );
+	// Scene
 	scene = new THREE.Scene();
+	const loader = new THREE.TextureLoader();
+	loader.load('textures/clearSky.jpg' , function(texture)
+            { scene.background = texture;  });
+	scene.background = new THREE.Color( 0x0000ff );
 	// Orbit controls
 	controls = new THREE.OrbitControls( view.camera );
 
@@ -73,7 +86,7 @@ function init() {
 	 * First test to move successfully pawns around the board
 	 * TODO: Use the multiple positions function used in createPawns if there are multiple pawns onto a box
 	 */
-	$(document).on('click',() => incrementPositions());
+	$(document).on('click',() => incrementPositionsAux());
 
 	/*
 	 * Basic update functions : update OrbiteControls, update the camera
@@ -102,6 +115,7 @@ function render() {
 
 	updateSize();
 
+	// First view
 	view.updateCamera(view.camera,scene);
 
 	var left = Math.floor( windowWidth * view.left );
@@ -118,6 +132,24 @@ function render() {
 	view.camera.updateProjectionMatrix();
 	
 	renderer.render( scene, view.camera );
+
+	// Second view
+	closeView.updateCamera(closeView.camera,scene);
+
+	var leftcloseView = Math.floor( windowWidth * closeView.left );
+	var topcloseView = Math.floor( windowHeight * closeView.top );
+	var widthcloseView = Math.floor( windowWidth * closeView.width );
+	var heightcloseView = Math.floor( windowHeight * closeView.height );
+
+	renderer.setViewport( leftcloseView, topcloseView, widthcloseView, heightcloseView );
+	renderer.setScissor( leftcloseView, topcloseView, widthcloseView, heightcloseView );
+	renderer.setScissorTest( true );
+	renderer.setClearColor( closeView.background );
+
+	closeView.camera.aspect = widthcloseView / heightcloseView;
+	closeView.camera.updateProjectionMatrix();
+
+	renderer.render(scene,closeView.camera);
 }
 
 // Adapt to the screen size
@@ -169,25 +201,32 @@ function randomDices(){
 	return getRandomInt(1,12); 
 }
 
+// Aux function to ensure we do not multithread on incrementPositions
+function incrementPositionsAux(){
+	if (incrementing == false){
+		incrementing = true;
+		incrementPositions();
+	}
+	else {
+		console.log("Previous increment is not over.")
+	}
+}
+
 // Main function to update next pawn's position (throw of dice, move the pawn)
 function incrementPositions(){
+	// Pass to next pawn for next call (modulo numberOfPawns)
 	var dices = randomDices();
 	console.log("Vous obtenez un score de "+dices)
 	// Copies
 	var pawn = Object.assign(scene.children[3+currentPawn])
 	var currentBox = Object.assign(pawn.currentBox)
-	// Update the box where the pawn is (modulo 40) 
+	// Update the box where the pawn is (modulo numberOfBoxes) 
 	currentBox += dices;
 	if (currentBox >= 40){
 		currentBox -= 40;
 	}
 	// Translate the pawn to this box
 	translatePawnToBox(currentPawn, currentBox);
-	// Pass to next pawn for next call (modulo 10)
-	currentPawn++;
-	if (currentPawn == numberOfPawns){
-		currentPawn = 0;
-	}
 }
 
 // Distance between two points
@@ -205,10 +244,10 @@ function translatePawnToBox(i, j){
 }
 
 // Parabole to describe the motion inertia
-function ease(t) { return 4*(t-t*t)}
+function ease(t) { return -t*t+2*t}
 
 // Translation from a to b's parametric equation
-function translation(a, b, t) {return a + (b - a) * t}
+function translation(a, b, t) { return a+(b - a)*t }
 
 // Translate pawn n°i to goalPosition
 function translate(i, goalPosition){
@@ -216,20 +255,30 @@ function translate(i, goalPosition){
 	var step = 1 / (tMotion * fps);  // t-step per frame
 	var t = 0;
 	object = scene.children[3+i];
-	function loop() {
-	  var newX = translation(object.position.x, goalPosition.x, ease(t));   // interpolate between a and b where
-	  var newY = translation(object.position.y, goalPosition.y, ease(t));   // t is first passed through a easing
-	  var newZ = translation(object.position.z, goalPosition.z, ease(t));   // function in this example.
-	  object.position.set(newX, newY, newZ);  // set new position
-	  t += step;
-	  if (t <= 0 || t >=1) { console.log("Tour fini"); return; }
-	  requestAnimationFrame(loop)
-	}
-	loop();
+	var initialPosition = object.position.clone()
+	loop(initialPosition, goalPosition, step, t)
 	renderer.render(scene, view.camera);
 }
 
+// Loop function
+function loop(initialPosition, goalPosition, step, t) {
+  	var newX = translation(initialPosition.x, goalPosition.x, ease(t));   // interpolate between a and b where
+    var newY = translation(initialPosition.y, goalPosition.y, ease(t));   // t is first passed through a easing
+  	var newZ = translation(initialPosition.z, goalPosition.z, ease(t));   // function in this example.
+  	object.position.set(newX, newY, newZ);  // set new position
+  	t = t + step;
+  	if (t >= 1) { return loop2(step, t); } 
+  	requestAnimationFrame(() => loop(initialPosition, goalPosition, step, t))
+}
 
+function loop2(step, t) {
+	t = t + step;
+	if (t >=1/coverRatio){
+		console.log("Tour fini"); incrementing = false; currentPawn++; 
+		if (currentPawn == numberOfPawns) currentPawn = 0; return;
+	}
+	requestAnimationFrame(() => loop2(step, t))
+}
 
 
 
@@ -347,7 +396,7 @@ function createCardboard(width, parentNode){
 }
 
 function createGround(parentNode){
-	let groundGeometry = new THREE.PlaneGeometry(1000,1000)
+	let groundGeometry = new THREE.PlaneGeometry(2000,2000)
 	let texture = new THREE.TextureLoader().load( 
 		'textures/herbe.jpg' );
 	texture.wrapS = THREE.RepeatWrapping;

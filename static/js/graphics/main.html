@@ -49,7 +49,7 @@
 					// The ratio of the view size (if we want to add a second view)
 					left: 0,
 					top: 0,
-					width: 1,
+					width: 0.5,
 					height: 1,
 					near:0.1,
 					far:10000,
@@ -63,11 +63,36 @@
 					
 					updateCamera: function ( camera, scene ) {
 						// Look the board's center once its created
-						if (scene.children[1]){
+						if (scene.children[2]){
 							camera.lookAt(scene.children[2].position)
 						}
 						else {
 							camera.lookAt(scene.position)
+						}
+					}
+				}
+
+			closeView =
+				{	
+					// The ratio of the view size (if we want to add a second view)
+					left: 0.5,
+					top: 0,
+					width: 0.5,
+					height: 1,
+					near:0.1,
+					far:1000,
+					background: new THREE.Color( 0, 0, 0 ),
+
+					// The camera's position
+					eye: [ 55, 55, 30 ],
+					// The up vector (defines the human perspective)
+					up: [ 0, 0, 1 ],
+					fov: 50,
+					
+					updateCamera: function ( camera, scene ) {
+						// Look the board's center once its created
+						if (currentPawn >= 0){
+							camera.lookAt(scene.children[3+currentPawn].position)
 						}
 					}
 				}
