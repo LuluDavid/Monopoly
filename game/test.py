@@ -1,11 +1,11 @@
-import main
+from game import main
 
 main.main()
 board = main.initGame()
 
 ##Test Class User
 
-from src.classes import User, Board, Street, Box, Game, Station, INITIAL_MONEY
+from game.src import User, Street, Box, Station, INITIAL_MONEY
 
 chloe = User("Chloé")
 chloe.position = 5
@@ -431,9 +431,9 @@ def test_actualizePositionAux():
     chloe = User("Chloé", 12)
     lucien = User("Lucien", 39)
     gildas=User("Gildas", 31)
-    main.actualizePositionAux(chloe, [2,1])
-    main.actualizePositionAux(lucien,[6,1])
-    main.actualizePositionAux(gildas, [4,5])
+    main.actualizePositionAux(chloe, [2, 1])
+    main.actualizePositionAux(lucien, [6, 1])
+    main.actualizePositionAux(gildas, [4, 5])
     if (chloe.getPosition() == 15 and lucien.getPosition() == 6 and gildas.getPosition() == 0):
         return True 
     else :

@@ -3,7 +3,7 @@
 
 import json
 import random
-from src.classes import User, Board, Street, Box, Game, Station
+from game.src import User, Board, Street, Box, Station
 
 def main():
     #for box in board.boxes:
