@@ -45,7 +45,8 @@
 			var windowWidth, windowHeight;
 
 			view =
-				{
+				{	
+					// The ratio of the view size (if we want to add a second view)
 					left: 0,
 					top: 0,
 					width: 1,
@@ -54,11 +55,14 @@
 					far:10000,
 					background: new THREE.Color( 0, 0, 0 ),
 
+					// The camera's position
 					eye: [ -100, -100, 100 ],
+					// The up vector (defines the human perspective)
 					up: [ 0, 0, 1 ],
 					fov: 30,
 					
 					updateCamera: function ( camera, scene ) {
+						// Look the board's center once its created
 						if (scene.children[1]){
 							camera.lookAt(scene.children[2].position)
 						}

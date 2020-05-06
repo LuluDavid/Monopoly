@@ -1,119 +1,95 @@
 // INIT FUNCTION
 
 function init() {
-	// parameters
+	/* 
+	 * Global parameters 
+	 */
+
+	// Cardboard
 	cardboardWidth = 110
+	// Pawns
+	numberOfPawns = 6
 	pawnHeight = 2
 	pawnRadius = 0.5
+	// Box
 	coverRatio = 0.7
-	epsilon = 1
-	currentPawn = 0
-
-	caseWidth = cardboardWidth/12.2
-	caseHeight = 1.6*caseWidth
-	numberOfPawns = 18
-	caseCenter = new THREE.Vector2(caseHeight/2,caseHeight/2)
-
+	boxWidth = cardboardWidth/12.2
+	boxHeight = 1.6*boxWidth
+	// Box positions
 	boxes = getBoxesPositions(cardboardWidth)
+	// Accuracy for pawn motion
+	epsilon = 1
+	// Whose turns it is
+	currentPawn = 0
+	// Pawn motion
+	tMotion = 0.5 // duration to go to next case (seconds)
+	// Pawn positions on boxes
+	boxes = getBoxesPositions(cardboardWidth);
+	// Pawn positions per box (where to put them to make them fit in)
+	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
 
-	// Build scene
+
+	/*
+	 * Build scene
+	 */
 	container = document.getElementById( 'container' );
-
 	view.camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, view.near, view.far );
 	view.camera.position.fromArray( view.eye );
 	view.camera.up.fromArray( view.up );
-
 	scene = new THREE.Scene();
+	// Orbit controls
 	controls = new THREE.OrbitControls( view.camera );
 
-	// renderer settings
+	/*
+	 * Renderer Settings
+	 */
 	renderer = new THREE.WebGLRenderer( { antialias: true} );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMapSoft = true;
 	renderer.shadowMapDebug = true;
-
 	container.appendChild( renderer.domElement );
 
-	// add a light
+	/*
+	 * Instantiate and add the objects
+	 */
+	// Add a light
 	addALight(scene);
-
-	// create ground
+	// Add a ground
 	ground = createGround(scene);
-	// create cardboard
+	// Add the cardboard
 	cardboard = createCardboard(cardboardWidth, scene);
 	cardboard.rotateZ(Math.PI/2);
 	cardboard.castShadow = true;
 	cardboard.receiveShadow = true;
-	// create one pawn
-	let pawns = createPawns(numberOfPawns, caseCenter, caseHeight, caseHeight);
+	// Create and add the pawns
+	let pawns = createPawns(numberOfPawns);
 	addPawns(pawns, scene);
+	// Set the positions of the pawns on the cardboard in positions (fast access to positions)
 	positions = initPositions();
 
+	/*
+	 * First test to move successfully pawns around the board
+	 * TODO: Use the multiple positions function used in createPawns if there are multiple pawns onto a box
+	 */
 	$(document).on('click',() => incrementPositions());
 
+	/*
+	 * Basic update functions : update OrbiteControls, update the camera
+	 */
 	controls.update();
 	animate();
 
 }
 
-// ANIMATE AND UPDATE FUNCTIONS
 
-function initPositions(){
-	var positions = {}
-	positions[0] = Array.from(Array(numberOfPawns).keys())
-	for (let i = 1; i<numberOfPawns; i++){
-		positions[i] = []
-	}
-	return positions
-}
 
-function emptyPositions(){
-	var positions = {}
-	for (let i = 0; i<40; i++){
-		positions[i] = []
-	}
-	return positions
-}
 
-function updatePositions(){
-	positions = emptyPositions();
-	for (let i = 0; i<numberOfPawns; i++){
-		let box = Object.assign(scene.children[3+i].currentCase);
-		positions[box].push(i);
-	}
-}
 
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * Math.floor(max-min+1))+min;
-}
-
-function randomDices(){
-	return getRandomInt(1,12); 
-}
-
-function incrementPositions(){
-
-	var dices = randomDices();
-
-	console.log("Vous obtenez un score de "+dices)
-
-	var pawn = Object.assign(scene.children[3+currentPawn])
-	var currentCase = Object.assign(pawn.currentCase)
-
-	currentCase += dices;
-	if (currentCase >= 40){
-		currentCase -= 40;
-	}
-
-	translateCase(currentPawn, currentCase);
-
-	currentPawn++;
-	if (currentPawn == numberOfPawns){
-		currentPawn = 0;
-	}
-}
+/*
+ * Loop functions
+ */
 
 function animate(){
 
@@ -121,48 +97,11 @@ function animate(){
 	requestAnimationFrame( animate );
 }
 
-function distance(v1, v2){
-	return v1.clone().distanceTo(v2.clone());
-}
-
-function translateCase(i, j){
-	let box = boxes[j]
-	dt = 1 // duration to go to next case
-	translate(i, new THREE.Vector3(box.x, box.y, pawnHeight/2 + 0.05), dt)
-	scene.children[3+i].currentCase = j;
-	updatePositions();
-}
-
-function translate(i, goalPosition, duration){
-	var fps = 60;           // seconds
-	var step = 1 / (duration * fps);  // t-step per frame
-	var t = 0;
-	object = scene.children[3+i];
-	console.log(object.position)
-
-	function translation(a, b, t) {return a + (b - a) * t}
-
-	function loop() {
-	  var newX = translation(object.position.x, goalPosition.x, ease(t));   // interpolate between a and b where
-	  var newY = translation(object.position.y, goalPosition.y, ease(t));   // t is first passed through a easing
-	  var newZ = translation(object.position.z, goalPosition.z, ease(t));   // function in this example.
-	  object.position.set(newX, newY, newZ);  // set new position
-	  t += step;
-	  if (t <= 0 || t >=1) { console.log("Tour fini"); return; }
-	  requestAnimationFrame(loop)
-	}
-
-	function ease(t) { return 4*(t-t*t)} // add inertia
-
-	loop();
-	renderer.render(scene, view.camera);
-}
-
+// Render the camera
 function render() {
 
 	updateSize();
 
-	// First view
 	view.updateCamera(view.camera,scene);
 
 	var left = Math.floor( windowWidth * view.left );
@@ -181,6 +120,7 @@ function render() {
 	renderer.render( scene, view.camera );
 }
 
+// Adapt to the screen size
 function updateSize() {
 
 	if ( windowWidth != window.innerWidth ) {
@@ -193,28 +133,114 @@ function updateSize() {
 }
 
 
-// FUNCTIONS TO BUILD OBJECTS
 
-function addPawns(pawns, parentNode){
-	for (let i = 0; i<pawns.length; i++){
-		pawns[i].currentCase = 0;
-		parentNode.add(pawns[i]);
+
+
+
+/*
+ * Loop Utils
+ */
+
+// Empty constructor for the positions dictionary
+function emptyPositions(){
+	var positions = {}
+	for (let i = 0; i<40; i++){
+		positions[i] = []
+	}
+	return positions
+}
+
+// Use the currentBox param stored in every pawn to fill the positions dictionary
+function updatePositions(){
+	positions = emptyPositions();
+	for (let i = 0; i<numberOfPawns; i++){
+		let box = Object.assign(scene.children[3+i].currentBox);
+		positions[box].push(i);
 	}
 }
 
-function createPawns(number, caseCenter, width, height){
-	var positions = getPawnPositions(number, caseCenter, width, height);
-	let pawns = []
-	for (var i = 0; i<number; i++){
-		var pawn = createPawn(positions[i]);
-		pawn.castShadow = true;
-		pawn.receiveShadow = true;
-		pawns[i] = pawn;
-	}
-	return pawns;
+// Random int in [min,max]
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * Math.floor(max-min+1))+min;
 }
 
-function getPawnPositions(number, caseCenter, width, height){
+// Random int in [1,12]
+function randomDices(){
+	return getRandomInt(1,12); 
+}
+
+// Main function to update next pawn's position (throw of dice, move the pawn)
+function incrementPositions(){
+	var dices = randomDices();
+	console.log("Vous obtenez un score de "+dices)
+	// Copies
+	var pawn = Object.assign(scene.children[3+currentPawn])
+	var currentBox = Object.assign(pawn.currentBox)
+	// Update the box where the pawn is (modulo 40) 
+	currentBox += dices;
+	if (currentBox >= 40){
+		currentBox -= 40;
+	}
+	// Translate the pawn to this box
+	translatePawnToBox(currentPawn, currentBox);
+	// Pass to next pawn for next call (modulo 10)
+	currentPawn++;
+	if (currentPawn == numberOfPawns){
+		currentPawn = 0;
+	}
+}
+
+// Distance between two points
+function distance(v1, v2){
+	return v1.clone().distanceTo(v2.clone());
+}
+
+// Translate pawn n°i to box n°j
+function translatePawnToBox(i, j){
+	let boxCardinal = Object.keys(positions[j]).length
+	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal]
+	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + 0.05))
+	scene.children[3+i].currentBox = j;
+	updatePositions()
+}
+
+// Parabole to describe the motion inertia
+function ease(t) { return 4*(t-t*t)}
+
+// Translation from a to b's parametric equation
+function translation(a, b, t) {return a + (b - a) * t}
+
+// Translate pawn n°i to goalPosition
+function translate(i, goalPosition){
+	var fps = 60;           // seconds
+	var step = 1 / (tMotion * fps);  // t-step per frame
+	var t = 0;
+	object = scene.children[3+i];
+	function loop() {
+	  var newX = translation(object.position.x, goalPosition.x, ease(t));   // interpolate between a and b where
+	  var newY = translation(object.position.y, goalPosition.y, ease(t));   // t is first passed through a easing
+	  var newZ = translation(object.position.z, goalPosition.z, ease(t));   // function in this example.
+	  object.position.set(newX, newY, newZ);  // set new position
+	  t += step;
+	  if (t <= 0 || t >=1) { console.log("Tour fini"); return; }
+	  requestAnimationFrame(loop)
+	}
+	loop();
+	renderer.render(scene, view.camera);
+}
+
+
+
+
+
+/*
+ * Get positions adapted to share a box for number pawns on box n°i
+ */
+
+
+
+// TODO: externalize the common part (the first lines) for the three different cases (corner, width, height)
+function getPawnPositions(i){
 	/*
 	_____________________________
 	|		 					|
@@ -229,35 +255,75 @@ function getPawnPositions(number, caseCenter, width, height){
 	|___________________________|
 
 	*/
+	// Get the box parameters
+	let box = boxes[i]
+	let width = boxWidth;
+	let height = boxWidth;
+	if (box.isW) width = boxHeight;
+	if (box.isH) height = boxHeight;
+
+	// Just take the ratio-ed width and height to spread the pawns
 	widthRatio = coverRatio*width
 	heightRatio = coverRatio*height
-	let nbLines = Math.ceil(Math.sqrt(number));
-	let nbPawnsPerLine = number/nbLines;
+
+	// Count the number of lines necessary to spread them equally across the square
+	let nbLines = Math.ceil(Math.sqrt(numberOfPawns));
+	let nbPawnsPerLine = numberOfPawns/nbLines;
 	let nbPawnsLastLine;
+	// If the number of pawns is square, same number of pawns on each line
 	if (nbPawnsPerLine == Math.ceil(nbPawnsPerLine)){
 		nbPawnsLastLine = nbPawnsPerLine;
 	}
+	// else, the last line will have less pawns
 	else {
 		nbPawnsPerLine = Math.ceil(nbPawnsPerLine)
-		nbPawnsLastLine = number - (nbLines-1)*nbPawnsPerLine
+		nbPawnsLastLine = numberOfPawns - (nbLines-1)*nbPawnsPerLine
 	}
-	let initialX = caseCenter.x-heightRatio/2
-	let initialY = caseCenter.y-widthRatio/2
-
-	let stepX = widthRatio/nbPawnsPerLine
-	let stepY = heightRatio/nbPawnsPerLine
+	// Where to begin on the X axis
+	let initialX = box.x-heightRatio/2
+	let initialY = box.y-widthRatio/2
+	// The step between each piece is the remaining width divided by the number of pawns on the line
+	let stepX = heightRatio/nbPawnsPerLine
+	let stepY = widthRatio/nbPawnsPerLine
 	var positions = []
+	// All but last line
 	for (let j=0; j<nbLines-1; j++){
 		for (let k=0; k<nbPawnsPerLine; k++){
 			positions.push(new THREE.Vector2(initialX + stepX*j,initialY + stepY*k))
 		}
 	}
-
-	let stepY2 = height/nbPawnsLastLine
+	// Last line (potentially less pawns)
+	let stepY2 = width/nbPawnsLastLine
 	for (let k=0; k<nbPawnsLastLine; k++){
 		positions.push(new THREE.Vector2(initialX + stepX*(nbLines-1),initialY + stepY2*k))
 	}
 	return positions
+}
+
+
+
+
+/* 
+ * Functions used only to initialize objects
+ */
+
+function addPawns(pawns, parentNode){
+	for (let i = 0; i<pawns.length; i++){
+		pawns[i].currentBox = 0;
+		parentNode.add(pawns[i]);
+	}
+}
+
+function createPawns(number, i = 0){
+	var positions = pawnsPositionsPerBox[i];
+	let pawns = [];
+	for (var i = 0; i<number; i++){
+		var pawn = createPawn(positions[i]);
+		pawn.castShadow = true;
+		pawn.receiveShadow = true;
+		pawns[i] = pawn;
+	}
+	return pawns;
 }
 
 function createPawn(position){
@@ -310,7 +376,15 @@ function addALight(parentNode){
 	light.shadow.camera.top = 50;
 	light.shadow.camera.bottom = -50;
 	parentNode.add(light);
+}
 
+function initPositions(){
+	var positions = {}
+	positions[0] = Array.from(Array(numberOfPawns).keys())
+	for (let i = 1; i<40; i++){
+		positions[i] = []
+	}
+	return positions
 }
 
 function getRandomColor() {
@@ -321,6 +395,7 @@ function getRandomColor() {
 	let res = new THREE.Color(color_string);
 	return res;
 	}
+
 
 function getBoxesPositions(L) {
     var l = L / 12.2
@@ -385,6 +460,13 @@ function getBoxesPositions(L) {
   return positions;
 }
 
+function getPawnsPositionsBoxes(L) {
+	var pawnsPositionsPerBox = {}
+	for (let i = 0; i<40; i++){
+		pawnsPositionsPerBox[i] = getPawnPositions(i);
+	}
+	return pawnsPositionsPerBox;
+}
 
 
 
