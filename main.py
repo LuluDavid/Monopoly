@@ -8,12 +8,12 @@ from src.classes import User, Board, Street, Box, Game, Station
 def main():
     #for box in board.boxes:
         #print("{} - TYPE : {} \t\t NAME : {}".format(box.index, box.box_type, box.name))
-    listOfPlayers = initPlayers()    
+    """listOfPlayers = initPlayers()    
     numberOfPlayers = len(listOfPlayers)
     order = orderOfPlayers(listOfPlayers)
     while len(order)>=2:
         order = turn(order)
-    print(""+order[0].name+"!! TU AS GAGNE !!!!!!")
+    print(""+order[0].name+"!! TU AS GAGNE !!!!!!")"""
     
     
     
@@ -95,6 +95,12 @@ def launchDices():
     
     
 def actualizePosition(player):
+    dices = launchDices()
+    actualizePositionAux(player, dices)
+    
+    
+    
+def actualizePositionAux(player, dices):
     
     """
     Find the new position of the player after rolling dices
@@ -103,7 +109,6 @@ def actualizePosition(player):
     
     oldPosition = player.getPosition()
     prison = player.getInPrison()
-    dices = launchDices()
     totalDices = dices[0]+dices[1]
     prisonTurn = player.getPrisonTurn()
     if (prison == False):
@@ -129,8 +134,10 @@ def playerHasAllColorStreets(player, positionOfStreet):
         count = 0
         n=len(player.getGoods())
         for i in range(n):
-            if (player.getGoods()[i].getColor() == streetColor):
-                count = count +1 
+            case_type = player.getGoods()[i].getType()
+            if (case_type == "street"):
+                if (player.getGoods()[i].getColor() == streetColor):
+                    count = count +1 
         if (count == 2):
             return True
         else: 
@@ -139,8 +146,10 @@ def playerHasAllColorStreets(player, positionOfStreet):
         count = 0
         n=len(player.getGoods())
         for i in range(n):
-            if (player.getGoods()[i].color == streetColor):
-                count = count +1 
+            case_type = player.getGoods()[i].getType()
+            if (case_type == "street"):
+                if (player.getGoods()[i].getColor() == streetColor):
+                    count = count +1 
         if (count == 3):
             return True
         else:
@@ -166,7 +175,7 @@ def putHomes(player): #TODO : verify that owner has enough money to pay for hous
                 nbOfHouses = input("Combien de maison souhaitez-vous construire ?")
                 while (int(nbOfHouses) > houseAvailable):
                     nbOfHouses = input("Vous pouvez construire maximum "+str(houseAvailable)+" maisons, combien souhaitez-vous en construire ?")
-                board.getBox(position).setHomes(board.getBox(position).getHome() + int(nbOfHouses))
+                board.getBox(position).addHomes(int(nbOfHouses))
                 player.LooseMoney(priceOfHome*int(nbOfHouses))
                 input("Vous avez construit" +str(nbOfHouses) + " maisons. Il vous reste " + str(player.money) + "€")
             else:
@@ -308,7 +317,7 @@ def getRentStation(player):
                 
                 
         
-def onAStreet(player):
+def onAStreetOrStation(player):
     
     """
     The player is on a street, there is different cases 
@@ -322,18 +331,22 @@ def onAStreet(player):
     
     case 4 : the street belongs to someone, we use 'getRentStreet' to know what is the rent to pay
     
+    #check : if type = street price is a list, if type = station it is not. We factorize
+    
     """
     
     pos = player.getPosition()
     case=board.getBox(pos)
-    price = case.getPrice()[0]
+    case_type = case.getType()
+    price = case.getPrice() 
+    price = price[0] if case_type == "street" else price       #check
     if (case.owner == None  and player.money>=price):
         choice = input("Cette propriété est libre, son prix est de "+str(price)+" euros. Voulez-vous l'acheter ? (Il vous reste "+str(player.money)+ " euros)")
         if (choice.lower() == "oui".lower()):
-            player.buyAStreet(case)
-            input("Vous venez d'acheter la propriété "+ str(case.name) +". Il vous reste "+str(player.getMoney())+ " euros.")
-            putHomes(player)    #after buying a land, putHomes verifies that the owner has all properties and if
-                                #yes can offer to construct houses 
+            player.buyAStreet(case) if case_type == "street" else player.buyAStation(case)   #check
+            input("Vous venez d'acheter la propriété "+ str(case.getBoxName()) +". Il vous reste "+str(player.getMoney())+ " euros.")
+            if case_type == "street":
+                player.buyAStreet(case)
         else : 
             input("Vous avez décidé de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
     else : 
@@ -343,9 +356,13 @@ def onAStreet(player):
             ownerName = case.getOwner().getUserName()
             if (case.getOwner() == player):
                 input("Cette propriété vous appartient")
-                putHomes(player)
+                if (case_type == "street"):
+                    putHomes(player)
             else:
-                rent = getRentStreet(player)
+                if (case_type == "street"):
+                    rent = getRentStreet(player)
+                elif (case_type == "station"):
+                    rent = getRentStation(player)
                 print("Cette propriété appartient à "+ownerName+", vous lui devez "+str(rent)+" euros.")
                 player.LooseMoney(rent)
                 print("Il vous reste "+str(player.money)+" euros.")
@@ -353,42 +370,43 @@ def onAStreet(player):
                 input(""+ownerName+" gagne "+str(rent)+" euros, il lui reste "+str(case.owner.money)+" euros.")
                     
                 
-def onAStation(player):
-    
-    """
-    The player is on a station, like for a street, there is different cases
-    
-    case 1 : no owner and enough money to buy
-    case 2 : no owner but no money to buy it
-    case 3 : owner = player --> nothing to do
-    case 4 : owner = other player, rent with 'getRentStation'
-    """
-    
-    
-    pos = player.getPosition()
-    case=board.getBox(pos)
-    price = case.getPrice()
-    if (case.getOwner() == None):
-        if (player.getMoney() >= price):
-            choice = input("Cette gare est libre, son prix est de "+str(price)+" euros. Voulez-vous l'acheter ? (Il vous reste "+str(player.money)+ " euros)")
-            if (choice.lower() == "oui".lower()):
-                player.buyAStation(case)
-                input("Vous venez d'acheter la propriété "+ str(case.name) +". Il vous reste "+str(player.money)+ "€.")
-            else : 
-                input("Vous avez décidé de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
-        else :
-            input("Cette propriété est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
-    else:
-        owner = case.getOwner()
-        if (owner == player):
-            input("Cette gare vous appartient")
-        else : 
-            rent = getRentStation(player)
-            print("Cette propriété appartient à "+owner.getUserName()+", vous lui devez "+str(rent)+" euros.")
-            player.LooseMoney(rent)
-            print("Il vous reste "+str(player.getMoney())+" euros.")
-            owner.EarnMoney(rent)
-            input(""+owner.getUserName()+" gagne "+str(rent)+" euros, il lui reste "+str(owner.getMoney())+" euros.")
+# def onAStation(player):
+#     
+#     """
+#     The player is on a station, like for a street, there is different cases
+#     
+#     case 1 : no owner and enough money to buy
+#     case 2 : no owner but no money to buy it
+#     case 3 : owner = player --> nothing to do
+#     case 4 : owner = other player, rent with 'getRentStation'
+#     """
+#     
+#     
+#     pos = player.getPosition()
+#     case=board.getBox(pos)
+#     price = case.getPrice()
+#     if (case.getOwner() == None):
+#         if (player.getMoney() >= price):
+#             choice = input("Cette gare est libre, son prix est de "+str(price)+" euros. Voulez-vous l'acheter ? (Il vous reste "+str(player.money)+ " euros)")
+#             if (choice.lower() == "oui".lower()):
+#                 
+#                 player.buyAStation(case)
+#                 input("Vous venez d'acheter la propriété "+ str(case.name) +". Il vous reste "+str(player.money)+ "€.")
+#             else : 
+#                 input("Vous avez décidé de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
+#         else :
+#             input("Cette propriété est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
+#     else:
+#         owner = case.getOwner()
+#         if (owner == player):
+#             input("Cette gare vous appartient")
+#         else : 
+#             rent = getRentStation(player)
+#             print("Cette propriété appartient à "+owner.getUserName()+", vous lui devez "+str(rent)+" euros.")
+#             player.LooseMoney(rent)
+#             print("Il vous reste "+str(player.getMoney())+" euros.")
+#             owner.EarnMoney(rent)
+#             input(""+owner.getUserName()+" gagne "+str(rent)+" euros, il lui reste "+str(owner.getMoney())+" euros.")
             
             
 
@@ -414,16 +432,13 @@ def turn(order):
         playerStreetPosition = board.getBox(pos).getBoxName()
         input("Tu es sur la case : " + playerStreetPosition)
         case=board.getBox(pos)
-        if (case.getType() == "street"):
-            onAStreet(player)
+        if (case.getType() == "station" or case.getType()=="street"):
+            onAStreetOrStation(player)
         else:
-            if (case.getType() == "station"):
-                onAStation(player)
-            else:
-                if (case.getType() == "to-jail"):
-                    goToJail(player)
-                else:   
-                    input("ce n'est pas une rue, pour l'instant vous ne pouvez pas l'acheter.") 
+            if (case.getType() == "to-jail"):
+                goToJail(player)
+            else:   
+                input("ce n'est pas une rue, pour l'instant vous ne pouvez pas l'acheter.") 
         loosers = []
         if (player.getMoney() <0):
             input(""+ player.getUserName()+ ", tu as perdu! Tu n'as plus d'argent.")

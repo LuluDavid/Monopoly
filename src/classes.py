@@ -6,7 +6,7 @@ NB_CASES = 40
 
 class User:
     """A simple class to describe the lambda monopoly player"""
-    def __init__(self, name, money=INITIAL_MONEY, position=0, goods=None, inPrison = False, prisonTurn = None):
+    def __init__(self, name, position=0, goods=None, inPrison = False, prisonTurn = None, money=INITIAL_MONEY):
         self.name = name
         self.money = money
         self.position = position
@@ -104,7 +104,6 @@ class Street(Box):
     def getOwner(self):
         return self.owner
         
-        
     def getPrice(self):
         return self.price
         
@@ -117,7 +116,7 @@ class Street(Box):
     def getHome(self):
         return self.home
         
-    def setHomes(self, number):
+    def addHomes(self, number):
         self.home = self.home + number
         
     
@@ -139,11 +138,7 @@ class Station(Box):
         return self.price
         
 
-    def getRent(self):
-        return self.rent
         
-
-    
     
 
 
