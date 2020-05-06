@@ -7,6 +7,8 @@ function init() {
 
 	// Cardboard
 	cardboardWidth = 110
+	// Number of boxes
+	numberOfBoxes = 40
 	// Pawns
 	numberOfPawns = 6
 	pawnHeight = 2
@@ -23,13 +25,16 @@ function init() {
 	// Whose turns it is
 	currentPawn = 0
 	// Pawn motion
-	tMotion = 2 // duration to go to next case (seconds)
+	tMotion = 5 // duration to go to next case (seconds)
 	// Pawn positions on boxes
 	boxes = getBoxesPositions(cardboardWidth);
 	// Pawn positions per box (where to put them to make them fit in)
 	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
 	// Incrementing boolean to avoid multi-calls
 	incrementing = false;
+	// CloseView activation boolean
+	closeViewDisplay = false
+	closeViewRatio = 0.3
 
 
 	/*
@@ -84,7 +89,6 @@ function init() {
 
 	/*
 	 * First test to move successfully pawns around the board
-	 * TODO: Use the multiple positions function used in createPawns if there are multiple pawns onto a box
 	 */
 	$(document).on('click',() => incrementPositionsAux());
 
@@ -115,13 +119,21 @@ function render() {
 
 	updateSize();
 
+	if (!closeViewDisplay) updateView();
+	else {
+		updateView();
+		updateCloseView()
+	}
+}
+
+function updateView(vleft = 0, vtop = 0, vwidth = 1, vheight = 1){
 	// First view
 	view.updateCamera(view.camera,scene);
 
-	var left = Math.floor( windowWidth * view.left );
-	var top = Math.floor( windowHeight * view.top );
-	var width = Math.floor( windowWidth * view.width );
-	var height = Math.floor( windowHeight * view.height );
+	var left = Math.floor( windowWidth * vleft );
+	var top = Math.floor( windowHeight * vtop );
+	var width = Math.floor( windowWidth * vwidth );
+	var height = Math.floor( windowHeight * vheight );
 
 	renderer.setViewport( left, top, width, height );
 	renderer.setScissor( left, top, width, height );
@@ -132,14 +144,16 @@ function render() {
 	view.camera.updateProjectionMatrix();
 	
 	renderer.render( scene, view.camera );
+}
 
+function updateCloseView(vleft = 1-closeViewRatio, vtop = 1-closeViewRatio, vwidth = closeViewRatio, vheight = closeViewRatio){
 	// Second view
 	closeView.updateCamera(closeView.camera,scene);
 
-	var leftcloseView = Math.floor( windowWidth * closeView.left );
-	var topcloseView = Math.floor( windowHeight * closeView.top );
-	var widthcloseView = Math.floor( windowWidth * closeView.width );
-	var heightcloseView = Math.floor( windowHeight * closeView.height );
+	var leftcloseView = Math.floor( windowWidth * vleft );
+	var topcloseView = Math.floor( windowHeight * vtop );
+	var widthcloseView = Math.floor( windowWidth * vwidth );
+	var heightcloseView = Math.floor( windowHeight * vheight );
 
 	renderer.setViewport( leftcloseView, topcloseView, widthcloseView, heightcloseView );
 	renderer.setScissor( leftcloseView, topcloseView, widthcloseView, heightcloseView );
@@ -176,7 +190,7 @@ function updateSize() {
 // Empty constructor for the positions dictionary
 function emptyPositions(){
 	var positions = {}
-	for (let i = 0; i<40; i++){
+	for (let i = 0; i<numberOfBoxes; i++){
 		positions[i] = []
 	}
 	return positions
@@ -222,8 +236,8 @@ function incrementPositions(){
 	var currentBox = Object.assign(pawn.currentBox)
 	// Update the box where the pawn is (modulo numberOfBoxes) 
 	currentBox += dices;
-	if (currentBox >= 40){
-		currentBox -= 40;
+	if (currentBox >= numberOfBoxes){
+		currentBox -= numberOfBoxes;
 	}
 	// Translate the pawn to this box
 	translatePawnToBox(currentPawn, currentBox);
@@ -238,7 +252,8 @@ function distance(v1, v2){
 function translatePawnToBox(i, j){
 	let boxCardinal = Object.keys(positions[j]).length
 	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal]
-	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + 0.05))
+	let deltaT = tMotion*Math.sqrt(j/numberOfBoxes)
+	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + 0.05), deltaT)
 	scene.children[3+i].currentBox = j;
 	updatePositions()
 }
@@ -250,14 +265,15 @@ function ease(t) { return -t*t+2*t}
 function translation(a, b, t) { return a+(b - a)*t }
 
 // Translate pawn n°i to goalPosition
-function translate(i, goalPosition){
+function translate(i, goalPosition, deltaT){
+	closeViewDisplay = true;
+	render();
 	var fps = 60;           // seconds
-	var step = 1 / (tMotion * fps);  // t-step per frame
+	var step = 1 / (deltaT * fps);  // t-step per frame
 	var t = 0;
 	object = scene.children[3+i];
 	var initialPosition = object.position.clone()
 	loop(initialPosition, goalPosition, step, t)
-	renderer.render(scene, view.camera);
 }
 
 // Loop function
@@ -274,7 +290,10 @@ function loop(initialPosition, goalPosition, step, t) {
 function loop2(step, t) {
 	t = t + step;
 	if (t >=1/coverRatio){
-		console.log("Tour fini"); incrementing = false; currentPawn++; 
+		console.log("Tour fini"); 
+		incrementing = false; 
+		closeViewDisplay = false;
+		currentPawn++; 
 		if (currentPawn == numberOfPawns) currentPawn = 0; return;
 	}
 	requestAnimationFrame(() => loop2(step, t))
@@ -430,7 +449,7 @@ function addALight(parentNode){
 function initPositions(){
 	var positions = {}
 	positions[0] = Array.from(Array(numberOfPawns).keys())
-	for (let i = 1; i<40; i++){
+	for (let i = 1; i<numberOfBoxes; i++){
 		positions[i] = []
 	}
 	return positions
@@ -511,7 +530,7 @@ function getBoxesPositions(L) {
 
 function getPawnsPositionsBoxes(L) {
 	var pawnsPositionsPerBox = {}
-	for (let i = 0; i<40; i++){
+	for (let i = 0; i<numberOfBoxes; i++){
 		pawnsPositionsPerBox[i] = getPawnPositions(i);
 	}
 	return pawnsPositionsPerBox;
