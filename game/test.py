@@ -1,13 +1,13 @@
-from game import main
+import main
 
 main.main()
 board = main.initGame()
 
 ##Test Class User
 
-from game.src import User, Street, Box, Station, INITIAL_MONEY
+from src.classes import User, Street, Box, Station, INITIAL_MONEY
 
-chloe = User("Chloé")
+chloe = User("Chloe")
 chloe.position = 5
 gildas = User("Gildas")
 gildas.position = 39
@@ -15,19 +15,19 @@ lucien = User("Lucien")
 
 
 def test_getUserName():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     test1 = chloe.getUserName()
     test2 = gildas.getUserName()
     test3 = lucien.getUserName()
-    if (test1 == "Chloé" and test2 == "Gildas" and test3 == "Lucien"):
+    if (test1 == "Chloe" and test2 == "Gildas" and test3 == "Lucien"):
         return True
     else : 
         return False
         
 def test_getMoney():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     chloe.money = 0
     gildas = User("Gildas")
     gildas.money = 10000
@@ -42,7 +42,7 @@ def test_getMoney():
         
         
 def test_getPosition():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     chloe.position = 5
     gildas = User("Gildas")
     gildas.position = 39
@@ -57,7 +57,7 @@ def test_getPosition():
         
         
 def test_getGoods():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.goods.append(board.boxes[3])
@@ -78,7 +78,7 @@ def test_getGoods():
         
         
 def test_getInPrison():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     chloe.inPrison = True
     if (chloe.getInPrison() == True and gildas.getInPrison() == False):
@@ -89,7 +89,7 @@ def test_getInPrison():
     
         
 def test_getPrisonTurn():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.prisonTurn = 3
@@ -101,7 +101,7 @@ def test_getPrisonTurn():
         
         
 def test_setPrisonTurn():        #depends on getPrisonTurn
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.setPrisonTurn(2)
@@ -114,7 +114,7 @@ def test_setPrisonTurn():        #depends on getPrisonTurn
         
         
 def test_setInPrison():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.setInPrison(True)
@@ -127,7 +127,7 @@ def test_setInPrison():
         
 
 def test_setPosition():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.setPosition(24)
@@ -138,7 +138,7 @@ def test_setPosition():
         return False
     
 def test_EarnMoney():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.EarnMoney(50)
@@ -150,7 +150,7 @@ def test_EarnMoney():
         
         
 def test_LooseMoney():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.LooseMoney(50)
@@ -162,7 +162,7 @@ def test_LooseMoney():
         
         
 def test_buyAStreet():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.buyAStreet(board.boxes[39])
@@ -182,7 +182,7 @@ def test_buyAStreet():
         
         
 def test_buyAStation():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
     chloe.buyAStation(board.boxes[5])
@@ -269,7 +269,7 @@ def test_classBox():
 
 
 def test_getOwner():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     street1 = Street(12, "street", "test", 25, 22, "yellow")
     street2 = Street(15, "street", "gravelines", 250,85, "red")
@@ -322,7 +322,7 @@ def test_getRent():
         
 
 def test_getHome():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     street1 = Street(12, "street", "test", 25, 22, "yellow")
     street2 = Street(15, "street", "gravelines", 250,None, "red", chloe, chloe, 3)
     test1 = street1.getHome()
@@ -334,7 +334,7 @@ def test_getHome():
         
         
 def test_addHomes():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     street1 = Street(12, "street", "test", 25, 22, "yellow")
     street2 = Street(15, "street", "gravelines", 250,None, "red", chloe, chloe, 3)
     street3 = Street(17, "street", "dunkerque", 326,58, "red", chloe, chloe, 8)
@@ -368,7 +368,7 @@ def test_classStreet():
 
 
 def test_getOwnerStation():
-    chloe = User("Chloé")
+    chloe = User("Chloe")
     gildas = User("Gildas")
     station1 = Station(15, "station", "montparnasse", 200) 
     station2 = Station(25, "station", "gravelines", 250, chloe, gildas)
@@ -427,19 +427,74 @@ def test_classBoard():
 ## Main Functions
 
 
-def test_actualizePositionAux():
-    chloe = User("Chloé", 12)
-    lucien = User("Lucien", 39)
-    gildas=User("Gildas", 31)
-    main.actualizePositionAux(chloe, [2, 1])
-    main.actualizePositionAux(lucien, [6, 1])
-    main.actualizePositionAux(gildas, [4, 5])
-    if (chloe.getPosition() == 15 and lucien.getPosition() == 6 and gildas.getPosition() == 0):
-        return True 
-    else :
-        return False
-    
-    
+# def test_actualizePositionAux():      #TODO la partie qui va en prison 
+#     chloe = User("Chloe", 12)
+#     lucien = User("Lucien", 39)
+#     gildas=User("Gildas", 31)
+#     main.actualizePositionAux(chloe, [2, 1])
+#     main.actualizePositionAux(lucien, [6, 1])
+#     main.actualizePositionAux(gildas, [4, 5])
+#     if (chloe.getPosition() == 15 and lucien.getPosition() == 6 and gildas.getPosition() == 0):
+#         return True 
+#     else :
+#         return False
+#         
+#         
+# def test_playerHasAllColorsStreets():
+#     chloe = User("Chloe")
+#     lucien = User("Lucien")
+#     board = main.initGame()
+#     chloe.buyAStreet(board.getBox(37))
+#     chloe.buyAStreet(board.getBox(39))
+#     lucien.buyAStreet(board.getBox(34))
+#     lucien.buyAStreet(board.getBox(32))
+#     lucien.buyAStreet(board.getBox(31))
+#     lucien.buyAStreet(board.getBox(29))
+#     test1 = main.playerHasAllColorStreets(chloe, 37)
+#     test2 = main.playerHasAllColorStreets(chloe, 34)
+#     test3 = main.playerHasAllColorStreets(lucien, 34)
+#     test4 = main.playerHasAllColorStreets(lucien, 29)
+#     if (test1 == True and test2 == False and test3 == True and test4 == False):
+#         return True
+#     else :
+#         return False 
+#     
+# #TODO tester la fonction putHomes
+# 
+# def test_goToJail():
+#     chloe = User("Chloe")
+#     chloe.setPosition(25)
+#     main.goToJail(chloe)
+#     if (chloe.getPosition() == 10 and chloe.getInPrison() == True and chloe.getPrisonTurn() == 0):
+#         return True
+#     else:
+#         return False
+#     
+# 
+# def test_jail_chooseToPay():
+#     chloe = User("Chloe")
+#     main.goToJail(chloe)
+#     main.jail_chooseToPay(chloe)
+#     if (chloe.getPosition() > 10 and chloe.getMoney() == INITIAL_MONEY - 50 and chloe.getInPrison() == False and chloe.getPrisonTurn() == None):
+#         return True 
+#     else : 
+#         return False
+#     
+#     
+# def test_mainFunction():
+#     print(str(test_actualizePositionAux())+", test actualizePositionAux")
+#     print(str(test_playerHasAllColorsStreets()) + ", test playerHasAllColorsStreet")
+#     print(str(test_goToJail()) + ", test goToJail")
+#     print(str(test_jail_chooseToPay())+", test jail_chooseToPay")
+#     L=[test_actualizePositionAux(), test_playerHasAllColorsStreets(), test_goToJail(), test_jail_chooseToPay()]
+#     n=len(L)
+#     count = 0
+#     for i in range(n):
+#         if L[i] == True:
+#             count = count + 1
+#     return "Les fonctions du mains passent les tests a "+ str(count)+"/"+str(n)+""
+#     
+#     
 
 
 ##Bilan

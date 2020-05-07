@@ -3,7 +3,7 @@
 
 import json
 import random
-from game.src import User, Board, Street, Box, Station
+from src.classes import User, Board, Street, Box, Station
 
 def main():
     #for box in board.boxes:
@@ -78,7 +78,7 @@ def orderOfPlayers(L):
     
     """After initPlayers(), we choose randomly what is the order of play"""
     
-    input("Bienvenue à tous dans cette super partie de Monopoly, nous avons tout d'abord tirer au sort l'ordre de jeu des différents joueurs")
+    input("Bienvenue a tous dans cette super partie de Monopoly, nous avons tout d'abord tirer au sort l'ordre de jeu des differents joueurs")
     random.shuffle(L)
     n=len(L)
     for i in range(n):
@@ -126,8 +126,8 @@ def playerHasAllColorStreets(player, positionOfStreet):
     
     """
     Check if a player has all the streets of the same color that the box on 'positionOfStreet'
-    Example :chloe = User("Chloé"), position=39, 
-    return True if chloe has box 39 (Rue de la paix) and 37 (champs elysées) which are dark-blue
+    Example :chloe = User("Chloe"), position=39, 
+    return True if chloe has box 39 (Rue de la paix) and 37 (champs elysees) which are dark-blue
     """
     streetColor = board.getBox(positionOfStreet).getColor()
     if (streetColor == "pink" or streetColor=="dark-blue"):
@@ -170,17 +170,17 @@ def putHomes(player): #TODO : verify that owner has enough money to pay for hous
     houseAvailable = 5-numberOfHomes
     if (playerHasAllColorStreets(player, player.position) == True):
         if (houseAvailable != 0):
-            choice = input("Vous pouvez placer "+str(houseAvailable)+" maison(s) sur cette propriété, une maison coûte "+ str(priceOfHome)+"€. Souhaitez-vous construire ?")
+            choice = input("Vous pouvez placer "+str(houseAvailable)+" maison(s) sur cette propriete, une maison coute "+ str(priceOfHome)+"euros. Souhaitez-vous construire ?")
             if(choice.lower() == "oui".lower()):
                 nbOfHouses = input("Combien de maison souhaitez-vous construire ?")
                 while (int(nbOfHouses) > houseAvailable):
                     nbOfHouses = input("Vous pouvez construire maximum "+str(houseAvailable)+" maisons, combien souhaitez-vous en construire ?")
                 board.getBox(position).addHomes(int(nbOfHouses))
                 player.LooseMoney(priceOfHome*int(nbOfHouses))
-                input("Vous avez construit" +str(nbOfHouses) + " maisons. Il vous reste " + str(player.money) + "€")
+                input("Vous avez construit" +str(nbOfHouses) + " maisons. Il vous reste " + str(player.money) + "euros")
             else:
                 input("Vous avez choisi de ne pas construire de maison")
-            
+
                 
     
     
@@ -193,7 +193,7 @@ def goToJail(player):
     
     """The player went on the box 'go to jail', he is sent to jail which is in position 10"""
     
-    input("Vous allez directement en prison sans passer par la case départ")
+    input("Vous allez directement en prison sans passer par la case depart")
     player.setPosition(10)
     player.setInPrison(True)
     player.setPrisonTurn(0)
@@ -202,13 +202,13 @@ def goToJail(player):
     
 def jail_chooseToPay(player):
     
-    """The player who is in jail chose to get out by paying 50€"""
+    """The player who is in jail chose to get out by paying 50euros"""
     
-    print("Vous avez décidé de payer 50€, vous n'êtes plus en prison")
+    print("Vous avez decide de payer 50euros, vous n'etes plus en prison")
     player.LooseMoney(50)
     player.setInPrison(False)
     player.setPrisonTurn(None)
-    input("il vous reste "+str(player.getMoney())+"€")
+    input("il vous reste "+str(player.getMoney())+"euros")
     actualizePosition(player)
     
             
@@ -219,7 +219,7 @@ def jail_chooseDouble(player):
     
     dices=launchDices()
     if (dices[0] == dices[1]):
-        input("Bravo, vous avez fait un double "+str(dices[0])+". Vous êtes sortis de prison et avancez de "+str(2*dices[0])+"")
+        input("Bravo, vous avez fait un double "+str(dices[0])+". Vous etes sortis de prison et avancez de "+str(2*dices[0])+"")
         player.setPosition(10+2*dices[0])
         player.setInPrison(False)
         player.setPrisonTurn(None)
@@ -239,19 +239,19 @@ def isInJail(player):
     turnInPrison = player.getPrisonTurn()    #how many turns since player is in jail ? 
     if (turnInPrison < 3 ):
         if (player.getMoney()>=50):
-            choice = input(""+player.getUserName()+", vous avez 2 options, la première est de payer 50€ pour sortir de prison. La deuxième est d'essayer de faire des doubles, vous sortirez automatiquement au bout de 3 tours. Rq : vous pouvez payer 50 euros à chaque tour. Choisissez 1 ou 2")
+            choice = input(""+player.getUserName()+", vous avez 2 options, la premiere est de payer 50euros pour sortir de prison. La deuxieme est d'essayer de faire des doubles, vous sortirez automatiquement au bout de 3 tours. Rq : vous pouvez payer 50 euros a chaque tour. Choisissez 1 ou 2")
             while (choice != "1" and choice !="2"):
-                choice = input("Vous devez choisir 1 ou 2. 1=payer 50€, 2=attendre 3 tours en tentant de faire un double")
+                choice = input("Vous devez choisir 1 ou 2. 1=payer 50euros, 2=attendre 3 tours en tentant de faire un double")
             if (choice == "1"):
                 jail_chooseToPay(player)
             else:
                 print("Vous avez choisi d'essayer de faire un double")
                 jail_chooseDouble(player)
         else:
-            input(""+player.getUserName()+"Vous n'avez pas assez d'argent pour sortir en payant 50€, vous pouvez tenter de sortir en faisant un double") 
+            input(""+player.getUserName()+"Vous n'avez pas assez d'argent pour sortir en payant 50euros, vous pouvez tenter de sortir en faisant un double") 
             jail_chooseDouble(player)
     else :
-        print("Vous avez passé 3 tours en prison, vous sortez de prison")
+        print("Vous avez passe 3 tours en prison, vous sortez de prison")
         player.setInPrison(False)
         player.setPrisonTurn(None)
         actualizePosition(player)
@@ -341,21 +341,21 @@ def onAStreetOrStation(player):
     price = case.getPrice() 
     price = price[0] if case_type == "street" else price       #check
     if (case.owner == None  and player.money>=price):
-        choice = input("Cette propriété est libre, son prix est de "+str(price)+" euros. Voulez-vous l'acheter ? (Il vous reste "+str(player.money)+ " euros)")
+        choice = input("Cette propriete est libre, son prix est de "+str(price)+" euros. Voulez-vous l'acheter ? (Il vous reste "+str(player.money)+ " euros)")
         if (choice.lower() == "oui".lower()):
             player.buyAStreet(case) if case_type == "street" else player.buyAStation(case)   #check
-            input("Vous venez d'acheter la propriété "+ str(case.getBoxName()) +". Il vous reste "+str(player.getMoney())+ " euros.")
+            input("Vous venez d'acheter la propriete "+ str(case.getBoxName()) +". Il vous reste "+str(player.getMoney())+ " euros.")
             if case_type == "street":
                 player.buyAStreet(case)
         else : 
-            input("Vous avez décidé de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
+            input("Vous avez decide de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
     else : 
         if (case.getOwner() == None and player.getMoney()<price):
-            input("Cette propriété est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
+            input("Cette propriete est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
         else :      #the street belongs to someone
             ownerName = case.getOwner().getUserName()
             if (case.getOwner() == player):
-                input("Cette propriété vous appartient")
+                input("Cette propriete vous appartient")
                 if (case_type == "street"):
                     putHomes(player)
             else:
@@ -363,7 +363,7 @@ def onAStreetOrStation(player):
                     rent = getRentStreet(player)
                 elif (case_type == "station"):
                     rent = getRentStation(player)
-                print("Cette propriété appartient à "+ownerName+", vous lui devez "+str(rent)+" euros.")
+                print("Cette propriete appartient a "+ownerName+", vous lui devez "+str(rent)+" euros.")
                 player.LooseMoney(rent)
                 print("Il vous reste "+str(player.money)+" euros.")
                 case.owner.EarnMoney(rent)
@@ -391,18 +391,18 @@ def onAStreetOrStation(player):
 #             if (choice.lower() == "oui".lower()):
 #                 
 #                 player.buyAStation(case)
-#                 input("Vous venez d'acheter la propriété "+ str(case.name) +". Il vous reste "+str(player.money)+ "€.")
+#                 input("Vous venez d'acheter la propriete "+ str(case.name) +". Il vous reste "+str(player.money)+ "euros.")
 #             else : 
-#                 input("Vous avez décidé de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
+#                 input("Vous avez decide de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
 #         else :
-#             input("Cette propriété est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
+#             input("Cette propriete est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste "+ str(player.money) +" euros et le prix est de "+str(price) + " euros.")
 #     else:
 #         owner = case.getOwner()
 #         if (owner == player):
 #             input("Cette gare vous appartient")
 #         else : 
 #             rent = getRentStation(player)
-#             print("Cette propriété appartient à "+owner.getUserName()+", vous lui devez "+str(rent)+" euros.")
+#             print("Cette propriete appartient a "+owner.getUserName()+", vous lui devez "+str(rent)+" euros.")
 #             player.LooseMoney(rent)
 #             print("Il vous reste "+str(player.getMoney())+" euros.")
 #             owner.EarnMoney(rent)
@@ -449,11 +449,10 @@ def turn(order):
     return order
     
     
-    
+board = initGame()
 
 
 if __name__ == "__main__":
-    board = initGame()
     main()
     
         

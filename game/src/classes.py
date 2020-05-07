@@ -1,6 +1,6 @@
 # Those are the classes to represent the game
 
-INITIAL_MONEY = 800
+INITIAL_MONEY = 1500
 NB_CASES = 40
 
 
