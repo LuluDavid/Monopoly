@@ -1,6 +1,6 @@
 # Those are the classes to represent the game
 
-INITIAL_MONEY = 1500
+INITIAL_MONEY = 2000
 NB_CASES = 40
 
 
@@ -106,7 +106,7 @@ class Street(Box):
         
     def getPrice(self):
         return self.price
-        
+    
     def getColor(self):
         return self.color
         
@@ -116,8 +116,8 @@ class Street(Box):
     def getHome(self):
         return self.home
         
-    def addHomes(self, number):
-        self.home = self.home + number
+    def setHomes(self, number):
+        self.home = number
         
     
         

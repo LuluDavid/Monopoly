@@ -163,7 +163,7 @@ def putHomes(player): #TODO : verify that owner has enough money to pay for hous
     check 1 : does the player has all the properties of the same color ? 
     check 2 : can we still add more houses ? (if already 5 houses, we can't)
     """
-    
+
     position = player.getPosition()
     numberOfHomes = board.getBox(position).getHome()
     priceOfHome = board.getBox(position).getPrice()[1]
@@ -175,7 +175,7 @@ def putHomes(player): #TODO : verify that owner has enough money to pay for hous
                 nbOfHouses = input("Combien de maison souhaitez-vous construire ?")
                 while (int(nbOfHouses) > houseAvailable):
                     nbOfHouses = input("Vous pouvez construire maximum "+str(houseAvailable)+" maisons, combien souhaitez-vous en construire ?")
-                board.getBox(position).addHomes(int(nbOfHouses))
+                board.getBox(position).setHomes(int(nbOfHouses)+ board.getBox(position).getHome())
                 player.LooseMoney(priceOfHome*int(nbOfHouses))
                 input("Vous avez construit" +str(nbOfHouses) + " maisons. Il vous reste " + str(player.money) + "euros")
             else:
@@ -193,7 +193,7 @@ def goToJail(player):
     
     """The player went on the box 'go to jail', he is sent to jail which is in position 10"""
     
-    input("Vous allez directement en prison sans passer par la case depart")
+    print("Vous allez directement en prison sans passer par la case depart")
     player.setPosition(10)
     player.setInPrison(True)
     player.setPrisonTurn(0)
@@ -208,16 +208,16 @@ def jail_chooseToPay(player):
     player.LooseMoney(50)
     player.setInPrison(False)
     player.setPrisonTurn(None)
-    input("il vous reste "+str(player.getMoney())+"euros")
+    print("il vous reste "+str(player.getMoney())+" euros")
     actualizePosition(player)
     
             
             
-def jail_chooseDouble(player):
+def jail_chooseDouble(player, dices):
     
     """The player in jail chose not to pay or had not enough money to pay, so he has to make a double to get        out"""
     
-    dices=launchDices()
+    #dices=launchDices()
     if (dices[0] == dices[1]):
         input("Bravo, vous avez fait un double "+str(dices[0])+". Vous etes sortis de prison et avancez de "+str(2*dices[0])+"")
         player.setPosition(10+2*dices[0])
@@ -229,6 +229,10 @@ def jail_chooseDouble(player):
 
       
 def isInJail(player):
+    dices = launchDices()
+    isInJailAux(player, dices)
+
+def isInJailAux(player, dices):
     
     """
     The player is in jail,
@@ -246,10 +250,10 @@ def isInJail(player):
                 jail_chooseToPay(player)
             else:
                 print("Vous avez choisi d'essayer de faire un double")
-                jail_chooseDouble(player)
+                jail_chooseDouble(player, dices)
         else:
             input(""+player.getUserName()+"Vous n'avez pas assez d'argent pour sortir en payant 50euros, vous pouvez tenter de sortir en faisant un double") 
-            jail_chooseDouble(player)
+            jail_chooseDouble(player, dices)
     else :
         print("Vous avez passe 3 tours en prison, vous sortez de prison")
         player.setInPrison(False)
@@ -345,8 +349,10 @@ def onAStreetOrStation(player):
         if (choice.lower() == "oui".lower()):
             player.buyAStreet(case) if case_type == "street" else player.buyAStation(case)   #check
             input("Vous venez d'acheter la propriete "+ str(case.getBoxName()) +". Il vous reste "+str(player.getMoney())+ " euros.")
+            # if case_type == "street":
+            #     player.buyAStreet(case)
             if case_type == "street":
-                player.buyAStreet(case)
+                putHomes(player)
         else : 
             input("Vous avez decide de ne pas acheter, vous avez toujours "+str(player.money)+" euros.")
     else : 
