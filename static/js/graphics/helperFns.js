@@ -21,7 +21,7 @@ function init() {
 	boxes = getBoxesPositions(cardboardWidth)
 	// Accuracy for pawn motion
 	epsilon = 1
-	coverMotion = 0.9
+	coverMotion = 0.8
 	// Whose turns it is
 	currentPawn = 0
 	// Pawn motion
@@ -34,7 +34,9 @@ function init() {
 	incrementing = false;
 	// CloseView activation boolean
 	closeViewDisplay = false
-	closeViewRatio = 0.5
+	closeViewRatio = 0.4
+	closeViewHeight = 50
+	closeViewFurtherRatio = 2
 
 
 	/*
@@ -87,6 +89,7 @@ function init() {
 	addPawns(pawns, scene);
 	// Set the positions of the pawns on the cardboard in positions (fast access to positions)
 	positions = initPositions();
+	new_positions = initPositions();
 
 	/*
 	 * First test to move successfully pawns around the board
@@ -198,12 +201,16 @@ function emptyPositions(){
 }
 
 // Use the currentBox param stored in every pawn to fill the positions dictionary
-function updatePositions(){
-	positions = emptyPositions();
+function updateNewPositions(){
+	new_positions = emptyPositions();
 	for (let i = 0; i<numberOfPawns; i++){
-		let box = Object.assign(scene.children[3+i].currentBox);
-		positions[box].push(i);
+		let box = scene.children[3+i].currentBox;
+		new_positions[box].push(i);
 	}
+}
+
+function updatePositions(){ 
+	positions = $.extend( true, {}, new_positions );
 }
 
 // Random int in [min,max]
@@ -251,13 +258,13 @@ function distance(v1, v2){
 
 // Translate pawn n°i to box n°j
 function translatePawnToBox(i, j){
-	let boxCardinal = Object.keys(positions[j]).length
+	let boxCardinal = Math.max(positions[j].length, new_positions[j].length)
 	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal]
-	let deltaT = tMotion*Math.sqrt(j/numberOfBoxes)
+	let deltaT = tMotion*Math.pow(j/numberOfBoxes, 1/3)
+	scene.children[3+i].currentBox = j;
+	updateNewPositions();
 	addCanvas();
 	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + 0.05), deltaT)
-	scene.children[3+i].currentBox = j;
-	updatePositions();
 }
 
 function addCanvas(){
@@ -274,8 +281,7 @@ function removeCanvas(){
 // Parabole to describe the motion inertia
 function ease(t) { return -t*t+2*t}
 
-// Translation from a to b's parametric equation
-function translation(a, b, t) { return a+(b - a)*t }
+function soonerFaster(t) { return Math.pow(t,1/5); }
 
 // Translate pawn n°i to goalPosition
 function translate(i, goalPosition, deltaT){
@@ -286,18 +292,30 @@ function translate(i, goalPosition, deltaT){
 	var t = 0;
 	object = scene.children[3+i];
 	var initialPosition = object.position.clone()
-	loop(initialPosition, goalPosition, step, t)
+	var initialCameraPosition = closeView.camera.position.clone()
+	var goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight)
+	loop(initialPosition, initialCameraPosition, goalPosition, goalPositionCamera, step, t)
 }
 
+// Translation from a to b's parametric equation
+function translation(a, b, t) { return a+(b - a)*t }
+
 // Loop function
-function loop(initialPosition, goalPosition, step, t) {
-  	var newX = translation(initialPosition.x, goalPosition.x, ease(t));   // interpolate between a and b where
-    var newY = translation(initialPosition.y, goalPosition.y, ease(t));   // t is first passed through a easing
-  	var newZ = translation(initialPosition.z, goalPosition.z, ease(t));   // function in this example.
-  	object.position.set(newX, newY, newZ);  // set new position
+function loop(initialPosition, initialPositionCam, goalPosition, goalPositionCam, step, t) {
+	// Update the pawn's position
+  	var X = translation(initialPosition.x, goalPosition.x, ease(t));   // interpolate between a and b where
+    var Y = translation(initialPosition.y, goalPosition.y, ease(t));   // t is first passed through a easing
+  	var Z = translation(initialPosition.z, goalPosition.z, ease(t));   // function in this example.
+  	object.position.set(X, Y, Z);  // set new position
+  	// Update the camera's positions
+  	var XCam = translation(initialPositionCam.x, goalPositionCam.x, soonerFaster(t*closeViewFurtherRatio));
+  	var YCam = translation(initialPositionCam.y, goalPositionCam.y, soonerFaster(t*closeViewFurtherRatio));
+  	var ZCam = translation(initialPositionCam.z, goalPositionCam.z, soonerFaster(t*closeViewFurtherRatio));
+  	closeView.camera.position.set(XCam, YCam, ZCam);
+  	// Increment the time and loop back
   	t = t + step;
   	if (t >= 1) { return loop2(step, t); } 
-  	requestAnimationFrame(() => loop(initialPosition, goalPosition, step, t))
+  	requestAnimationFrame(() => loop(initialPosition, initialPositionCam, goalPosition, goalPositionCam, step, t))
 }
 
 function loop2(step, t) {
@@ -306,9 +324,14 @@ function loop2(step, t) {
 		console.log("Tour fini"); 
 		incrementing = false; 
 		closeViewDisplay = false;
-		currentPawn++; 
+		currentPawn++;
+		closeView.camera.position.set(closeView.eye[0], closeView.eye[1], closeView.eye[2]);
 		removeCanvas();
-		if (currentPawn == numberOfPawns) currentPawn = 0; return;
+		updatePositions(); 
+		if (currentPawn == numberOfPawns) {
+			currentPawn = 0;
+		}
+		return;
 	}
 	requestAnimationFrame(() => loop2(step, t))
 }
