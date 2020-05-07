@@ -1,31 +1,44 @@
+html{
+  height: 100%;
+}
+
 body {
-	padding-top: 56px;
+  padding-top: 56px;
 }
 
 #home_buttons {
-    max-width:500px
+  max-width:500px
+}
+
+#copy {
+  cursor: pointer;
+  font-size: 10px;
 }
 
 #chatbox {
-    width: 90%;
-    margin: auto;
-    margin-top: 30px;
-    background-color: white;
-    border: 1px solid black;
-    bottom: 50px;
+  margin: auto;
+  margin-top: 30px;
+  background-color: white;
+  border: 1px solid #909090;
+  position: absolute;
+  bottom: 0.2rem;
+  left: 0.2rem;
+  width: 14.6rem;
+  height: 210px;
 }
 
 #messages {
-    overflow-y: scroll;
-    overflow-x: hidden;
-    height: 200px;
-    font-style: italic;
-    font-size: 0.8em;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 180px;
+  font-style: italic;
+  font-size: 0.8em;
 }
 
-#msg {
-    margin-top: 5px;
-    width: 100%;
-    border: 0;
-    border-top: 1px solid grey;
+#msgInput {
+  margin-top: 5px;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid grey;
+  font-size: 0.8em;
 }

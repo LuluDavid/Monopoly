@@ -32,10 +32,10 @@ $( document ).ready(function() {
         $("#player_list").append(playerHtmlLine);
     }
 
-    $('#msg').on('keypress', function (e) {
+    $('#msgInput').on('keypress', function (e) {
         if(e.keyCode == 13){
-            let newMsg = $('#msg').val();
-            $('#msg').val('');
+            let newMsg = $('#msgInput').val();
+            $('#msgInput').val('');
             socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
         }
     });
@@ -46,15 +46,15 @@ $( document ).ready(function() {
         let newMsg = data["msg"];
         let cleanMsg = newMsg.replace(/<\/?[^>]+(>|$)/g, "");
         $("#messages").append('<div>' + '<strong>' + newPlayerName + ': ' + '</strong>' + cleanMsg + '</div>');
-        $('#messages').scrollTop($('#messages')[0].scrollHeight);
+        $("#messages").scrollTop($("#messages")[0].scrollHeight);
     });
 
     $("#copy").on('click', function() {
-        var $temp = $("<input>");
-        $("body").append($temp);
-        $temp.val(gameId).select();
+        let temp = $("<input>");
+        $("body").append(temp);
+        temp.val(gameId).select();
         document.execCommand("copy");
-        $temp.remove();
+        temp.remove();
     });
 
 });
