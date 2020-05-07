@@ -17,7 +17,6 @@ body {
 
 #chatbox {
   margin: auto;
-  margin-top: 30px;
   background-color: white;
   border: 1px solid #909090;
   position: absolute;
@@ -33,6 +32,8 @@ body {
   height: 180px;
   font-style: italic;
   font-size: 0.8em;
+  padding: 2px;
+  color: #555555;
 }
 
 #msgInput {
@@ -41,4 +42,5 @@ body {
   border: 0;
   border-top: 1px solid grey;
   font-size: 0.8em;
+  color: #555555;
 }
