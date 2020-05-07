@@ -5,3 +5,27 @@ body {
 #home_buttons {
     max-width:500px
 }
+
+#chatbox {
+    width: 90%;
+    margin: auto;
+    margin-top: 30px;
+    background-color: white;
+    border: 1px solid black;
+    bottom: 50px;
+}
+
+#messages {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 200px;
+    font-style: italic;
+    font-size: 0.8em;
+}
+
+#msg {
+    margin-top: 5px;
+    width: 100%;
+    border: 0;
+    border-top: 1px solid grey;
+}

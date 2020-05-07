@@ -31,6 +31,32 @@ $( document ).ready(function() {
         playerHtmlLine += nameToAdd + '</div>';
         $("#player_list").append(playerHtmlLine);
     }
+
+    $('#msg').on('keypress', function (e) {
+        if(e.keyCode == 13){
+            let newMsg = $('#msg').val();
+            $('#msg').val('');
+            socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
+        }
+    });
+
+    socket.on('print_new_msg', function(data) {
+        let newPlayerName = data["player_name"];
+        console.log(newPlayerName + " a posté un message");
+        let newMsg = data["msg"];
+        let cleanMsg = newMsg.replace(/<\/?[^>]+(>|$)/g, "");
+        $("#messages").append('<div>' + '<strong>' + newPlayerName + ': ' + '</strong>' + cleanMsg + '</div>');
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
+    });
+
+    $("#copy").on('click', function() {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(gameId).select();
+        document.execCommand("copy");
+        $temp.remove();
+    });
+
 });
 
 

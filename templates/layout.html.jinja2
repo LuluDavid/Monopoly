@@ -14,14 +14,16 @@
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
   <a class="navbar-brand" href="{{ url_for("home")}}">Monopoly</a>
-
+    {%  if game_id %}
+    <button id="copy">Copy ID</button>
+    {% endif %}
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav mr-auto">
     </ul>
   </div>
 </nav>
 
-<body>
+
 
   <div class="d-flex" id="wrapper">
 
@@ -33,6 +35,14 @@
           <strong>{{ player_name }}</strong>
         </div>
       </div>
+
+        <div id="chatbox">
+            <div id="messages">
+
+            </div>
+            <input type="text" name="msg" id="msg" placeholder="Oui ?">
+        </div>
+
     </div>
     {% endif %}
 
