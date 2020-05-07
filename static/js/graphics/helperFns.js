@@ -25,7 +25,7 @@ function init() {
 	// Whose turns it is
 	currentPawn = 0
 	// Pawn motion
-	tMotion = 5 // duration to go to next case (seconds)
+	tMotion = 3 // duration to go to next case (seconds)
 	// Pawn positions on boxes
 	boxes = getBoxesPositions(cardboardWidth);
 	// Pawn positions per box (where to put them to make them fit in)
@@ -34,7 +34,7 @@ function init() {
 	incrementing = false;
 	// CloseView activation boolean
 	closeViewDisplay = false
-	closeViewRatio = 0.3
+	closeViewRatio = 0.5
 
 
 	/*
@@ -67,6 +67,7 @@ function init() {
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMapSoft = true;
 	renderer.shadowMapDebug = true;
+	renderer.domElement.style += "; position:relative; z-index:0; "
 	container.appendChild( renderer.domElement );
 
 	/*
@@ -162,7 +163,7 @@ function updateCloseView(vleft = 1-closeViewRatio, vtop = 1-closeViewRatio, vwid
 
 	closeView.camera.aspect = widthcloseView / heightcloseView;
 	closeView.camera.updateProjectionMatrix();
-
+	
 	renderer.render(scene,closeView.camera);
 }
 
@@ -253,9 +254,21 @@ function translatePawnToBox(i, j){
 	let boxCardinal = Object.keys(positions[j]).length
 	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal]
 	let deltaT = tMotion*Math.sqrt(j/numberOfBoxes)
+	addCanvas();
 	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + 0.05), deltaT)
 	scene.children[3+i].currentBox = j;
-	updatePositions()
+	updatePositions();
+}
+
+function addCanvas(){
+	let height = windowHeight*closeViewRatio;
+	let width = windowWidth*closeViewRatio;
+	let canvas = "<canvas id = 'closeView' width='"+ width +"' height='"+ height +"' style=\"border:3px solid #000000; position:fixed; top: 0px; right: 0px; z-index:2;\"></canvas>"
+	$("#container").append(canvas);
+}
+
+function removeCanvas(){
+	$("#closeView").remove();
 }
 
 // Parabole to describe the motion inertia
@@ -294,6 +307,7 @@ function loop2(step, t) {
 		incrementing = false; 
 		closeViewDisplay = false;
 		currentPawn++; 
+		removeCanvas();
 		if (currentPawn == numberOfPawns) currentPawn = 0; return;
 	}
 	requestAnimationFrame(() => loop2(step, t))
