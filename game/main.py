@@ -181,8 +181,7 @@ def putHomes(player): #TODO : verify that owner has enough money to pay for hous
             else:
                 input("Vous avez choisi de ne pas construire de maison")
 
-                
-    
+
     
     
 
