@@ -3,6 +3,7 @@ from game.user import User
 from game.boxes import Box, Street, Station
 from game.game import Game
 from game.globs import INITIAL_MONEY
+from game.cards import Card
 
 # Class User
 
@@ -417,7 +418,9 @@ def test_classBoard():
         if L[i] == True:
             count = count + 1
     return "La class Street passe les tests a "+ str(count)+"/"+str(n)+""
-        
+
+
+
         
 ## GAME Functions
 
@@ -533,7 +536,55 @@ def test_mainFunction():
         if L[i] == True:
             count = count + 1
     return "Les fonctions de la classe Game passent les tests a "+ str(count)+"/"+str(n)+""
-    
+
+
+def test_make_community_funds():
+    board = Board()
+    test1 = board.community_funds[0].name
+    test2 = board.community_funds[0].card_type
+    test3 = board.community_funds[0].value
+    test4 = len(board.community_funds)
+    test5 = board.community_funds[test4-1].value
+    if test1 == "Vous heritez 100 euros." and test2 == "earn-money" and test3 == 100 and test4 == 17 and test5==-1 :
+        return True
+    else:
+        raise Exception('Test test_make_community_funds failed.')
+
+
+def test_community_earn_money():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = User(players[0])
+    chloe.setPosition(2)
+    game.community_earn_money(chloe, 15)
+    if chloe.getMoney() == INITIAL_MONEY + 10:
+        return True
+    else:
+        raise Exception('Test test_community_earn_money failed.')
+
+def test_community_loose_money():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = User(players[0])
+    chloe.setPosition(2)
+    game.community_loose_money(chloe, 7)
+    if chloe.getMoney() == INITIAL_MONEY - 100:
+        return True
+    else:
+        raise Exception('Test test_community_loose_money failed.')
+
+
+
+def test_community_moove_forward():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = User(players[0])
+    game.community_moove_forward(chloe, 11)
+    if chloe.getPosition() == 0 and chloe.getMoney() == INITIAL_MONEY + 200:
+        return True
+    else:
+        raise Exception('Test test_community_moove_forward failed.')
+
 
 if __name__ == "__main__":
     print(test_classUser())
@@ -542,3 +593,7 @@ if __name__ == "__main__":
     print(test_classBox())
     print(test_classBoard())
     print(test_mainFunction())
+    print(test_make_community_funds())
+    print(test_community_earn_money())
+    print(test_community_loose_money())
+    print(test_community_moove_forward())

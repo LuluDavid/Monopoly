@@ -1,6 +1,6 @@
-from user import User
-from game import Game
-from globs import INITIAL_MONEY
+from game.user import User
+from game.game import Game
+from game.globs import INITIAL_MONEY
 
 #python input_test.py < input_answers.txt 
 
@@ -229,9 +229,26 @@ def test_onAStreetOrStation():
         print("\n",True)
     else:
         raise Exception('Test test_onAStreetOrAStation failed.')
-        
 
-test_actualizePositionAux()
+
+
+
+
+
+def test_community_moove_backwards():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = User(players[0])
+    chloe.setPosition(2)
+    game.community_moove_backwards(chloe, 3)
+    if chloe.getPosition() == 1:
+        return True
+    else:
+        raise Exception('Test test_community_moove_backwards failed.')
+
+
+
+print(test_community_moove_backwards())
 
 
 

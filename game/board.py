@@ -1,12 +1,14 @@
 import json
 from game.boxes import Box, Street, Station
+from game.cards import Card
 
 
 class Board:
     """A simple class to describe the board"""
 
-    def __init__(self, boxes_filename="../game/data/boxes.json"):
+    def __init__(self, boxes_filename="../game/data/boxes.json", community_funds_filename="../game/data/community.json"):
         self.boxes = self.make_boxes(boxes_filename)
+        self.community_funds = self.make_community_funds(community_funds_filename)
 
     @staticmethod
     def make_boxes(boxes_filename):
@@ -46,6 +48,26 @@ class Board:
 
     def getBox(self, position):
         return self.boxes[position]
+        
+        
+        
+    @staticmethod
+    def make_community_funds(community_funds_filename):
+     with open(community_funds_filename) as community_file:
+         json_community = json.loads(community_file.read())
+     community = []
+     for com in json_community:
+         community.append(
+             Card(
+             int(com),
+             json_community[com]["name"],
+             json_community[com]["type"],
+             json_community[com]["value"]
+             )
+         )
+     return community
+        
+        
 
 
 if __name__ == "__main__":

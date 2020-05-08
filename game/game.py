@@ -1,6 +1,7 @@
 import random
 from game.user import User
 from game.board import Board
+from game.cards import Card
 
 
 class Game:
@@ -190,6 +191,52 @@ class Game:
             player.setInPrison(False)
             player.setPrisonTurn(None)
             self.actualizePosition(player)
+
+
+    ## Community
+
+    def community_earn_money(self, player, number):
+        player.EarnMoney(self.board.community_funds[number].value)
+        print("Vous recevez "+str(self.board.community_funds[number].value)+" euros.")
+
+    def community_loose_money(self, player, number):
+        player.LooseMoney(self.board.community_funds[number].value)
+        print("Vous perdez " + str(self.board.community_funds[number].value) + " euros.")
+
+    def community_moove_backwards(self, player, number):
+        player.setPosition(self.board.community_funds[number].value)
+        self.onAStreetOrStation(player)
+        print("Vous retournez a "+self.board.community_funds[number].name)
+
+    def community_moove_forward(self, player, number):
+        value = self.board.community_funds[number].value
+        player.setPosition(value)
+        player.EarnMoney(200)
+    #    if (pos<value and value != 0):   #partie a utiliser pour les cartes chances
+    #        player.setPosition(value)
+    #        player.money = player.getMoney() + 200
+    #        self.onAStreetOrStation(player)
+    #    elif (value == 0):
+    #        player.setPosition(value)
+    #        player.money = player.getMoney() + 200
+
+
+    def on_community_fund(self, player):
+        community = self.board.community_funds
+        number = random.randint(0, len(community)-1)
+        print("Vous tirez la carte : " + community[number].name)
+        if community[number].card_type == "earn-money":
+            self.community_earn_money(self, player, number)
+        elif community[number].card_type == "loose-money":
+            self.community_loose_money(self, player, number)
+        elif community[number].card_type == "moove-backwards":
+            self.community_moove_backwards(self, player, number)
+        elif community[number].card_type == "go-to-jail":    #TODO tester cette partie la ?
+            self.game.goToJail(player)
+        elif community[number].card_type == "moove-forward":
+            self.community_moove_forward(self, player, number)
+        else:
+            print("type pas encore traite")
 
     ##
 
