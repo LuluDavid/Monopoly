@@ -6,7 +6,7 @@ from game.cards import Card
 class Board:
     """A simple class to describe the board"""
 
-    def __init__(self, boxes_filename="../game/data/boxes.json", community_funds_filename="../game/data/community.json"):
+    def __init__(self, boxes_filename="game/data/boxes.json", community_funds_filename="game/data/community.json"): # From Python Path
         self.boxes = self.make_boxes(boxes_filename)
         self.community_funds = self.make_community_funds(community_funds_filename)
 

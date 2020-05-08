@@ -1,3 +1,9 @@
+import os
+
+os.environ["PYTHONPATH"] = "."
+
+
+
 from game.board import Board
 from game.user import User
 from game.boxes import Box, Street, Station
