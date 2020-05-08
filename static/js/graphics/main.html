@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js assignment 2</title>
+		<title>Monopoly</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -57,7 +57,7 @@
 					
 					updateCamera: function ( camera, scene ) {
 						// Look the board's center once its created
-						if (scene.children[2]){
+						if (scene.children[2] != null){
 							camera.lookAt(scene.children[2].position)
 						}
 						else {
@@ -81,7 +81,7 @@
 					updateCamera: function ( camera, scene ) {
 						// Look the board's center once its created
 						if (currentPawn >= 0){
-							camera.lookAt(scene.children[3+currentPawn].position)
+							camera.lookAt(scene.children[3].children[currentPawn].position)
 						}
 					}
 				}
