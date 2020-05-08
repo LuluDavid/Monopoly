@@ -1,8 +1,8 @@
-from board import Board
-from user import User
-from boxes import Box, Street, Station
-from globs import INITIAL_MONEY
-from game import Game
+from game.board import Board
+from game.user import User
+from game.boxes import Box, Street, Station
+from game.game import Game
+from game.globs import INITIAL_MONEY
 
 # Class User
 

@@ -1,4 +1,4 @@
-from globs import INITIAL_MONEY
+from game.globs import INITIAL_MONEY
 
 class User:
     """A simple class to describe the lambda monopoly player"""

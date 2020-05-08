@@ -1,11 +1,11 @@
 import json
-from boxes import Box, Street, Station
+from game.boxes import Box, Street, Station
 
 
 class Board:
     """A simple class to describe the board"""
 
-    def __init__(self, boxes_filename="./data/boxes.json"):
+    def __init__(self, boxes_filename="../game/data/boxes.json"):
         self.boxes = self.make_boxes(boxes_filename)
 
     @staticmethod
