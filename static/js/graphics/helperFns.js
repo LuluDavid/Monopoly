@@ -29,7 +29,6 @@ function init() {
 	houseWidth = 1
 	houseHeight = houseWidth/2
 	roofAngle = Math.PI/4
-	roofSize = houseWidth/(2*Math.cos(roofAngle))
 	// Box positions
 	boxes = getBoxesPositions(cardboardWidth)
 	// Accuracy for pawn motion
@@ -55,6 +54,8 @@ function init() {
 	housePositions = getHousesPositions(cardboardWidth)
 	// Number of house per box
 	numberOfHousesPerBox = noHousesPerBox()
+	// Hotel
+	hotelHouseRatio = 3
 
 
 	/*
@@ -519,17 +520,38 @@ function updateHouseGroup(){
 
 function updateHouses(i){
 	let houses = new THREE.Group()
-
-	for (let j = 0; j<numberOfHousesPerBox[i]; j++){
-		let house = setUpHouse(i,j)
-		houses.add(house)
+	if (boxes[i].isFull){
+		return scene.children[4].children[i]
+	}
+	else if (numberOfHousesPerBox[i] == 5){
+		let hotel = createHotelPos(i)
+		houses.add(hotel)
+		boxes[i].isFull = true
+	}
+	else {
+		for (let j = 0; j<numberOfHousesPerBox[i]; j++){
+			let house = setUpHouse(i,j)
+			houses.add(house)
+		}
 	}
 	return houses
 }
 
+function createHotelPos(i){
+	let hotel = createHotel()
+	hotel.position.set(housePositions[i].x, housePositions[i].y, 0.05)
+	hotel.rotateZ(Math.PI/2)
+	return hotel
+}
+
+function createHotel(){
+	let clr = 0xff0000
+	return createHouse(clr, houseWidth*hotelHouseRatio, houseHeight*hotelHouseRatio);
+}
+
 function setUpHouse(i,j){
 	let box = boxes[i]
-	let house = createHouse(houseColor)
+	let house = createHouse(houseColor, houseWidth, houseHeight)
 	if (box.isH){
 		house.position.set(housePositions[i].x, housePositions[i].y+houseRelativePos[j], 0.05)
 	}
@@ -575,21 +597,22 @@ function createPawn(position){
 	return pawn;
 }
 
-function createHouse(clr){
+function createHouse(clr, width, height){
 
+	let roofSize = width/(2*Math.cos(roofAngle))
 	var house = new THREE.Group();
-	let wallGeometry = new THREE.PlaneGeometry(houseWidth, houseHeight)
-	let roofGeometry = new THREE.PlaneGeometry(houseWidth, roofSize)
+	let wallGeometry = new THREE.PlaneGeometry(width, height)
+	let roofGeometry = new THREE.PlaneGeometry(width, roofSize)
 	let roofFrontGeometry = new THREE.Geometry();
-	roofFrontGeometry.vertices.push(new THREE.Vector3(-houseWidth/2,houseWidth/2,houseHeight));
-	roofFrontGeometry.vertices.push(new THREE.Vector3(-houseWidth/2,-houseWidth/2,houseHeight));
-	roofFrontGeometry.vertices.push(new THREE.Vector3(-houseWidth/2,0,houseHeight+houseWidth*Math.tan(roofAngle)/2))
+	roofFrontGeometry.vertices.push(new THREE.Vector3(-width/2,width/2,height));
+	roofFrontGeometry.vertices.push(new THREE.Vector3(-width/2,-width/2,height));
+	roofFrontGeometry.vertices.push(new THREE.Vector3(-width/2,0,height+width*Math.tan(roofAngle)/2))
 	let normalVectorFront = new THREE.Vector3(-1, 0, 0);
 	roofFrontGeometry.faces.push( new THREE.Face3( 0, 1, 2, normalVectorFront ) );
 	let roofBackGeometry = new THREE.Geometry();
-	roofBackGeometry.vertices.push(new THREE.Vector3(houseWidth/2,houseWidth/2,houseHeight));
-	roofBackGeometry.vertices.push(new THREE.Vector3(houseWidth/2,-houseWidth/2,houseHeight));
-	roofBackGeometry.vertices.push(new THREE.Vector3(houseWidth/2,0,houseHeight+houseWidth*Math.tan(roofAngle)/2))
+	roofBackGeometry.vertices.push(new THREE.Vector3(width/2,width/2,height));
+	roofBackGeometry.vertices.push(new THREE.Vector3(width/2,-width/2,height));
+	roofBackGeometry.vertices.push(new THREE.Vector3(width/2,0,height+width*Math.tan(roofAngle)/2))
 	let normalVectorBack = new THREE.Vector3(-1, 0, 0);
 	roofBackGeometry.faces.push( new THREE.Face3( 0, 1, 2, normalVectorBack ) );
 
@@ -620,12 +643,12 @@ function createHouse(clr){
 	// roofBack.castShadow = true;
 	roofBack.receiveShadow = true;
 
-	frontWall.position.set(-houseWidth/2, 0, houseHeight/2)
-	backWall.position.set(houseWidth/2, 0, houseHeight/2)
-	leftWall.position.set(0, houseWidth/2, houseHeight/2)
-	rightWall.position.set(0, -houseWidth/2, houseHeight/2)
-	leftRoof.position.set(0, houseWidth/4, houseHeight+houseWidth/4*Math.tan(roofAngle))
-	rightRoof.position.set(0, -houseWidth/4, houseHeight+houseWidth/4*Math.tan(roofAngle))
+	frontWall.position.set(-width/2, 0, height/2)
+	backWall.position.set(width/2, 0, height/2)
+	leftWall.position.set(0, width/2, height/2)
+	rightWall.position.set(0, -width/2, height/2)
+	leftRoof.position.set(0, width/4, height+width/4*Math.tan(roofAngle))
+	rightRoof.position.set(0, -width/4, height+width/4*Math.tan(roofAngle))
 	frontWall.rotateX(Math.PI/2)
 	frontWall.rotateY(Math.PI/2)
 	backWall.rotateX(Math.PI/2)
@@ -789,45 +812,45 @@ function getBoxesPositions(L) {
     }
     var positions = {
         0: {x: h/2, y: h/2, isW:true, isH:true},
-        1: {x: axCoords[0], y: axCoords[1], isW:false, isH:true},
-        2: {x: axCoords[0], y: axCoords[2], isW:false, isH:true},
-        3: {x: axCoords[0], y: axCoords[3], isW:false, isH:true},
-        4: {x: axCoords[0], y: axCoords[4], isW:false, isH:true},
-        5: {x: axCoords[0], y: axCoords[5], isW:false, isH:true},
-        6: {x: axCoords[0], y: axCoords[6], isW:false, isH:true},
-        7: {x: axCoords[0], y: axCoords[7], isW:false, isH:true},
-        8: {x: axCoords[0], y: axCoords[8], isW:false, isH:true},
-        9: {x: axCoords[0], y: axCoords[9], isW:false, isH:true},
-        10: {x: h/2, y: L-h/2, isW:true, isH:true},
-        11: {x: axCoords[1], y: axCoords[10], isW:true, isH:false},
-        12: {x: axCoords[2], y: axCoords[10], isW:true, isH:false},
-        13: {x: axCoords[3], y: axCoords[10], isW:true, isH:false},
-        14: {x: axCoords[4], y: axCoords[10], isW:true, isH:false},
-        15: {x: axCoords[5], y: axCoords[10], isW:true, isH:false},
-        16: {x: axCoords[6], y: axCoords[10], isW:true, isH:false},
-        17: {x: axCoords[7], y: axCoords[10], isW:true, isH:false},
-        18: {x: axCoords[8], y: axCoords[10], isW:true, isH:false},
-        19: {x: axCoords[9], y: axCoords[10], isW:true, isH:false},
-        20: {x: L-h/2, y: L-h/2, isW:true, isH:true},
-        21: {x: axCoords[10], y: axCoords[9], isW:false, isH:true},
-        22: {x: axCoords[10], y: axCoords[8], isW:false, isH:true},
-        23: {x: axCoords[10], y: axCoords[7], isW:false, isH:true},
-        24: {x: axCoords[10], y: axCoords[6], isW:false, isH:true},
-        25: {x: axCoords[10], y: axCoords[5], isW:false, isH:true},
-        26: {x: axCoords[10], y: axCoords[4], isW:false, isH:true},
-        27: {x: axCoords[10], y: axCoords[3], isW:false, isH:true},
-        28: {x: axCoords[10], y: axCoords[2], isW:false, isH:true},
-        29: {x: axCoords[10], y: axCoords[1], isW:false, isH:true},
-        30: {x: L-h/2, y: h/2, isW:true, isH:true},
-        31: {x: axCoords[9], y: axCoords[0], isW:true, isH:false},
-        32: {x: axCoords[8], y: axCoords[0], isW:true, isH:false},
-        33: {x: axCoords[7], y: axCoords[0], isW:true, isH:false},
-        34: {x: axCoords[6], y: axCoords[0], isW:true, isH:false},
-        35: {x: axCoords[5], y: axCoords[0], isW:true, isH:false},
-        36: {x: axCoords[4], y: axCoords[0], isW:true, isH:false},
-        37: {x: axCoords[3], y: axCoords[0], isW:true, isH:false},
-        38: {x: axCoords[2], y: axCoords[0], isW:true, isH:false},
-        39: {x: axCoords[1], y: axCoords[0], isW:true, isH:false}
+        1: {x: axCoords[0], y: axCoords[1], isW:false, isH:true, isFull:false},
+        2: {x: axCoords[0], y: axCoords[2], isW:false, isH:true, isFull:false},
+        3: {x: axCoords[0], y: axCoords[3], isW:false, isH:true, isFull:false},
+        4: {x: axCoords[0], y: axCoords[4], isW:false, isH:true, isFull:false},
+        5: {x: axCoords[0], y: axCoords[5], isW:false, isH:true, isFull:false},
+        6: {x: axCoords[0], y: axCoords[6], isW:false, isH:true, isFull:false},
+        7: {x: axCoords[0], y: axCoords[7], isW:false, isH:true, isFull:false},
+        8: {x: axCoords[0], y: axCoords[8], isW:false, isH:true, isFull:false},
+        9: {x: axCoords[0], y: axCoords[9], isW:false, isH:true, isFull:false},
+        10: {x: h/2, y: L-h/2, isW:true, isH:true, isFull:false},
+        11: {x: axCoords[1], y: axCoords[10], isW:true, isH:false, isFull:false},
+        12: {x: axCoords[2], y: axCoords[10], isW:true, isH:false, isFull:false},
+        13: {x: axCoords[3], y: axCoords[10], isW:true, isH:false, isFull:false},
+        14: {x: axCoords[4], y: axCoords[10], isW:true, isH:false, isFull:false},
+        15: {x: axCoords[5], y: axCoords[10], isW:true, isH:false, isFull:false},
+        16: {x: axCoords[6], y: axCoords[10], isW:true, isH:false, isFull:false},
+        17: {x: axCoords[7], y: axCoords[10], isW:true, isH:false, isFull:false},
+        18: {x: axCoords[8], y: axCoords[10], isW:true, isH:false, isFull:false},
+        19: {x: axCoords[9], y: axCoords[10], isW:true, isH:false, isFull:false},
+        20: {x: L-h/2, y: L-h/2, isW:true, isH:true, isFull:false},
+        21: {x: axCoords[10], y: axCoords[9], isW:false, isH:true, isFull:false},
+        22: {x: axCoords[10], y: axCoords[8], isW:false, isH:true, isFull:false},
+        23: {x: axCoords[10], y: axCoords[7], isW:false, isH:true, isFull:false},
+        24: {x: axCoords[10], y: axCoords[6], isW:false, isH:true, isFull:false},
+        25: {x: axCoords[10], y: axCoords[5], isW:false, isH:true, isFull:false},
+        26: {x: axCoords[10], y: axCoords[4], isW:false, isH:true, isFull:false},
+        27: {x: axCoords[10], y: axCoords[3], isW:false, isH:true, isFull:false},
+        28: {x: axCoords[10], y: axCoords[2], isW:false, isH:true, isFull:false},
+        29: {x: axCoords[10], y: axCoords[1], isW:false, isH:true, isFull:false},
+        30: {x: L-h/2, y: h/2, isW:true, isH:true, isFull:false},
+        31: {x: axCoords[9], y: axCoords[0], isW:true, isH:false, isFull:false},
+        32: {x: axCoords[8], y: axCoords[0], isW:true, isH:false, isFull:false},
+        33: {x: axCoords[7], y: axCoords[0], isW:true, isH:false, isFull:false},
+        34: {x: axCoords[6], y: axCoords[0], isW:true, isH:false, isFull:false},
+        35: {x: axCoords[5], y: axCoords[0], isW:true, isH:false, isFull:false},
+        36: {x: axCoords[4], y: axCoords[0], isW:true, isH:false, isFull:false},
+        37: {x: axCoords[3], y: axCoords[0], isW:true, isH:false, isFull:false},
+        38: {x: axCoords[2], y: axCoords[0], isW:true, isH:false, isFull:false},
+        39: {x: axCoords[1], y: axCoords[0], isW:true, isH:false, isFull:false}
     };
   return positions;
 }
