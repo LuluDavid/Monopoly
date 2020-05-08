@@ -1,13 +1,10 @@
-import main
+from game.board import Board
+from game.user import User
+from game.boxes import Box, Street, Station
+from game.game import Game
+from game.globs import INITIAL_MONEY
 
-main.main()
-board = main.board
-
-##Test Class User
-
-from src.classes import User, Street, Box, Station, INITIAL_MONEY
-
-
+# Class User
 
 def test_getUserName():
     chloe = User("Chloe")
@@ -18,15 +15,15 @@ def test_getUserName():
     test3 = lucien.getUserName()
     if (test1 == "Chloe" and test2 == "Gildas" and test3 == "Lucien"):
         return True
-    else : 
+    else:
         raise Exception('Test test_getUserName failed.')
         
 def test_getMoney():
     chloe = User("Chloe")
-    chloe.money = 0
     gildas = User("Gildas")
-    gildas.money = 10000
     lucien = User("Lucien")
+    chloe.money = 0
+    gildas.money = 10000
     test1 = chloe.getMoney()
     test2 = gildas.getMoney()
     test3 = lucien.getMoney()
@@ -38,16 +35,16 @@ def test_getMoney():
         
 def test_getPosition():
     chloe = User("Chloe")
-    chloe.position = 5
     gildas = User("Gildas")
-    gildas.position = 39
     lucien = User("Lucien")
+    chloe.position = 5
+    gildas.position = 39
     test1 = chloe.getPosition()
     test2 = gildas.getPosition()
     test3 = lucien.getPosition()
     if (test1 == 5 and test2 == 39 and test3 == 0):
         return True
-    else : 
+    else :
         raise Exception('Test test_getPosition failed.')
         
         
@@ -55,22 +52,22 @@ def test_getGoods():
     chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
+    board = Board()
     chloe.goods.append(board.boxes[3])
     chloe.goods.append(board.boxes[5])
     chloe.goods.append(board.boxes[11])
     gildas.goods.append(board.boxes[3])
-    if (lucien.getGoods() == []):
-        if (len(gildas.getGoods())==1 and gildas.getGoods()[0].name == "Rue Lecourbe"):
-            if (len(chloe.getGoods())==3 and chloe.getGoods()[0].name == "Rue Lecourbe" and chloe.getGoods()[1].name == "Gare Montparnasse" and chloe.getGoods()[2].name == "Boulevard de la Vilette"):
+    if lucien.getGoods() == []:
+        if len(gildas.getGoods())==1 and gildas.getGoods()[0].name == "Rue Lecourbe":
+            if len(chloe.getGoods())==3 and chloe.getGoods()[0].name == "Rue Lecourbe" and chloe.getGoods()[1].name == "Gare Montparnasse" and chloe.getGoods()[2].name == "Boulevard de la Vilette":
                 return True
             else:
                 raise Exception('Test test_getGoods failed.')
-        else :
+        else:
             raise Exception('Test test_getGoods failed.')
     else:
         raise Exception('Test test_getGoods failed.')
-        
-        
+
         
 def test_getInPrison():
     chloe = User("Chloe")
@@ -81,8 +78,7 @@ def test_getInPrison():
     else:
         raise Exception('Test test_getInPrison failed.')
     
-    
-        
+
 def test_getPrisonTurn():
     chloe = User("Chloe")
     gildas = User("Gildas")
@@ -160,12 +156,13 @@ def test_buyAStreet():
     chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
+    board = Board()
     chloe.buyAStreet(board.boxes[39])
     chloe.buyAStreet(board.boxes[1])
     gildas.buyAStreet(board.boxes[3])
     if (lucien.getGoods() == [] and lucien.getMoney() == INITIAL_MONEY):
-        if len(gildas.getGoods()) == 1 and gildas.getGoods()[0].name == "Rue Lecourbe" and board.boxes[3].owner ==gildas and gildas.getMoney() == INITIAL_MONEY - 60:
-            if len(chloe.getGoods()) == 2 and chloe.getGoods()[0].name == "Rue de la Paix" and chloe.getGoods()[1].name == "Boulevard de Belleville" and chloe.getMoney() == INITIAL_MONEY - 400 - 60 :
+        if len(gildas.getGoods()) == 1 and gildas.getGoods()[0].name == "Rue Lecourbe" and board.boxes[3].owner == gildas and gildas.getMoney() == INITIAL_MONEY - 60:
+            if len(chloe.getGoods()) == 2 and chloe.getGoods()[0].name == "Rue de la Paix" and chloe.getGoods()[1].name == "Boulevard de Belleville" and chloe.getMoney() == INITIAL_MONEY - 400 - 60:
                 return True
             else:
                 raise Exception('Test test_buyAStreet failed.')
@@ -180,12 +177,13 @@ def test_buyAStation():
     chloe = User("Chloe")
     gildas = User("Gildas")
     lucien = User("Lucien")
+    board = Board()
     chloe.buyAStation(board.boxes[5])
     chloe.buyAStation(board.boxes[15])
     gildas.buyAStation(board.boxes[25])
     if (lucien.getGoods() == [] and lucien.getMoney() == INITIAL_MONEY):
         if len(gildas.getGoods()) == 1 and gildas.getGoods()[0].name == "Gare du Nord" and board.boxes[25].owner ==gildas and gildas.getMoney() == INITIAL_MONEY - 200:
-            if len(chloe.getGoods()) == 2 and chloe.getGoods()[0].name == "Gare Montparnasse" and chloe.getGoods()[1].name == "Gare de Lyon" and chloe.getMoney() == INITIAL_MONEY - 200 - 200 :
+            if len(chloe.getGoods()) == 2 and chloe.getGoods()[0].name == "Gare Montparnasse" and chloe.getGoods()[1].name == "Gare de Lyon" and chloe.getMoney() == INITIAL_MONEY - 200 - 200:
                 return True
             else:
                 raise Exception('Test test_buyAStation failed.')
@@ -268,7 +266,7 @@ def test_getOwner():
     gildas = User("Gildas")
     street1 = Street(12, "street", "test", 25, 22, "yellow")
     street2 = Street(15, "street", "gravelines", 250,85, "red")
-    street3 = Street(17, "street", "dunkerque", 52, 74, "blue", chloe , gildas)
+    street3 = Street(17, "street", "dunkerque", 52, 74, "blue", chloe, gildas)
     street2.owner = chloe
     test1 = street1.getOwner()
     test2 = street2.getOwner()
@@ -319,7 +317,7 @@ def test_getRent():
 def test_getHome():
     chloe = User("Chloe")
     street1 = Street(12, "street", "test", 25, 22, "yellow")
-    street2 = Street(15, "street", "gravelines", 250,None, "red", chloe, chloe, 3)
+    street2 = Street(15, "street", "gravelines", 250, None, "red", chloe, chloe, 3)
     test1 = street1.getHome()
     test2 = street2.getHome()
     if (test1 == 0 and test2 == 3):
@@ -333,16 +331,15 @@ def test_setHomes():
     street1 = Street(12, "street", "test", 25, 22, "yellow")
     street2 = Street(15, "street", "gravelines", 250,None, "red", chloe, chloe, 3)
     street3 = Street(17, "street", "dunkerque", 326,58, "red", chloe, chloe, 8)
-    test1 = street1.setHomes(5)
-    test2 = street2.setHomes(4)
-    test3 = street3.setHomes(0)
+    street1.setHomes(5)
+    street2.setHomes(4)
+    street3.setHomes(0)
     if (street1.getHome() == 5 and street2.getHome()==4 and street3.getHome()==0):
         return True 
     else : 
         raise Exception('Test test_setHomes failed.')
         
-        
-        
+
 def test_classStreet():
     print(str(test_getOwner())+", test getOwner")
     print(str(test_getPrice())+", test getPrice")
@@ -350,8 +347,8 @@ def test_classStreet():
     print(str(test_getRent())+", test getRent")
     print(str(test_getHome()) + ", test getHome")
     print(str(test_setHomes())+", test setHomes")
-    L=[test_getOwner(), test_getPrice(), test_getColor(), test_getRent(), test_getHome(), test_setHomes()]
-    n=len(L)
+    L = [test_getOwner(), test_getPrice(), test_getColor(), test_getRent(), test_getHome(), test_setHomes()]
+    n = len(L)
     count = 0
     for i in range(n):
         if L[i] == True:
@@ -391,8 +388,8 @@ def test_getPriceStation():
 def test_classStation():
     print(str(test_getOwnerStation())+", test getOwner")
     print(str(test_getPriceStation())+", test getPrice")
-    L=[test_getOwnerStation(), test_getPriceStation()]
-    n=len(L)
+    L = [test_getOwnerStation(), test_getPriceStation()]
+    n = len(L)
     count = 0
     for i in range(n):
         if L[i] == True:
@@ -404,6 +401,7 @@ def test_classStation():
 
 def test_getBox():
     position = 39
+    board = Board()
     if (board.boxes[position] == board.getBox(position)):
         return True
     else :
@@ -421,25 +419,24 @@ def test_classBoard():
     return "La class Street passe les tests a "+ str(count)+"/"+str(n)+""
         
         
-## Main Functions
+## GAME Functions
 
 
-        
-        
 def test_playerHasAllColorsStreets():
-    chloe = User("Chloe")
-    lucien = User("Lucien")
-    board = main.initGame()
-    chloe.buyAStreet(board.getBox(37))
-    chloe.buyAStreet(board.getBox(39))
-    lucien.buyAStreet(board.getBox(34))
-    lucien.buyAStreet(board.getBox(32))
-    lucien.buyAStreet(board.getBox(31))
-    lucien.buyAStreet(board.getBox(29))
-    test1 = main.playerHasAllColorStreets(chloe, 37)
-    test2 = main.playerHasAllColorStreets(chloe, 34)
-    test3 = main.playerHasAllColorStreets(lucien, 34)
-    test4 = main.playerHasAllColorStreets(lucien, 29)
+    players = {0: "Chloe", 1: "Lucien"}
+    game = Game(players)
+    chloe = game.players[0]
+    lucien = game.players[1]
+    chloe.buyAStreet(game.board.getBox(37))
+    chloe.buyAStreet(game.board.getBox(39))
+    lucien.buyAStreet(game.board.getBox(34))
+    lucien.buyAStreet(game.board.getBox(32))
+    lucien.buyAStreet(game.board.getBox(31))
+    lucien.buyAStreet(game.board.getBox(29))
+    test1 = game.playerHasAllColorStreets(chloe, 37)
+    test2 = game.playerHasAllColorStreets(chloe, 34)
+    test3 = game.playerHasAllColorStreets(lucien, 34)
+    test4 = game.playerHasAllColorStreets(lucien, 29)
     if (test1 == True and test2 == False and test3 == True and test4 == False):
         return True
     else :
@@ -448,27 +445,29 @@ def test_playerHasAllColorsStreets():
 
 
 def test_goToJail():
-    chloe = User("Chloe")
+    players = {0: "Chloe", 1: "Lucien"}
+    game = Game(players)
+    chloe = game.players[0]
     chloe.setPosition(25)
-    main.goToJail(chloe)
+    game.goToJail(chloe)
     if (chloe.getPosition() == 10 and chloe.getInPrison() == True and chloe.getPrisonTurn() == 0):
         return True
     else:
         raise Exception('Test test_goToJail failed.')
-    
 
     
-    
 def test_nbOfStations():
-    chloe = User("Chloe")
-    lucien = User("Lucien")
-    gildas = User("Gildas")
-    chloe.buyAStation(board.getBox(5))
-    chloe.buyAStation(board.getBox(15))
-    lucien.buyAStation(board.getBox(25))
-    test1 = main.nbOfStations(chloe)
-    test2 = main.nbOfStations(lucien)
-    test3 = main.nbOfStations(gildas)
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas"}
+    game = Game(players)
+    chloe = game.players[0]
+    lucien = game.players[1]
+    gildas = game.players[2]
+    chloe.buyAStation(game.board.getBox(5))
+    chloe.buyAStation(game.board.getBox(15))
+    lucien.buyAStation(game.board.getBox(25))
+    test1 = game.nbOfStations(chloe)
+    test2 = game.nbOfStations(lucien)
+    test3 = game.nbOfStations(gildas)
     if (test1 == 2 and test2 == 1 and test3 == 0):
         return True 
     else:
@@ -476,42 +475,45 @@ def test_nbOfStations():
         
         
 def test_getRentStreet():
-    chloe = User("chloe")
-    gildas = User("Gildas")
-    camille = User("camille")
-    lucien = User("lucien")
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = game.players[0]
+    lucien = game.players[1]
+    gildas = game.players[2]
+    camille = game.players[3]
     gildas.setPosition(1)
     lucien.setPosition(6)
     camille.setPosition(8)
-    chloe.buyAStreet(board.getBox(1))
-    chloe.buyAStreet(board.getBox(3))
-    chloe.buyAStreet(board.getBox(6))
-    chloe.buyAStreet(board.getBox(8))
-    board.getBox(6).setHomes(2)
-    test1 = main.getRentStreet(gildas)   #loyer double
-    test2 = main.getRentStreet(lucien)   #loyer avec 2 maisons
-    test3 = main.getRentStreet(camille)  #loyer normal
+    chloe.buyAStreet(game.board.getBox(1))
+    chloe.buyAStreet(game.board.getBox(3))
+    chloe.buyAStreet(game.board.getBox(6))
+    chloe.buyAStreet(game.board.getBox(8))
+    game.board.getBox(6).setHomes(2)
+    test1 = game.getRentStreet(gildas)   #loyer double
+    test2 = game.getRentStreet(lucien)   #loyer avec 2 maisons
+    test3 = game.getRentStreet(camille)  #loyer normal
     if test1 == 4 and test2 == 90 and test3 == 6:
         return True
     else:
         raise Exception('Test test_getRentStreet failed.')
     
 
-
 def test_getRentStation():
-    chloe = User("chloe")
-    gildas = User("Gildas")
-    camille = User("camille")
-    lucien = User("lucien")
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = game.players[0]
+    lucien = game.players[1]
+    gildas = game.players[2]
+    camille = game.players[3]
     camille.setPosition(5)
     lucien.setPosition(15)
-    chloe.buyAStation(board.getBox(5))
-    gildas.buyAStation(board.getBox(15))
-    gildas.buyAStation(board.getBox(25))
-    gildas.buyAStation(board.getBox(35))
-    test1 = main.getRentStation(camille)
-    test2 = main.getRentStation(lucien)
-    if test1 == 50 and test2 == 150 :
+    chloe.buyAStation(game.board.getBox(5))
+    gildas.buyAStation(game.board.getBox(15))
+    gildas.buyAStation(game.board.getBox(25))
+    gildas.buyAStation(game.board.getBox(35))
+    test1 = game.getRentStation(camille)
+    test2 = game.getRentStation(lucien)
+    if test1 == 50 and test2 == 150:
         return True
     else:
         raise Exception('Test test_getRentStation failed.')
@@ -530,38 +532,13 @@ def test_mainFunction():
     for i in range(n):
         if L[i] == True:
             count = count + 1
-    return "Les fonctions du mains passent les tests a "+ str(count)+"/"+str(n)+""
-    
-    
-
-
-##Bilan
-
-print(test_classUser())
-print(test_classStreet())
-print(test_classStation())
-print(test_classBox())
-print(test_classBoard())  
-print(test_mainFunction())    
-        
-        
-        
+    return "Les fonctions de la classe Game passent les tests a "+ str(count)+"/"+str(n)+""
     
 
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+if __name__ == "__main__":
+    print(test_classUser())
+    print(test_classStreet())
+    print(test_classStation())
+    print(test_classBox())
+    print(test_classBoard())
+    print(test_mainFunction())
