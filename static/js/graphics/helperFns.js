@@ -15,6 +15,7 @@ function init() {
 	pawnRadius = 0.5
 	// House Ratio
 	houseRatio = 1/7
+	houseColor = 0x00ff00
 	// Box
 	coverRatio = 0.7
 	boxWidth = cardboardWidth/12.2
@@ -121,7 +122,7 @@ function init() {
 	 */
 	housesPerBox = updateAllHouses()
 
-	i = 12
+	i = 5
 	$(document).on('click',() => incrementHousesPerBox(i));
 
 	/*
@@ -528,7 +529,7 @@ function updateHouses(i){
 
 function setUpHouse(i,j){
 	let box = boxes[i]
-	let house = createHouse()
+	let house = createHouse(houseColor)
 	if (box.isH){
 		house.position.set(housePositions[i].x, housePositions[i].y+houseRelativePos[j], 0.05)
 	}
@@ -574,47 +575,50 @@ function createPawn(position){
 	return pawn;
 }
 
-function createHouse(){
+function createHouse(clr){
 
 	var house = new THREE.Group();
-	let wallGeometry = new THREE.PlaneGeometry(houseWidth, houseHeight, 300)
+	let wallGeometry = new THREE.PlaneGeometry(houseWidth, houseHeight)
 	let roofGeometry = new THREE.PlaneGeometry(houseWidth, roofSize)
 	let roofFrontGeometry = new THREE.Geometry();
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-houseWidth/2,houseWidth/2,houseHeight));
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-houseWidth/2,-houseWidth/2,houseHeight));
-	roofFrontGeometry.vertices.push(new THREE.Vector3(0,0,houseHeight+houseWidth*Math.tan(roofAngle)/2))
-	roofFrontGeometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
-	roofFrontGeometry.faces.push( new THREE.Face3( 0, 2, 1 ) );
+	roofFrontGeometry.vertices.push(new THREE.Vector3(-houseWidth/2,0,houseHeight+houseWidth*Math.tan(roofAngle)/2))
+	let normalVectorFront = new THREE.Vector3(-1, 0, 0);
+	roofFrontGeometry.faces.push( new THREE.Face3( 0, 1, 2, normalVectorFront ) );
 	let roofBackGeometry = new THREE.Geometry();
 	roofBackGeometry.vertices.push(new THREE.Vector3(houseWidth/2,houseWidth/2,houseHeight));
 	roofBackGeometry.vertices.push(new THREE.Vector3(houseWidth/2,-houseWidth/2,houseHeight));
-	roofBackGeometry.vertices.push(new THREE.Vector3(0,0,houseHeight+houseWidth*Math.tan(roofAngle)/2))
-	roofFrontGeometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
-	roofBackGeometry.faces.push( new THREE.Face3( 0, 2, 1 ) );
+	roofBackGeometry.vertices.push(new THREE.Vector3(houseWidth/2,0,houseHeight+houseWidth*Math.tan(roofAngle)/2))
+	let normalVectorBack = new THREE.Vector3(-1, 0, 0);
+	roofBackGeometry.faces.push( new THREE.Face3( 0, 1, 2, normalVectorBack ) );
 
-	var material = new THREE.MeshBasicMaterial( {color:0xff0000, side:THREE.DoubleSide} )
-	var materialSides = new THREE.MeshBasicMaterial( {color:0xff0000, side:THREE.DoubleSide} )
+	var material = new THREE.MeshPhongMaterial( {color:clr, side:2} )
 	let frontWall = new THREE.Mesh(wallGeometry, material)
 	let backWall = new THREE.Mesh(wallGeometry, material)
 	let leftWall = new THREE.Mesh(wallGeometry, material)
 	let rightWall = new THREE.Mesh(wallGeometry, material)
 	let leftRoof = new THREE.Mesh(roofGeometry, material)
 	let rightRoof = new THREE.Mesh(roofGeometry, material)
-	let roofFront = new THREE.Mesh(roofFrontGeometry, materialSides)
-	let roofBack = new THREE.Mesh(roofBackGeometry, materialSides)
+	let roofFront = new THREE.Mesh(roofFrontGeometry, material)
+	let roofBack = new THREE.Mesh(roofBackGeometry, material)
 
-	frontWall.castShadow = true;
+	// frontWall.castShadow = true;
 	frontWall.receiveShadow = true;
-	backWall.castShadow = true;
+	// backWall.castShadow = true;
 	backWall.receiveShadow = true;
-	leftWall.castShadow = true;
+	// leftWall.castShadow = true;
 	leftWall.receiveShadow = true;
-	rightWall.castShadow = true;
+	// rightWall.castShadow = true;
 	rightWall.receiveShadow = true;
-	leftRoof.castShadow = true;
+	// leftRoof.castShadow = true;
 	leftRoof.receiveShadow = true;
-	rightRoof.castShadow = true;
+	// rightRoof.castShadow = true;
 	rightRoof.receiveShadow = true;
+	// roofFront.castShadow = true;
+	roofFront.receiveShadow = true;
+	// roofBack.castShadow = true;
+	roofBack.receiveShadow = true;
 
 	frontWall.position.set(-houseWidth/2, 0, houseHeight/2)
 	backWall.position.set(houseWidth/2, 0, houseHeight/2)
@@ -627,7 +631,7 @@ function createHouse(){
 	backWall.rotateX(Math.PI/2)
 	backWall.rotateY(Math.PI/2)
 	leftWall.rotateX(Math.PI/2)
-	rightWall.rotateX(Math.PI/2)
+	rightWall.rotateX(-Math.PI/2)
 	leftRoof.rotateX(-roofAngle)
 	rightRoof.rotateX(roofAngle)
 	house.add(frontWall)
@@ -666,8 +670,8 @@ function createGround(parentNode){
 }
 
 function addALight(parentNode){
-	let light = new THREE.DirectionalLight(0xffffff,1.2);
-	light.position.set(200,200,200)
+	let light = new THREE.DirectionalLight(0xffffff,1);
+	light.position.set(-1,-1,1)
 	light.castShadow = true;
 	light.shadow.mapSize.width = 2048;
 	light.shadow.mapSize.height = 2048;
