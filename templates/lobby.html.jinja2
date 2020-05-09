@@ -15,12 +15,12 @@
   <div id = "container"></div>
   <script src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
   <script src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
-  <script src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
-  <script>		
-    var container, stats;
-    var view, POV, scene, renderer;
-    var windowWidth, windowHeight;
-    view = 
+  <!-- <script src="{{ url_for('static',filename='js/graphics/orbitcontrols.js') }}"></script> -->
+  <script>
+      let container, stats;
+      let view, POV, scene, renderer;
+      let windowWidth, windowHeight;
+      view =
     	{	
   			near:0.1,
 			far:10000,
@@ -41,9 +41,9 @@
 					camera.lookAt(scene.position)
 				}
 			}
-		}
+		};
 
-	closeView =
+      closeView =
 		{	
 			near:0.1,
 			far:1000,
@@ -61,7 +61,7 @@
 					camera.lookAt(scene.children[3].children[currentPawn].position)
 				}
 			}
-		}
+		};
 	init();
 	</script>
 {% endblock %}

@@ -77,7 +77,7 @@ function init() {
             { scene.background = texture;  });
 	scene.background = new THREE.Color( 0x0000ff );
 	// Orbit controls
-	controls = new THREE.OrbitControls( view.camera );
+	// controls = new THREE.OrbitControls( view.camera );
 
 	/*
 	 * Renderer Settings
@@ -129,7 +129,7 @@ function init() {
 	/*
 	 * Basic update functions : update OrbiteControls, update the camera
 	 */
-	controls.update();
+	// controls.update();
 	animate();
 
 }
