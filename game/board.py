@@ -6,9 +6,10 @@ from game.cards import Card
 class Board:
     """A simple class to describe the board"""
 
-    def __init__(self, boxes_filename="game/data/boxes.json", community_funds_filename="game/data/community.json"): # From Python Path
+    def __init__(self, boxes_filename="game/data/boxes.json", cards_filename="game/data/cards.json", parc_money = 0): # From Python Path
         self.boxes = self.make_boxes(boxes_filename)
-        self.community_funds = self.make_community_funds(community_funds_filename)
+        self.cards = self.make_cards(cards_filename)
+        self.parc_money = parc_money
 
     @staticmethod
     def make_boxes(boxes_filename):
@@ -52,20 +53,20 @@ class Board:
         
         
     @staticmethod
-    def make_community_funds(community_funds_filename):
-     with open(community_funds_filename) as community_file:
-         json_community = json.loads(community_file.read())
-     community = []
-     for com in json_community:
-         community.append(
+    def make_cards(cards_filename):
+     with open(cards_filename) as cards_file:
+         json_cards = json.loads(cards_file.read())
+     card = []
+     for com in json_cards:
+         card.append(
              Card(
              int(com),
-             json_community[com]["name"],
-             json_community[com]["type"],
-             json_community[com]["value"]
+             json_cards[com]["name"],
+             json_cards[com]["type"],
+             json_cards[com]["value"]
              )
          )
-     return community
+     return card
         
         
 

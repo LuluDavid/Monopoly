@@ -2,7 +2,7 @@ from game.user import User
 from game.game import Game
 from game.globs import INITIAL_MONEY
 
-#python input_test.py < input_answers.txt 
+#pytpython input_test.py < input_answers.txt
 
 def test_isInJail():
     players = {
@@ -235,20 +235,34 @@ def test_onAStreetOrStation():
 
 
 
-def test_community_moove_backwards():
+def test_card_moove_backwards():
     players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
     game = Game(players)
     chloe = User(players[0])
     chloe.setPosition(2)
-    game.community_moove_backwards(chloe, 3)
+    game.card_moove_backwards(chloe, 3)
     if chloe.getPosition() == 1:
         return True
     else:
         raise Exception('Test test_community_moove_backwards failed.')
 
+def test_card_moove_forward():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = User(players[0])
+    lucien = User(players[1])
+    gildas = User(players[2])
+    gildas.setPosition(17)
+    lucien.setPosition(22)
+    game.card_moove_forward(chloe, 11)
+    game.card_moove_forward(gildas, 22)
+    game.card_moove_forward(lucien, 26)
+    if chloe.getPosition() == 0 and chloe.getMoney() == INITIAL_MONEY + 200 and gildas.getMoney() ==INITIAL_MONEY + 200 and gildas.getPosition() == 15 and lucien.getPosition() == 24 and lucien.getMoney() == INITIAL_MONEY :
+        return True
+    else:
+        raise Exception('Test test_card_moove_forward failed.')
 
-
-print(test_community_moove_backwards())
+print(test_card_moove_forward())
 
 
 

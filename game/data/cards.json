@@ -1,0 +1,185 @@
+{
+    "0" : {
+        "name" : "Vous heritez 100 euros.",
+        "type" : "earn-money",
+        "value" : 100
+    },
+    "1" : {
+        "name" : "Payez votre Police d'Assurance s'elevant a 50 euros",
+        "type" : "loose-money",
+        "value" : 50
+    },
+    "2" : {
+        "name" : "C'est votre anniversaire : chaque joueur doit vous donner 10 euros",
+        "type" : "birthday",
+        "value" : 10
+    },
+    "3" : {
+        "name" : "Retournez a Belleville",
+        "type" : "moove-backwards",
+        "value" : 1
+    },
+    "4" : {
+        "name" : "Payez la note du médecin 50 euros",
+        "type" : "loose-money",
+        "value" : 50
+    },
+    "5" : {
+        "name" : "Vous héritez 100 euros.",
+        "type" : "earn-money",
+        "value" : 100
+    },
+    "6" : {
+        "name" : "Payez une amende de 10 euros ou bien tiez une carte CHANCE",
+        "type" : "loose-money-or-chance",
+        "value" : 10
+    },
+    "7" : {
+        "name" : "Payez a l'hopital 100 euros",
+        "type" : "loose-money",
+        "value" : 100
+    },
+    "8" : {
+        "name" : "Les Contributions vous remboursent la somme de 20 euros",
+        "type" : "earn-money",
+        "value" : 20
+    },
+    "9" : {
+        "name" : "La vente de votre stock vous rapporte 50 euros.",
+        "type" : "earn-money",
+        "value" : 50
+    },
+    "10" : {
+        "name" : "Allez en prison. Avancez tout droit en prison? Ne passez pas par la case Depart. Ne recevez pas 200 euros",
+        "type" : "go-to-jail",
+        "value" : -1
+    },
+    "11" : {
+        "name" : "Avancez jusqu'a la case Depart",
+        "type" : "moove-forward",
+        "value" : 0
+    },
+    "12" : {
+        "name" : "Recevez votre revenu annuel 100 euros.",
+        "type" : "earn-money",
+        "value" : 100
+    },
+    "13" : {
+        "name" : "Recevez votre interet sur l'emprunt a 7% : 25 euros",
+        "type" : "earn-money",
+        "value" : 25
+    },
+    "14" : {
+        "name" : "Erreur de la Banque en votre faveur. Recevez 200 euros",
+        "type" : "earn-money",
+        "value" : 200
+    },
+    "15" : {
+        "name" : "Vous avez gagne le deuxieme prix de beaute. Recevez 10 euros",
+        "type" : "earn-money",
+        "value" : 10
+    },
+    "16" : {
+        "name" : "Vous etes libere de prison. Cette carte peut etre conservee jusqu'a ce qu'elle soit utilisee ou vendue",
+        "type" : "card-out-jail",
+        "value" : -1
+    },
+     "17" : {
+        "name" : "Amende pour ivresse : 20 euros",
+        "type" : "loose-money",
+        "value" : 20
+    },
+    "18" : {
+        "name" : "Reculez de trois cases.",
+        "type" : "backwards",
+        "value" : 3
+    },
+    "19" : {
+        "name" : "Vous etes impose pour les reparations de voirie a raison de : 40 euros par maison et 115 euros par hotel",
+        "type" : "taxes",
+        "value" : [40,115]
+    },
+    "20" : {
+        "name" : "La Banque vous verse un dividende de 50 euros",
+        "type" : "earn-money",
+        "value" : 50
+    },
+    "21" : {
+        "name" : "Vous avez gagne le prix de mots croises. Recevez 100 euros",
+        "type" : "earn-money",
+        "value" : 100
+    },
+    "22" : {
+        "name" : "Allez a la gare de Lyon. Si vous passez par la case Depart recevez 200 euros",
+        "type" : "moove-forward",
+        "value" : 15
+    },
+    "23" : {
+        "name" : "Amende pour exces de vitesse : 15 euros. ",
+        "type" : "loose-money",
+        "value" : 15
+    },
+    "24" : {
+        "name" : "Faites des reparations dans toutes vos maisons. Versez pour chaque maison 25 euros. Versez pour chaque hotel 100 euros",
+        "type" : "taxes",
+        "value" : [25,100]
+    },
+    "25" : {
+        "name" : "Allez en prison. Avancez tout droit en prison. Ne passez pas par la case Depart. Ne recevez pas 200 euros.",
+        "type" : "go-to-jail",
+        "value" : -1
+    },
+    "26" : {
+        "name" : "Rendez-vous a l'Avenue Henry-Martin. Si vous passez par la case Depart recevez 200 euros.",
+        "type" : "moove-forward",
+        "value" : 24
+    },
+    "27" : {
+        "name" : "Rendez-vous à la Rue de la Paix ",
+        "type" : "moove-forward",
+        "value" : 39
+    },
+    "28" : {
+        "name" : "Avancez au Boulevard de la Vilette. Si vous passez par la case Depart recevez 200 euros. ",
+        "type" : "moove-forward",
+        "value" : 11
+    },
+    "29" : {
+        "name" : "Vous etes libere de prison. Cette carte peut etre conservee jusqu'a ce qu'elle soit utilisee ou vendue",
+        "type" : "card-out-jail",
+        "value" : -1
+    },
+    "30" : {
+        "name" : "Avancez jusqu'a la case Depart.",
+        "type" : "moove-forward",
+        "value" : 0
+    },
+    "31" : {
+        "name" : "Payez pour frais de scolarite 150 euros",
+        "type" : "loose-money",
+        "value" : 150
+    },
+    "32" : {
+        "name" : "Votre immeuble et votre pret rapportent. Vous devez toucher 150 euros",
+        "type" : "earn-money",
+        "value" : 150
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
