@@ -12,22 +12,10 @@ jobs:
       - python/install-deps
       - python/save-cache
       - run:
-          command: sudo chmod 755 ./game/test.py
+          command: export PYTHONPATH=.; python -m unittest discover -s tests -t tests
           name: Test
 
 workflows:
   main:
     jobs:
       - build-and-test
-
-#version: 2.1
-#jobs:
-#  build:
-#    docker:
-#      - image: alpine:3.7
-#    steps:
-#     - run:
- #        name: The First Step
-  #        command: |
- #           echo 'Hello World!'
-  #          echo 'This is the delivery pipeline'
