@@ -1,22 +1,39 @@
 # Monopoly
 
-## Types of boxes
 
-* `start`
-* `street`
-* `station`
-* `public-service`
-* `community-fund`
-* `chance`
-* `tax`
-* `jail`
-* `park`
-* `to-jail`
 
 ## Project's Architecture
+```
+Monopoly  
+|  webbapp.py : server controler for the web application
+└──templates : jinja2 templates for the web application
+└──game : python module with the game algorithm
+└──tests : unittests for the game module
+└──static : static files download by the user while loaing the page
+    └──css
+    └──js
+        |  sockets.js : file managing all the socket communication beetwen server and clients
+        └──graphics : js module with all the graphic interface
+```
 
-* `src`: python and server's code
-* `srcGraphics`: graphic interface's code
-   => to test it: terminal -> `python -m http.server`
-      Firefox -> `http://localhost:8000/` -> go to `static/js/graphics/main.html`
-      click (not to quickly) to make pawns move forward (to be enhanced)
+
+## How to test
+
+### Game unittests
+In the root folder :
+```
+export PYTHONPATH=.
+python -m unittest discover -s tests -t tests
+```
+
+### Graphics
+Run `python -m http.server`. Then go into your webbrowser like Firefox and search for :
+```
+http://localhost:8000/static/js/graphics/main.html
+```      
+
+## Game
+
+### Types of boxes
+
+`start`, `street`, `station`, `public-service`, `community-fund`, `chance`, `tax`, `jail`, `park`, `to-jail`
