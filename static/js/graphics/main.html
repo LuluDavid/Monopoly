@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js assignment 2</title>
+		<title>Monopoly</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -32,7 +32,6 @@
 	</head>
 	<body>
 		<div id="container"></div>
-		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - assignment 2 - webgl</div>
 		<script src="three.min.js"></script>
 		<script src="helperFns.js"></script>
 		<script src="OrbitControls.js"></script>
@@ -46,11 +45,6 @@
 
 			view =
 				{	
-					// The ratio of the view size (if we want to add a second view)
-					left: 0,
-					top: 0,
-					width: 0.5,
-					height: 1,
 					near:0.1,
 					far:10000,
 					background: new THREE.Color( 0, 0, 0 ),
@@ -63,7 +57,7 @@
 					
 					updateCamera: function ( camera, scene ) {
 						// Look the board's center once its created
-						if (scene.children[2]){
+						if (scene.children[2] != null){
 							camera.lookAt(scene.children[2].position)
 						}
 						else {
@@ -74,11 +68,6 @@
 
 			closeView =
 				{	
-					// The ratio of the view size (if we want to add a second view)
-					left: 0.5,
-					top: 0,
-					width: 0.5,
-					height: 1,
 					near:0.1,
 					far:1000,
 					background: new THREE.Color( 0, 0, 0 ),
@@ -87,12 +76,12 @@
 					eye: [ 55, 55, 30 ],
 					// The up vector (defines the human perspective)
 					up: [ 0, 0, 1 ],
-					fov: 50,
+					fov: 20,
 					
 					updateCamera: function ( camera, scene ) {
 						// Look the board's center once its created
 						if (currentPawn >= 0){
-							camera.lookAt(scene.children[3+currentPawn].position)
+							camera.lookAt(scene.children[3].children[currentPawn].position)
 						}
 					}
 				}
