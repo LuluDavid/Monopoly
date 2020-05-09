@@ -1,5 +1,8 @@
 import unittest
 from game.game import Game
+from game.user import User
+from game.globs import INITIAL_MONEY
+from game.board import Board
 
 
 class TestGame(unittest.TestCase):
@@ -77,6 +80,38 @@ class TestGame(unittest.TestCase):
         gildas.buyAStation(game.board.getBox(35))
         self.assertEqual(game.getRentStation(camille), 50)
         self.assertEqual(game.getRentStation(lucien), 150)
+
+    def test_make_community_funds(self):
+        board = Board()
+        self.assertEqual(board.community_funds[0].name, "Vous heritez 100 euros.")
+        self.assertEqual(board.community_funds[0].card_type, "earn-money")
+        self.assertEqual(board.community_funds[0].value, 100)
+        self.assertEqual(len(board.community_funds), 17)
+        self.assertEqual(board.community_funds[-1].value, -1)
+
+    def test_community_earn_money(self):
+        players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(players)
+        chloe = User(players[0])
+        chloe.setPosition(2)
+        game.community_earn_money(chloe, 15)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY + 10)
+
+    def test_community_loose_money(self):
+        players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(players)
+        chloe = User(players[0])
+        chloe.setPosition(2)
+        game.community_loose_money(chloe, 7)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY - 100)
+
+    def test_community_moove_forward(self):
+        players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(players)
+        chloe = User(players[0])
+        game.community_moove_forward(chloe, 11)
+        self.assertEqual(chloe.getPosition(), 0)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY + 200)
 
 
 if __name__ == '__main__':
