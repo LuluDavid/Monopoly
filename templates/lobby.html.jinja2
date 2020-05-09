@@ -1,0 +1,67 @@
+{% extends "layout.html.jinja2" %}
+{% set page_title = "Monopoly" %}
+
+{% block body %}
+
+  <script>
+    let gameId = {{ game_id }};
+    let playerId = {{ player_id }};
+    let playerName = "{{ player_name }}";
+    //sockets(gameId, playerId, playerName)
+  </script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
+
+  <div id = "container"></div>
+  <script src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
+  <script>		
+    var container, stats;
+    var view, POV, scene, renderer;
+    var windowWidth, windowHeight;
+    view = 
+    	{	
+  			near:0.1,
+			far:10000,
+			background: new THREE.Color( 0, 0, 0 ),
+
+			// The camera's position
+			eye: [ -100, -100, 100 ],
+			// The up vector (defines the human perspective)			
+			up: [ 0, 0, 1 ],
+			fov: 30,
+				
+			updateCamera: function ( camera, scene ) {
+				// Look the board's center once its created
+				if (scene.children[2] != null){
+					camera.lookAt(scene.children[2].position)
+				}
+				else {
+					camera.lookAt(scene.position)
+				}
+			}
+		}
+
+	closeView =
+		{	
+			near:0.1,
+			far:1000,
+			background: new THREE.Color( 0, 0, 0 ),
+
+			// The camera's position
+			eye: [ 55, 55, 30 ],
+			// The up vector (defines the human perspective)
+			up: [ 0, 0, 1 ],
+			fov: 20,
+			
+			updateCamera: function ( camera, scene ) {
+				// Look the board's center once its created
+				if (currentPawn >= 0){
+					camera.lookAt(scene.children[3].children[currentPawn].position)
+				}
+			}
+		}
+	init();
+	</script>
+{% endblock %}

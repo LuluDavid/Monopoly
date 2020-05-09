@@ -73,7 +73,7 @@ function init() {
 	// Scene
 	scene = new THREE.Scene();
 	const loader = new THREE.TextureLoader();
-	loader.load('textures/clearSky.jpg' , function(texture)
+	loader.load('static/js/graphics/textures/clearSky.jpg' , function(texture)
             { scene.background = texture;  });
 	scene.background = new THREE.Color( 0x0000ff );
 	// Orbit controls
@@ -671,7 +671,7 @@ function createHouse(clr, width, height){
 
 function createCardboard(width, parentNode){
 	let cardboardGeometry = new THREE.PlaneGeometry(width,width);
-	let texture = new THREE.TextureLoader().load('textures/monopoly.jpg');
+	let texture = new THREE.TextureLoader().load('static/js/graphics/textures/monopoly.jpg');
 	let cardboardMaterial = new THREE.MeshPhongMaterial({map:texture});
 	let cardboard = new THREE.Mesh(cardboardGeometry,cardboardMaterial);
 	cardboard.position.set(cardboardWidth/2,cardboardWidth/2,0.03);
@@ -682,7 +682,7 @@ function createCardboard(width, parentNode){
 function createGround(parentNode){
 	let groundGeometry = new THREE.PlaneGeometry(2000,2000)
 	let texture = new THREE.TextureLoader().load( 
-		'textures/herbe.jpg' );
+		'static/js/graphics/textures/herbe.jpg' );
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set( 20, 20 );

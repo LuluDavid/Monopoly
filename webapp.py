@@ -44,7 +44,7 @@ def play_game():
 
         print(GAMES)
         return render_template(
-            'loby.html.jinja2',
+            'lobby.html.jinja2',
             game_id=game_id,
             player_id=player_id,
             player_name=player_name,

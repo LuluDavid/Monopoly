@@ -6,6 +6,10 @@ body {
   padding-top: 56px;
 }
 
+main {
+  margin: 0px;
+}
+
 #home_buttons {
   max-width:500px
 }
