@@ -14,25 +14,31 @@
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
   <a class="navbar-brand" href="{{ url_for("home")}}">Monopoly</a>
-
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav mr-auto">
     </ul>
   </div>
 </nav>
 
-<body>
+
 
   <div class="d-flex" id="wrapper">
 
     {% if game_id %}
     <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading">{{ game_name }}</div>
+      <div class="sidebar-heading">{{ game_name }} <span class="badge badge-success align-middle mx-2" id="copy">Copier l'id</span></div>
       <div class="list-group list-group-flush" id="player_list">
         <div class="list-group-item list-group-item-action bg-light">
           <strong>{{ player_name }}</strong>
         </div>
       </div>
+
+        <div id="chatbox">
+            <div id="messages">
+            </div>
+            <input type="text" name="msgInput" id="msgInput" placeholder="Entrez votre message">
+        </div>
+
     </div>
     {% endif %}
 

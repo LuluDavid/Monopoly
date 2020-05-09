@@ -74,6 +74,23 @@ def on_join(data):
         emit('error', {'error': 'Unable to join room. Room does not exist.'})
 
 
+@socketio.on('new_msg')
+def on_new_msg(data):
+    """Post new messages"""
+    player_name = data['player_name']
+    msg = data['msg']
+    game_id = data['game_id']
+    if game_id in GAMES:
+        emit(
+            'print_new_msg',
+            {"room": game_id, "player_name": player_name, "msg": msg},
+            room=game_id
+        )
+    else:
+        print("Unable to post in room. Room does not exist.")
+        emit('error', {'error': 'Unable to post in room. Room does not exist.'})
+
+
 def redirect_home():
     return redirect(url_for('home'))
 
