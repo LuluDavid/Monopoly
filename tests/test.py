@@ -45,7 +45,7 @@ def test_getPosition():
     test3 = lucien.getPosition()
     if (test1 == 5 and test2 == 39 and test3 == 0):
         return True
-    else :
+    else:
         raise Exception('Test test_getPosition failed.')
         
         
@@ -255,7 +255,7 @@ def test_classBox():
     for i in range(n):
         if L[i] == True:
             count = count + 1
-    return "La class Box passe les tests a "+ str(count)+"/"+str(n)+""
+    return "La class Box passe les test a "+ str(count)+"/"+str(n)+""
     
     
     
@@ -354,7 +354,7 @@ def test_classStreet():
     for i in range(n):
         if L[i] == True:
             count = count + 1
-    return "La class Street passe les tests a "+ str(count)+"/"+str(n)+""
+    return "La class Street passe les test a "+ str(count)+"/"+str(n)+""
     
     
 ## Class Station
@@ -395,7 +395,7 @@ def test_classStation():
     for i in range(n):
         if L[i] == True:
             count = count + 1
-    return "La class Street passe les tests a "+ str(count)+"/"+str(n)+""
+    return "La class Street passe les test a "+ str(count)+"/"+str(n)+""
     
     
 ## Class Board
@@ -417,10 +417,8 @@ def test_classBoard():
     for i in range(n):
         if L[i] == True:
             count = count + 1
-    return "La class Street passe les tests a "+ str(count)+"/"+str(n)+""
-
-
-
+    return "La class Street passe les test a "+ str(count)+"/"+str(n)+""
+        
         
 ## GAME Functions
 
