@@ -10,15 +10,15 @@ class UserTest(unittest.TestCase):
     """Test for class User"""
 
     def test_get_username(self):
-        chloe = User("Chloe")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        lucien = User("Lucien",1)
         self.assertEqual(chloe.getUserName(), "Chloe")
         self.assertEqual(lucien.getUserName(), "Lucien")
 
     def test_set_in_jail(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
+        lucien = User("Lucien",2)
         chloe.setInPrison(True)
         gildas.setInPrison(False)
         self.assertTrue(chloe.getInPrison())
@@ -26,9 +26,9 @@ class UserTest(unittest.TestCase):
         self.assertFalse(lucien.getInPrison())
 
     def test_set_position(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
+        lucien = User("Lucien",2)
         chloe.setPosition(24)
         gildas.setPosition(0)
         self.assertEqual(chloe.getPosition(), 24)
@@ -36,9 +36,9 @@ class UserTest(unittest.TestCase):
         self.assertEqual(lucien.getPosition(), 0)
 
     def test_earn_money(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
+        lucien = User("Lucien",2)
         chloe.EarnMoney(50)
         gildas.EarnMoney(0)
         self.assertEqual(chloe.getMoney(), INITIAL_MONEY + 50)
@@ -46,9 +46,9 @@ class UserTest(unittest.TestCase):
         self.assertEqual(lucien.getMoney(), INITIAL_MONEY)
 
     def test_loose_money(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
+        lucien = User("Lucien",2)
         chloe.LooseMoney(50)
         gildas.LooseMoney(0)
         self.assertEqual(chloe.getMoney(), INITIAL_MONEY - 50)
@@ -56,9 +56,9 @@ class UserTest(unittest.TestCase):
         self.assertEqual(lucien.getMoney(), INITIAL_MONEY)
 
     def test_buy_street(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
+        lucien = User("Lucien",2)
         board = Board()
         chloe.buyAStreet(board.boxes[39])
         chloe.buyAStreet(board.boxes[1])
@@ -74,9 +74,9 @@ class UserTest(unittest.TestCase):
         self.assertEqual(chloe.getMoney(), INITIAL_MONEY - 400 - 60)
 
     def test_buy_station(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
-        lucien = User("Lucien")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
+        lucien = User("Lucien",2)
         board = Board()
         chloe.buyAStation(board.boxes[5])
         chloe.buyAStation(board.boxes[15])

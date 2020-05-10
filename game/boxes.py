@@ -17,6 +17,27 @@ class Box:
         return self.box_type
 
 
+
+class Public_services(Box):
+    def __init__(self, index, box_type, name, price, owner=None, players=None):
+        super().__init__(index, box_type, name, players)
+        self.price = price
+        self.owner = owner
+
+    def getOwner(self):
+        return self.owner
+
+    def getPrice(self):
+        return self.price
+
+
+class Tax(Box):
+
+    def __init__(self, index, box_type, name, rent, players=None):
+        super().__init__(index, box_type, name, players)
+        self.rent = rent
+
+
 class Street(Box):
 
     def __init__(self, index, box_type, name, price, rent, color, players=None, owner=None, home=0):

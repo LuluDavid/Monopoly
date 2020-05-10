@@ -1,8 +1,8 @@
-from game.user import User
+import sys
 from game.game import Game
 from game.globs import INITIAL_MONEY
 
-#pytpython input_test.py < input_answers.txt
+#python tests/input_test.py < tests/scenarios/answers_community_or_chance.txt
 
 def test_isInJail():
     players = {
@@ -146,7 +146,7 @@ def test_actualizePositionAux():
     game.actualizePositionAux(chloe, [2, 1])
     game.actualizePositionAux(lucien, [6, 1])
     game.actualizePositionAux(gildas, [4, 5])
-    if (chloe.getPosition() == 15 and lucien.getPosition() == 6 and gildas.getPosition() == 0):
+    if chloe.getPosition() == 15 and lucien.getPosition() == 6 and lucien.getMoney() == INITIAL_MONEY +200 and gildas.getPosition() == 0 and gildas.getMoney() == INITIAL_MONEY + 200:
         print("\n",True)
     else:
         raise Exception('Test test_actualizePosition failed.')
@@ -238,7 +238,7 @@ def test_onAStreetOrStation():
 def test_card_moove_backwards():
     players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
     game = Game(players)
-    chloe = User(players[0])
+    chloe = game.players[0]
     chloe.setPosition(2)
     game.card_moove_backwards(chloe, 3)
     if chloe.getPosition() == 1:
@@ -249,9 +249,9 @@ def test_card_moove_backwards():
 def test_card_moove_forward():
     players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
     game = Game(players)
-    chloe = User(players[0])
-    lucien = User(players[1])
-    gildas = User(players[2])
+    chloe = game.players[0]
+    lucien = game.players[1]
+    gildas = game.players[2]
     gildas.setPosition(17)
     lucien.setPosition(22)
     game.card_moove_forward(chloe, 11)
@@ -262,16 +262,63 @@ def test_card_moove_forward():
     else:
         raise Exception('Test test_card_moove_forward failed.')
 
-print(test_card_moove_forward())
+
+def test_card_community_or_chance():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = game.players[0]
+    lucien = game.players[1]
+    game.card_community_or_chance(chloe, 6)
+    game.card_community_or_chance(lucien, 6)
+    if chloe.getMoney() == INITIAL_MONEY - 10:
+        return True
+    else:
+        raise Exception('Test test_card_community_or_chance failed.')
+
+
+def test_card_backwards():
+    players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+    game = Game(players)
+    chloe = game.players[0]
+    lucien = game.players[1]
+    gildas = game.players[2]
+    camille = game.players[3]
+    chloe.setPosition(2)
+    lucien.setPosition(7)
+    gildas.setPosition(33)
+    camille.setPosition(36)
+    game.card_backwards(chloe, 18)
+    game.card_backwards(lucien, 18)
+    game.card_backwards(gildas, 18)
+    game.card_backwards(camille, 18)
+    if chloe.getPosition() == 39 and lucien.getPosition() == 4 and lucien.getMoney() == INITIAL_MONEY - 200 and gildas.getInPrison() == True and gildas.getPosition() == 10 and gildas.getMoney() == INITIAL_MONEY:
+        return True
+    else:
+        raise Exception('Test test_card_backwards failed.')
 
 
 
-
-
-
-
-
-
+if __name__ == '__main__':
+    if sys.argv[1] == "test_card_moove_forward":
+        print(test_card_moove_forward())
+    elif sys.argv[1] == "test_card_moove_backwards":
+        print(test_card_moove_backwards())
+    elif sys.argv[1] == "onAStreetOrStation":
+        print(test_onAStreetOrStation())
+    elif sys.argv[1] == "test_jail_chooseToPay":
+        print(test_jail_chooseToPay())
+    elif sys.argv[1] == "test_actualizePositionAux":
+        print(test_actualizePositionAux())
+    elif sys.argv[1] == "test_jail_chooseDouble":
+        print(test_jail_chooseDouble())
+    elif sys.argv[1] == "test_putHomes":
+        print(test_putHomes())
+    elif sys.argv[1] == "test_isInJail":
+        print(test_isInJail())
+    elif sys.argv[1] == "test_card_community_or_chance":
+        print(test_card_community_or_chance())
+    elif sys.argv[1] == "test_card_backwards":
+        print(test_card_backwards())
 
 
 

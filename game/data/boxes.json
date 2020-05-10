@@ -225,7 +225,8 @@
   },
   "38": {
     "type": "tax",
-    "name": "Taxe de Luxe"
+    "name": "Taxe de Luxe",
+    "rent": 100
   },
   "39": {
     "type": "street",
