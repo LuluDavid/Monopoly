@@ -49,7 +49,7 @@ const closeView =
 
 
 // Ratio of graphics on the main page
-const graphicsRatio = 0.85
+const graphicsRatio = 1-0.167;
 
 // Cardboard
 
@@ -82,14 +82,14 @@ var boxes = getBoxesPositions(cardboardWidth);
 const epsilon = 1;
 const coverMotion = 0.8;
 // Pawn motion
-const tMotion = 0.5; // duration to go to next case (seconds)
+const tMotion = 3; // duration to go to next case (seconds)
 // Pawn positions per box (where to put them to make them fit in)
 var pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
 // Incrementing boolean to avoid multi-calls
 var incrementing = false;
 // CloseView activation boolean
 var closeViewDisplay = false;
-const closeViewRatio = 0.4;
+const closeViewRatio = 0.35;
 const closeViewHeight = 50;
 const closeViewFurtherRatio = 2;
 // House relative position
@@ -160,7 +160,7 @@ function init() {
 	/*
 	 * First test to move successfully pawns around the board
 	 */
-	$(document).on('click',() => incrementPositionsAux());
+	$("#container").on('click',() => incrementPositionsAux());
 	/*
 	 * Create a group of empty houses per box
 	 */
@@ -202,7 +202,7 @@ function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1){
 	view.updateCamera(view.camera,scene);
 
 	var left = Math.floor( windowWidth * vleft );
-	var top = Math.floor( windowHeight * vtop );
+	var top = Math.floor( windowHeight * vtop-54 );
 	var width = Math.floor( windowWidth * vwidth );
 	var height = Math.floor( windowHeight * vheight );
 
@@ -222,7 +222,6 @@ function updateCloseView(vleft = (graphicsRatio-closeViewRatio), vtop = (1-close
 	// Second view
 	closeView.updateCamera(closeView.camera,scene);
 
-	console.log("left = "+windowWidth * vleft+", width = "+windowWidth * vwidth);
 	var leftcloseView = Math.floor( windowWidth * vleft );
 	var topcloseView = Math.floor( windowHeight * vtop );
 	var widthcloseView = Math.floor( windowWidth * vwidth );
@@ -329,8 +328,9 @@ function translatePawnToBox(i, j){
 }
 
 function addCanvas(){
-	let height = windowHeight*closeViewRatio;
-	let width = windowWidth*closeViewRatio;
+	let height = Math.floor(windowHeight*closeViewRatio-56);
+	let width = Math.floor(windowWidth*closeViewRatio);
+	console.log(width);
 	let canvas = "<canvas id = 'closeView' width='"+ width +"' height='"+ height +"' style=\"border:3px solid #000000; position:fixed; top: 56px; right: 0px; z-index:2;\"></canvas>"
 	$("#container").append(canvas);
 }
