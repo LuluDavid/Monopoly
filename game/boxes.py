@@ -5,6 +5,7 @@ class Box:
         self.index = index
         self.box_type = box_type
         self.name = name
+        self.home = 0
         if players is None:
             self.players = []
         else:

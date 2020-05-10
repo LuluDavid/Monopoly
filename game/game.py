@@ -1,7 +1,6 @@
 import random
 from game.user import User
 from game.board import Board
-from game.cards import Card
 
 
 class Game:
@@ -10,13 +9,15 @@ class Game:
         self.players = self.initPlayers(players)
         self.board = Board()
         self.players_order = self.orderOfPlayers(self.players)
+        self.current_player_turn = 0
+        self.board.boxes[0].players = list(players.keys())
 
     def initPlayers(self, players):
         """Define the players at the beginning of the game"""
-        if len(players) >= 2:
+        if len(players) >= 0:#2:
             return {i: User(players[i], i) for i in players}
         else:
-            raise Exception('Not enough self.players[i].LooseMoney(value)players to start the game')
+            raise Exception('Not enough players to start the game')
 
 
     def orderOfPlayers(self, players):
@@ -37,7 +38,10 @@ class Game:
 
     def actualizePosition(self, player):
         dices = self.launchDices()
+        print(dices)
+        self.board.boxes[player.getPosition()].players.remove(player.identity)
         self.actualizePositionAux(player, dices)
+        self.board.boxes[player.getPosition()].players.append(player.identity)
 
     def actualizePositionAux(self, player, dices):
         """
@@ -51,7 +55,7 @@ class Game:
         prisonTurn = player.getPrisonTurn()
         player.dices = totalDices
         if (prison == False):
-            input("" + player.name + ", tu as fait " + str(totalDices))
+            print("" + player.name + ", tu as fait " + str(totalDices))
             if (oldPosition + totalDices < 40):
                 player.setPosition(oldPosition + totalDices)
             else:
@@ -498,6 +502,13 @@ class Game:
                 self.players_order.remove(looser)
         return self.players_order
 
+    def play_turn(self, data):
+        self.actualizePosition(self.players[self.players_order[self.current_player_turn]])
+        self.current_player_turn += 1
+        if self.current_player_turn >= len(self.players_order):
+            self.current_player_turn = 0
 
-#if __name__ == '__main__':
-
+    def game_to_json(self):
+        return {
+            i: [self.board.boxes[i].players, self.board.boxes[i].home] for i in list(self.board.boxes.keys())
+        }

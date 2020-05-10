@@ -81,6 +81,12 @@ class TestGame(unittest.TestCase):
         self.assertEqual(game.getRentStation(camille), 50)
         self.assertEqual(game.getRentStation(lucien), 150)
 
+    def test_play_turn(self):
+        players = {0: "Gildas", 1: "Chloe", 2: "Lucien"}
+        game = Game(players)
+        response = game.play_turn({})
+        #self.assertEqual(response[0], [[0, 1, 2], 0]) # random dices throwed
+
     def test_make_cards(self):
         board = Board()
         self.assertEqual(board.cards[0].name, "Vous heritez 100 euros.")

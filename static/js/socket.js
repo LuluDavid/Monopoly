@@ -1,5 +1,6 @@
 $( document ).ready(function() {
     let socket = io.connect('http://' + document.domain + ':' + location.port);
+    $("#play_turn").hide();
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
@@ -12,7 +13,8 @@ $( document ).ready(function() {
     }
 
     socket.on('join_game', function(data) {
-        let newPlayerName = data["new_player"]["name"]
+        let newPlayerName = data["new_player"]
+        console.log(data)
         console.log(newPlayerName + " a rejoint la partie");
         let playersInGameNames = data["players_in_game_names"];
         console.log(playersInGameNames);
@@ -30,6 +32,29 @@ $( document ).ready(function() {
         playerHtmlLine += nameToAdd + '</div>';
         $("#player_list").append(playerHtmlLine);
     }
+
+    $("#start_game").click(function(){
+        console.log("Starting Game...");
+        $("#start_game").hide();
+        socket.emit('start_game', {game_id: gameId, player_id: playerId});
+    });
+
+    socket.on('start_game', function(data) {
+        console.log("Game started");
+        $("#play_turn").show();
+        console.log(data);
+    });
+
+    $("#play_turn").click(function(){
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId});
+    });
+
+    socket.on('play_turn', function(data) {
+        console.log("Game played");
+        console.log(data);
+    });
+
+
 
     $('#msgInput').on('keypress', function (e) {
         if(e.keyCode == 13){
