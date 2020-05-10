@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_socketio import SocketIO, join_room, emit, send
 import random as rd
 
+from game.game import Game
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -24,6 +26,7 @@ def play_game():
                 game_id = generate_id()
             GAMES[game_id] = {
                 "name": game_name,
+                "game": None,
                 "players": {}
             }
 
@@ -41,9 +44,8 @@ def play_game():
         player_id = generate_id()
         while player_id in GAMES[game_id]["players"]:
             player_id = generate_id()
-        GAMES[game_id]["players"][player_id] = {"name": player_name}
+        GAMES[game_id]["players"][player_id] = player_name
 
-        print(GAMES)
         return render_template(
             'lobby.html.jinja2',
             game_id=game_id,
@@ -59,7 +61,6 @@ def play_game():
 
 @socketio.on('join')
 def on_join(data):
-    """Join a game"""
     game_id = data['game_id']
     if game_id in GAMES:
         join_room(game_id)
@@ -75,9 +76,24 @@ def on_join(data):
         emit('error', {'error': 'Unable to join room. Room does not exist.'})
 
 
+@socketio.on('start_game')
+def on_start_game(data):
+    game_id = data["game_id"]
+    GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
+    response = GAMES[game_id]["game"].play_turn(data)
+    emit("start_game", response, room=game_id)
+
+
+@socketio.on('play_turn')
+def on_play_turn(data):
+    game_id = data["game_id"]
+    GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
+    response = GAMES[game_id]["game"].play_turn(data)
+    emit("play_turn", response, room=game_id)
+
+
 @socketio.on('new_msg')
 def on_new_msg(data):
-    """Post new messages"""
     player_name = data['player_name']
     msg = data['msg']
     game_id = data['game_id']

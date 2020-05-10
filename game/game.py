@@ -498,6 +498,12 @@ class Game:
                 self.players_order.remove(looser)
         return self.players_order
 
-
-#if __name__ == '__main__':
-
+    def play_turn(self, data):
+        response = {
+            "board": self.board,
+            "moove": {
+                "player_id": list(self.players.keys())[0],
+                "landing_position": random.randint(0,39)
+            }
+        }
+        return response
