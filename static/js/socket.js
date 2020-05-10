@@ -101,6 +101,28 @@ $( document ).ready(function() {
         temp.remove();
     });
 
+    $("#question").on('click', function(){
+        //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
+        $("#modalQuestionLabel").text('Acheter un terrain');
+        $("#modalQuestionContent").text('Voulez vous acheter le terrain : Rue de Paradis, pour 3 cacahuètes ?');
+        $("#modalQuestion1").text('J\'achète le terrain');
+        $("#modalQuestion2").text('Je n\'achète pas le terrain');
+        $('#modalQuestion').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    });
+
+    $("#information").on('click', function(){
+        //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
+        $("#modalInfoLabel").text('Caisse de communauté');
+        $("#modalInfoContent").text('Félicitations, vous héritez de .... ah bah rien en fait, tout va à la banque');
+        $('#modalInfo').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    });
+
 });
 
 
