@@ -24,7 +24,7 @@ class Game:
         """Choosing randomly what is the order of players"""
         print("Bienvenue a tous dans cette super partie de Monopoly, nous allons tout d'abord tirer au sort l'ordre de jeu des differents joueurs")
         order = list(players.keys())
-        random.shuffle(order)
+        #random.shuffle(order)
         for i in range(len(order)):
             pass #print("Le joueur " + str(i+1) + " est " + self.players[order[i]].name)
         return order
