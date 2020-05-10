@@ -24,8 +24,8 @@ class BoxTest(unittest.TestCase):
 class StreetTest(unittest.TestCase):
 
     def test_get_owner(self):
-        chloe = User("Chloe")
-        gildas = User("Gildas")
+        chloe = User("Chloe",0)
+        gildas = User("Gildas",1)
         street1 = Street(12, "street", "test", 25, 22, "yellow")
         street2 = Street(15, "street", "gravelines", 250, 85, "red")
         street3 = Street(17, "street", "dunkerque", 52, 74, "blue", chloe, gildas)
@@ -57,14 +57,14 @@ class StreetTest(unittest.TestCase):
         self.assertEqual(street2.getRent(), None)
 
     def test_get_home(self):
-        chloe = User("Chloe")
+        chloe = User("Chloe",0)
         street1 = Street(12, "street", "test", 25, 22, "yellow")
         street2 = Street(15, "street", "gravelines", 250, None, "red", chloe, chloe, 3)
         self.assertEqual(street1.getHome(), 0)
         self.assertEqual(street2.getHome(), 3)
 
     def test_set_homes(self):
-        chloe = User("Chloe")
+        chloe = User("Chloe",0)
         street1 = Street(12, "street", "test", 25, 22, "yellow")
         street2 = Street(15, "street", "gravelines", 250, None, "red", chloe, chloe, 3)
         street3 = Street(17, "street", "dunkerque", 326, 58, "red", chloe, chloe, 8)
