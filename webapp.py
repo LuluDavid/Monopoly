@@ -2,11 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_socketio import SocketIO, join_room, emit, send
 import random as rd
 
+from numpy.core import unicode
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
 GAMES = {}
+
 
 @app.route('/')
 def home():
@@ -44,7 +47,7 @@ def play_game():
 
         print(GAMES)
         return render_template(
-            'loby.html.jinja2',
+            'lobby.html.jinja2',
             game_id=game_id,
             player_id=player_id,
             player_name=player_name,

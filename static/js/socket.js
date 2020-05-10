@@ -25,7 +25,6 @@ $( document ).ready(function() {
         }
     });
 
-
     function addPlayerNameToSidebar(nameToAdd){
         let playerHtmlLine = '<div class="list-group-item list-group-item-action bg-light" id="player_list">';
         playerHtmlLine += nameToAdd + '</div>';
@@ -34,17 +33,34 @@ $( document ).ready(function() {
 
     $('#msgInput').on('keypress', function (e) {
         if(e.keyCode == 13){
-            let newMsg = $('#msgInput').val();
+            let newMsg = escapeHtml($('#msgInput').val());
             $('#msgInput').val('');
             socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
         }
     });
 
+    function escapeHtml(text) {
+      return text
+          .replace("&", "&amp;") // Necessary to do it first
+          .replace("é", "&eacute;")
+          .replace("è", "&egrave;")
+          .replace("ê", "&ecirc;")
+          .replace("à", "&agrave;")
+          .replace("â", "&acirc;")
+          .replace("ç","&ccedil;")
+          .replace("ù", "&ugrave;")
+          .replace("û", "&ucirc;")
+          .replace("ô", "&ocirc;")
+          .replace("î", "&icirc;")
+          .replace("\"", "&quot;")
+          .replace("\'", "&apos;")
+          .replace(/<\/?[^>]+(>|$)/g, "");
+    }
+
     socket.on('print_new_msg', function(data) {
         let newPlayerName = data["player_name"];
         console.log(newPlayerName + " a posté un message");
-        let newMsg = data["msg"];
-        let cleanMsg = newMsg.replace(/<\/?[^>]+(>|$)/g, "");
+        let cleanMsg = data["msg"];
         $("#messages").append('<div>' + '<strong>' + newPlayerName + ': ' + '</strong>' + cleanMsg + '</div>');
         $("#messages").scrollTop($("#messages")[0].scrollHeight);
     });
