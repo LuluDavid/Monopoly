@@ -50,7 +50,7 @@ class TestGame(unittest.TestCase):
         players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
         game = Game(players)
         chloe = game.players[0]
-        lucien = game.players[1]
+        lucien =game.players[1]
         gildas = game.players[2]
         camille = game.players[3]
         gildas.setPosition(1)
@@ -92,7 +92,7 @@ class TestGame(unittest.TestCase):
     def test_card_earn_money(self):
         players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
         game = Game(players)
-        chloe = User(players[0])
+        chloe = game.players[0]
         chloe.setPosition(2)
         game.card_earn_money(chloe, 15)
         self.assertEqual(chloe.getMoney(), INITIAL_MONEY + 10)
@@ -100,15 +100,77 @@ class TestGame(unittest.TestCase):
     def test_card_loose_money(self):
         players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
         game = Game(players)
-        chloe = User(players[0])
+        chloe = game.players[0]
         chloe.setPosition(2)
         game.card_loose_money(chloe, 7)
         self.assertEqual(chloe.getMoney(), INITIAL_MONEY - 100)
         self.assertEqual(game.board.parc_money, 100)
 
+    def test_on_tax(self):
+        players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(players)
+        chloe = game.players[0]
+        chloe.setPosition(4)
+        game.on_tax(chloe)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY - 200)
+        self.assertEqual(game.board.parc_money, 200)
 
+
+    def test_on_park(self):
+        players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(players)
+        chloe = game.players[0]
+        chloe.setPosition(20)
+        game.board.parc_money = 350
+        game.on_park(chloe)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY + 350)
+        self.assertEqual(game.board.parc_money, 0)
+
+    def test_get_rent_public_station(self):
+        players = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(players)
+        chloe = game.players[0]
+        gildas = game.players[1]
+        chloe.buyAStation(game.board.getBox(12))
+        chloe.buyAStation(game.board.getBox(28))
+        gildas.setPosition(12)
+        gildas.dices = 7
+        test1 = game.get_rent_public_service(gildas)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY -300)
+        self.assertEqual(test1, 70)
+
+
+    def test_card_birthday(self):
+        users = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(users)
+        players = game.players
+        chloe = game.players[0]
+        lucien = game.players[1]
+        gildas = game.players[2]
+        camille = game.players[3]
+        game.card_birthday(chloe, 2)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY + 30)
+        self.assertEqual(gildas.getMoney(), INITIAL_MONEY - 10)
+        self.assertEqual(lucien.getMoney(), INITIAL_MONEY -10)
+        self.assertEqual(camille.getMoney(), INITIAL_MONEY -10)
+
+    def test_card_taxes(self):
+        users = {0: "Chloe", 1: "Lucien", 2: "Gildas", 3: "Camille"}
+        game = Game(users)
+        players = game.players
+        chloe = game.players[0]
+        chloe.buyAStreet(game.board.getBox(6))
+        chloe.buyAStreet(game.board.getBox(8))
+        chloe.buyAStreet(game.board.getBox(9))
+        game.board.getBox(6).home = 5
+        game.board.getBox(8).home = 2
+        game.board.getBox(9).home = 4
+        game.card_taxes(chloe, 24)
+        self.assertEqual(chloe.getMoney(), INITIAL_MONEY - 100 - 100 - 120 - 6*25 - 1*100)
+        self.assertEqual(game.board.parc_money, 6*25 + 1*100)
 
 
 
 if __name__ == '__main__':
     unittest.main()
+

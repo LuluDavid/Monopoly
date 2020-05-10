@@ -3,8 +3,9 @@ from game.globs import INITIAL_MONEY
 class User:
     """A simple class to describe the lambda monopoly player"""
 
-    def __init__(self, name, position=0, goods=None, inPrison=False, prisonTurn=None, money=INITIAL_MONEY):
+    def __init__(self, name, identity, position=0, goods=None, inPrison=False, prisonTurn=None, money=INITIAL_MONEY, dices=None):
         self.name = name
+        self.identity = identity
         self.money = money
         self.position = position
         if goods is None:
@@ -13,6 +14,7 @@ class User:
             self.goods = goods
         self.inPrison = inPrison
         self.prisonTurn = prisonTurn
+        self.dices = dices
 
     def getUserName(self):
         return self.name

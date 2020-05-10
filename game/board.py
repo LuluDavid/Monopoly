@@ -1,5 +1,5 @@
 import json
-from game.boxes import Box, Street, Station
+from game.boxes import Box, Street, Station, Tax, Public_services
 from game.cards import Card
 
 
@@ -31,6 +31,24 @@ class Board:
             elif json_boxes[box]["type"] == "station":
                 boxes.append(
                     Station(
+                        int(box),
+                        json_boxes[box]["type"],
+                        json_boxes[box]["name"],
+                        json_boxes[box]["price"]
+                    )
+                )
+            elif json_boxes[box]["type"] == "tax":
+                boxes.append(
+                    Tax(
+                        int(box),
+                        json_boxes[box]["type"],
+                        json_boxes[box]["name"],
+                        json_boxes[box]["rent"]
+                    )
+                )
+            elif json_boxes[box]["type"] == "public-service":
+                boxes.append(
+                    Public_services(
                         int(box),
                         json_boxes[box]["type"],
                         json_boxes[box]["name"],

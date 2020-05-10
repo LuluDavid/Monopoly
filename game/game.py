@@ -14,9 +14,9 @@ class Game:
     def initPlayers(self, players):
         """Define the players at the beginning of the game"""
         if len(players) >= 2:
-            return {i: User(players[i]) for i in players}
+            return {i: User(players[i], i) for i in players}
         else:
-            raise Exception('Not enough players to start the game')
+            raise Exception('Not enough self.players[i].LooseMoney(value)players to start the game')
 
 
     def orderOfPlayers(self, players):
@@ -49,12 +49,15 @@ class Game:
         prison = player.getInPrison()
         totalDices = dices[0] + dices[1]
         prisonTurn = player.getPrisonTurn()
+        player.dices = totalDices
         if (prison == False):
             input("" + player.name + ", tu as fait " + str(totalDices))
             if (oldPosition + totalDices < 40):
                 player.setPosition(oldPosition + totalDices)
             else:
                 player.setPosition(oldPosition + totalDices - 40)
+                player.EarnMoney(200)
+                print("Vous passez la case Depart, vous gagnez 200 euros.")
         else:
             self.isInJail(player)
 
@@ -223,6 +226,59 @@ class Game:
             self.onAStreetOrStation(player)
             player.EarnMoney(200)
 
+    def card_birthday(self, player, number):
+        value = self.board.cards[number].value
+        identity = player.identity
+        n = len(self.players_order)
+        player.EarnMoney(value*(n-1))
+        L = list(self.players.keys())
+        L.remove(identity)
+        for i in L:
+            self.players[i].LooseMoney(value)
+
+    def card_community_or_chance(self, player, number):
+        value = self.board.cards[number].value
+        choice = input("Preferez vous payer "+str(value)+" euros : choix 1. Ou bien tirer une carte chance : choix 2")
+        if choice == "1":
+            self.card_loose_money(player, number)
+        else:
+            number = random.randint(17, 32)
+            self.on_card_number(player, number)
+
+    def card_backwards(self, player, number):
+        pos = player.getPosition()
+        value = self.board.cards[number].value
+        player.setPosition(pos - value)
+        if player.getPosition() < 0:
+            pos = player.getPosition()
+            player.setPosition(pos + 40)
+        case = self.board.getBox(player.getPosition())
+        if case.getType() == "station" or case.getType() == "street":
+            self.onAStreetOrStation(player)
+        elif case.getType() == "to-jail":
+            self.goToJail(player)
+        elif case.getType() == "chance" or case.getType() == "community-fund":
+            self.on_card(player)
+        elif case.getType() == "tax":
+            self.on_tax(player)
+
+    def card_taxes(self, player, number):
+        player_goods = player.getGoods()
+        rent = self.board.cards[number].value
+        n=len(player_goods)
+        homes = 0
+        hotels = 0
+        for i in range(n):
+            if player_goods[i].box_type == "street":
+                case_home = player_goods[i].home
+                if case_home < 5:
+                    homes = homes + case_home
+                elif case_home == 5:
+                    hotels = hotels + 1
+        money = homes*rent[0] + hotels*rent[1]
+        player.LooseMoney(money)
+        self.board.parc_money = self.board.parc_money + money
+
 
 
     def on_card(self, player):
@@ -232,20 +288,49 @@ class Game:
         else:
             number = random.randint(17, 32)
         print("Vous tirez la carte : " + card[number].name)
+        self.on_card_number(player, number)
+
+    def on_card_number(self, player, number):
+        card = self.board.cards
         if card[number].card_type == "earn-money":
-            self.card_earn_money(self, player, number)
+            self.card_earn_money(player, number)
         elif card[number].card_type == "loose-money":
-            self.card_loose_money(self, player, number)
+            self.card_loose_money(player, number)
         elif card[number].card_type == "moove-backwards":
-            self.card_moove_backwards(self, player, number)
+            self.card_moove_backwards(player, number)
         elif card[number].card_type == "go-to-jail":    #TODO tester cette partie la ?
-            self.game.goToJail(player)
+            self.goToJail(player)
         elif card[number].card_type == "moove-forward":
-            self.card_moove_forward(self, player, number)
+            self.card_moove_forward(player, number)
+        elif card[number].card_type == "birthday":
+            self.card_birthday(player, number)
+        elif card[number].card_type == "loose-money-or-chance":
+            self.card_community_or_chance(player, number)
+        elif card[number].card_type == "backwards":
+            self.card_backwards(player, number)
+        elif card[number].card_type == "taxes":
+            self.card_taxes(player, number)
         else:
             print("type pas encore traite")
 
     ##
+
+
+    def on_tax(self, player):
+        pos = player.getPosition()
+        rent = self.board.getBox(pos).rent
+        player.LooseMoney(rent)
+        self.board.parc_money = self.board.parc_money + rent
+        print("Vous perdez "+str(rent)+" euros.")
+
+
+    def on_park(self, player):
+        money = self.board.parc_money
+        player.EarnMoney(money)
+        self.board.parc_money = 0
+        print("Vous recuperer la totalite de l'argent du parc gratuit s'elevant a "+str(money)+" euros.")
+
+
 
     def nbOfStations(self, owner):
         """
@@ -258,6 +343,26 @@ class Game:
             if (goods[i].getType() == "station"):
                 nb = nb + 1
         return nb
+
+
+    def get_rent_public_service(self, player):
+        pos = player.getPosition()
+        owner = self.board.getBox(pos).getOwner()
+        owner_goods = owner.getGoods()
+        n = len(owner_goods)
+        count = 0
+        factor = 4
+        for i in range(n):
+            if owner_goods[i].box_type == "public-service":
+                count = count + 1
+        if count == 2:
+            factor = 10
+        dices = player.dices
+        rent = factor*dices
+        return rent
+
+
+
 
     def getRentStreet(self, player):
         """
@@ -342,6 +447,8 @@ class Game:
                         rent = self.getRentStreet(player)
                     elif case_type == "station":
                         rent = self.getRentStation(player)
+                    elif case_type == "public-service":
+                        rent = self.get_rent_public_service(player)
                     print("Cette propriete appartient a " + ownerName + ", vous lui devez " + str(rent) + " euros.")
                     player.LooseMoney(rent)
                     print("Il vous reste " + str(player.money) + " euros.")
@@ -356,26 +463,41 @@ class Game:
         2- different actions if on street station or jail
         3- if the player has not mony anymore --> he looses
         """
-        numberOfPlayers = len(self.order)
+        numberOfPlayers = len(self.players_order)
         for i in range(numberOfPlayers):
-            player = self.players[self.order[i]]
+            player = self.players[self.players_order[i]]
             self.actualizePosition(player)
             pos = player.getPosition()
             playerStreetPosition = self.board.getBox(pos).getBoxName()
             input("Tu es sur la case : " + playerStreetPosition)
             case = self.board.getBox(pos)
-            if (case.getType() == "station" or case.getType() == "street"):
+            if case.getType() == "station" or case.getType() == "street":
+                self.onAStreetOrStation(player)
+            elif case.getType() == "to-jail":
+                self.goToJail(player)
+            elif case.getType() == "chance" or case.getType() == "community-fund":
+                self.on_card(player)
+            elif case.getType() == "start":
+                pass
+            elif case.getType() == "tax":
+                self.on_tax(player)
+            elif case.getType() == "park":
+                self.on_park(player)
+            elif case.getType() == "jail":
+                print("Vous etes en simple visite de la prison")
+            elif case.getType() == "public-service":
                 self.onAStreetOrStation(player)
             else:
-                if (case.getType() == "to-jail"):
-                    self.goToJail(player)
-                else:
-                    input("ce n'est pas une rue, pour l'instant vous ne pouvez pas l'acheter.")
+                input("ce type de case n est pas encore traite")
             loosers = []
             if (player.getMoney() < 0):
                 input("" + player.getUserName() + ", tu as perdu! Tu n'as plus d'argent.")
                 loosers.append(player)
         if (len(loosers) > 0):
             for looser in loosers:
-                self.order.remove(looser)
-        return order
+                self.players_order.remove(looser)
+        return self.players_order
+
+
+#if __name__ == '__main__':
+
