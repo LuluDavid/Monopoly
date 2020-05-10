@@ -52,6 +52,9 @@ $( document ).ready(function() {
     socket.on('play_turn', function(data) {
         console.log("Game played");
         console.log(data);
+        stateArray = data;
+        // updateAllHouses();
+        updateAllPlayers();
     });
 
 

@@ -41,7 +41,7 @@ def play_game():
             return redirect_home()
 
         player_name = request.form.get('player_name')
-        player_id = len(GAMES[game_id]["players"])-1 #generate_id()
+        player_id = len(GAMES[game_id]["players"]) #generate_id()
         #while player_id in GAMES[game_id]["players"]:
         #    player_id = generate_id()
         GAMES[game_id]["players"][player_id] = player_name

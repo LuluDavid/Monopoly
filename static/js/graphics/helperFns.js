@@ -55,7 +55,7 @@ const cardboardWidth = 110;
 // Number of boxes
 const numberOfBoxes = 40;
 // Pawns
-const numberOfPawns = 6;
+const numberOfPawns = 2;
 const pawnHeight = 2;
 const pawnRadius = 0.5;
 // House Ratio
