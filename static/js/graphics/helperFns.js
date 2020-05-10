@@ -52,7 +52,7 @@ const closeView =
 const graphicsRatio = 1-0.167;
 
 // Cardboard
-
+const cardboardHeight = 0.03;
 const cardboardWidth = 110;
 // Number of boxes
 const numberOfBoxes = 40;
@@ -125,7 +125,7 @@ scene.background = new THREE.Color( 0x0000ff );
  */
 renderer = new THREE.WebGLRenderer( { antialias: true} );
 renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setSize( window.innerWidth, window.innerHeight-54 );
 renderer.shadowMap.enabled = true;
 renderer.shadowMapSoft = true;
 renderer.shadowMapDebug = true;
@@ -202,7 +202,7 @@ function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1){
 	view.updateCamera(view.camera,scene);
 
 	var left = Math.floor( windowWidth * vleft );
-	var top = Math.floor( windowHeight * vtop-54 );
+	var top = Math.floor( windowHeight * vtop );
 	var width = Math.floor( windowWidth * vwidth );
 	var height = Math.floor( windowHeight * vheight );
 
@@ -242,7 +242,7 @@ function updateCloseView(vleft = (graphicsRatio-closeViewRatio), vtop = (1-close
 function updateSize() {
 	if ( windowWidth !== window.innerWidth ) {
 		windowWidth = window.innerWidth;
-		windowHeight = window.innerHeight;
+		windowHeight = window.innerHeight-54;
 		renderer.setSize( windowWidth, windowHeight );
 	}
 }
@@ -324,11 +324,11 @@ function translatePawnToBox(i, j){
 	scene.children[3].children[i].currentBox = j;
 	updateNewPositions();
 	addCanvas();
-	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + 0.05), deltaT)
+	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight/2 + cardboardHeight), deltaT)
 }
 
 function addCanvas(){
-	let height = Math.floor(windowHeight*closeViewRatio-56);
+	let height = Math.floor(windowHeight*closeViewRatio);
 	let width = Math.floor(windowWidth*closeViewRatio);
 	console.log(width);
 	let canvas = "<canvas id = 'closeView' width='"+ width +"' height='"+ height +"' style=\"border:3px solid #000000; position:fixed; top: 56px; right: 0px; z-index:2;\"></canvas>"
@@ -535,7 +535,7 @@ function updateHouses(i){
 
 function createHotelPos(i){
 	let hotel = createHotel();
-	hotel.position.set(housePositions[i].x, housePositions[i].y, 0.05);
+	hotel.position.set(housePositions[i].x, housePositions[i].y, cardboardHeight);
 	hotel.rotateZ(Math.PI/2);
 	return hotel
 }
@@ -549,10 +549,10 @@ function setUpHouse(i,j){
 	let box = boxes[i];
 	let house = createHouse(houseColor, houseWidth, houseHeight);
 	if (box.isH){
-		house.position.set(housePositions[i].x, housePositions[i].y+houseRelativePos[j], 0.05)
+		house.position.set(housePositions[i].x, housePositions[i].y+houseRelativePos[j], cardboardHeight)
 	}
 	else if (box.isW){
-		house.position.set(housePositions[i].x+houseRelativePos[j], housePositions[i].y, 0.05)
+		house.position.set(housePositions[i].x+houseRelativePos[j], housePositions[i].y, cardboardHeight)
 	}
 	return house
 }
@@ -576,8 +576,6 @@ function createPawns(number, j = 0){
 	let pawns = [];
 	for (let i = 0; i<number; i++){
 		let pawn = createPawn(positions[i]);
-		pawn.castShadow = true;
-		pawn.receiveShadow = true;
 		pawns[i] = pawn;
 	}
 	return pawns;
@@ -589,7 +587,9 @@ function createPawn(position){
 	let material = new THREE.MeshPhongMaterial({color: clr});
 	let pawn = new THREE.Mesh( geometry, material );
 	pawn.rotateX(Math.PI/2);
-	pawn.position.set(position.x, position.y, pawnHeight/2 + 0.05);
+	pawn.position.set(position.x, position.y, pawnHeight/2 + cardboardHeight);
+	pawn.castShadow = true;
+	pawn.receiveShadow = true;
 	return pawn;
 }
 
@@ -621,21 +621,13 @@ function createHouse(clr, width, height){
 	let roofFront = new THREE.Mesh(roofFrontGeometry, material);
 	let roofBack = new THREE.Mesh(roofBackGeometry, material);
 
-	// frontWall.castShadow = true;
 	frontWall.receiveShadow = true;
-	// backWall.castShadow = true;
 	backWall.receiveShadow = true;
-	// leftWall.castShadow = true;
 	leftWall.receiveShadow = true;
-	// rightWall.castShadow = true;
 	rightWall.receiveShadow = true;
-	// leftRoof.castShadow = true;
 	leftRoof.receiveShadow = true;
-	// rightRoof.castShadow = true;
 	rightRoof.receiveShadow = true;
-	// roofFront.castShadow = true;
 	roofFront.receiveShadow = true;
-	// roofBack.castShadow = true;
 	roofBack.receiveShadow = true;
 
 	frontWall.position.set(-width/2, 0, height/2);
@@ -669,7 +661,9 @@ function createCardboard(width, parentNode){
 	let texture = new THREE.TextureLoader().load('static/js/graphics/textures/monopoly.jpg');
 	let cardboardMaterial = new THREE.MeshPhongMaterial({map:texture});
 	let cardboard = new THREE.Mesh(cardboardGeometry,cardboardMaterial);
-	cardboard.position.set(cardboardWidth/2,cardboardWidth/2,0.03);
+	cardboard.position.set(cardboardWidth/2,cardboardWidth/2,cardboardHeight);
+	cardboard.castShadow = true;
+	cardboard.receiveShadow = true;
 	parentNode.add(cardboard);
 	return cardboard;
 }
@@ -688,7 +682,7 @@ function createGround(parentNode){
 
 function addALight(parentNode){
 	let light = new THREE.DirectionalLight(0xffffff,1);
-	light.position.set(-1,-1,1);
+	light.position.set(-1,-1,10);
 	light.castShadow = true;
 	light.shadow.mapSize.width = 2048;
 	light.shadow.mapSize.height = 2048;
