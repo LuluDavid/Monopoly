@@ -65,7 +65,7 @@ def on_join(data):
     if game_id in GAMES:
         join_room(game_id)
         new_player = GAMES[game_id]["players"][data['player_id']]
-        players_in_game_names = [player["name"] for player in GAMES[game_id]["players"].values()]
+        players_in_game_names = list(GAMES[game_id]["players"].values())
         emit(
             'join_game',
             {"room": game_id, "new_player": new_player, "players_in_game_names": players_in_game_names},
@@ -80,15 +80,15 @@ def on_join(data):
 def on_start_game(data):
     game_id = data["game_id"]
     GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
-    response = GAMES[game_id]["game"].play_turn(data)
+    response = GAMES[game_id]["game"].game_to_json()
     emit("start_game", response, room=game_id)
 
 
 @socketio.on('play_turn')
 def on_play_turn(data):
     game_id = data["game_id"]
-    GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
-    response = GAMES[game_id]["game"].play_turn(data)
+    GAMES[game_id]["game"].play_turn(data)
+    response = GAMES[game_id]["game"].game_to_json()
     emit("play_turn", response, room=game_id)
 
 

@@ -15,53 +15,43 @@ class Board:
     def make_boxes(boxes_filename):
         with open(boxes_filename) as boxes_file:
             json_boxes = json.loads(boxes_file.read())
-        boxes = []
-        for box in json_boxes:
+        boxes = {}
+        for i, box in enumerate(json_boxes):
             if json_boxes[box]["type"] == "street":
-                boxes.append(
-                    Street(
-                        int(box),
-                        json_boxes[box]["type"],
-                        json_boxes[box]["name"],
-                        json_boxes[box]["price"],
-                        json_boxes[box]["rent"],
-                        json_boxes[box]["color"]
-                    )
+                boxes[i] = Street(
+                    int(box),
+                    json_boxes[box]["type"],
+                    json_boxes[box]["name"],
+                    json_boxes[box]["price"],
+                    json_boxes[box]["rent"],
+                    json_boxes[box]["color"]
                 )
             elif json_boxes[box]["type"] == "station":
-                boxes.append(
-                    Station(
-                        int(box),
-                        json_boxes[box]["type"],
-                        json_boxes[box]["name"],
-                        json_boxes[box]["price"]
-                    )
+                boxes[i] = Station(
+                    int(box),
+                    json_boxes[box]["type"],
+                    json_boxes[box]["name"],
+                    json_boxes[box]["price"]
                 )
             elif json_boxes[box]["type"] == "tax":
-                boxes.append(
-                    Tax(
-                        int(box),
-                        json_boxes[box]["type"],
-                        json_boxes[box]["name"],
-                        json_boxes[box]["rent"]
-                    )
+                boxes[i] = Tax(
+                    int(box),
+                    json_boxes[box]["type"],
+                    json_boxes[box]["name"],
+                    json_boxes[box]["rent"]
                 )
             elif json_boxes[box]["type"] == "public-service":
-                boxes.append(
-                    Public_services(
-                        int(box),
-                        json_boxes[box]["type"],
-                        json_boxes[box]["name"],
-                        json_boxes[box]["price"]
-                    )
+                boxes[i] = Public_services(
+                    int(box),
+                    json_boxes[box]["type"],
+                    json_boxes[box]["name"],
+                    json_boxes[box]["price"]
                 )
             else:
-                boxes.append(
-                    Box(
-                        int(box),
-                        json_boxes[box]["type"],
-                        json_boxes[box]["name"]
-                    )
+                boxes[i] = Box(
+                    int(box),
+                    json_boxes[box]["type"],
+                    json_boxes[box]["name"]
                 )
         return boxes
 
