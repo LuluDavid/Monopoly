@@ -5,9 +5,9 @@ var currentPawn = 0;
 var windowWidth, windowHeight;
 const view =
 	{
-		near: 0.1,
+		near: 1,
 		far: 10000,
-		background: new THREE.Color(0, 0, 0),
+		background: new THREE.Color(255, 255, 255),
 
 		// The camera's position
 		eye: [-100, -100, 100],
@@ -29,7 +29,7 @@ const closeView =
 	{
 		near: 0.1,
 		far: 1000,
-		background: new THREE.Color(0, 0, 0),
+		background: new THREE.Color(255, 255, 255),
 
 		// The camera's position
 		eye: [55, 55, 30],
@@ -155,6 +155,12 @@ scene.add(pawns);
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
+// Create the deck of community cards
+const communityDeck = createCommunityDeck();
+scene.add(communityDeck);
+// Create the deck of chance cards
+const chanceDeck = createChanceDeck();
+scene.add(chanceDeck);
 
 function init() {
 	controls.update();
@@ -636,6 +642,54 @@ function createGround(parentNode) {
 	let ground = new THREE.Mesh(groundGeometry, groundMaterial);
 	parentNode.add(ground);
 	return ground;
+}
+
+function createCommunityDeck() {
+	let deckRatio = 1.587;
+	let heightRatio = 5.827;
+	let deckSize = 20;
+	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
+	let sideMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
+		});
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Community.jpg')
+		});
+	let materials =
+		[sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			topMaterial,
+			new THREE.MeshBasicMaterial()];
+	let deck = new THREE.Mesh(deckGeometry, materials);
+	deck.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/(2*heightRatio));
+	deck.rotateZ(Math.PI/4);
+	return deck;
+}
+
+function createChanceDeck() {
+	let deckRatio = 1.587;
+	let heightRatio = 5.827;
+	let deckSize = 20;
+	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
+	let sideMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
+		});
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Chance.jpg')
+		});
+	let materials =
+		[sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			topMaterial,
+			new THREE.MeshBasicMaterial()];
+	let deck = new THREE.Mesh(deckGeometry, materials);
+	deck.position.set(3/11*cardboardWidth, 3/11*cardboardWidth, cardboardHeight+deckSize/(2*heightRatio));
+	deck.rotateZ(Math.PI/4);
+	return deck;
 }
 
 function addALight(parentNode) {
