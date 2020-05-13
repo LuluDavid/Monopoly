@@ -39,7 +39,6 @@ class Game:
     def actualizePosition(self, player):
         dices = self.launchDices()
         print(dices)
-        self.board.boxes[player.getPosition()].players.remove(player.identity)
         self.actualizePositionAux(player, dices)
         self.board.boxes[player.getPosition()].players.append(player.identity)
 
@@ -55,6 +54,7 @@ class Game:
         prisonTurn = player.getPrisonTurn()
         player.dices = totalDices
         if (prison == False):
+            self.board.boxes[player.getPosition()].players.remove(player.identity)
             print("" + player.name + ", tu as fait " + str(totalDices))
             if (oldPosition + totalDices < 40):
                 player.setPosition(oldPosition + totalDices)
@@ -133,7 +133,9 @@ class Game:
         """The player went on the box 'go to jail', he is sent to jail which is in position 10"""
 
         print("Vous allez directement en prison sans passer par la case depart")
+        self.board.boxes[player.getPosition()].players.remove(player.identity)
         player.setPosition(10)
+        self.board.boxes[10].players.append(player.identity)
         player.setInPrison(True)
         player.setPrisonTurn(0)
 
@@ -156,13 +158,16 @@ class Game:
         if (dices[0] == dices[1]):
             input("Bravo, vous avez fait un double " + str(
                 dices[0]) + ". Vous etes sortis de prison et avancez de " + str(2 * dices[0]) + "")
+            self.board.boxes[player.getPosition()].players.remove(player.identity)
             player.setPosition(10 + 2 * dices[0])
+            self.board.boxes[player.getPosition()].players.append(player.identity)
             player.setInPrison(False)
             player.setPrisonTurn(None)
         else:
             input("Vous avez fait " + str(dices[0]) + " et " + str(
                 dices[1]) + ". Ce n'est pas un double vous ne sortez pas de prison")
             player.setPrisonTurn(player.getPrisonTurn() + 1)  # one turn more in jail
+            self.board.boxes[player.getPosition()].players.remove(player.identity)
 
     def isInJail(self, player):
         dices = self.launchDices()
@@ -212,21 +217,27 @@ class Game:
         print("Vous perdez " + str(self.board.cards[number].value) + " euros.")
 
     def card_moove_backwards(self, player, number):
+        self.board.boxes[player.getPosition()].players.remove(player.identity)
         player.setPosition(self.board.cards[number].value)
+        self.board.boxes[player.getPosition()].players.append(player.identity)
         self.onAStreetOrStation(player)
         print("Vous retournez a "+self.board.cards[number].name)
 
     def card_moove_forward(self, player, number):
         value = self.board.cards[number].value
         pos = player.getPosition()
+        self.board.boxes[player.getPosition()].players.remove(player.identity)
         if (pos<value):
             player.setPosition(value)
+            self.board.boxes[player.getPosition()].players.append(player.identity)
             self.onAStreetOrStation(player)
         elif (value == 0):
             player.setPosition(value)
+            self.board.boxes[player.getPosition()].players.append(player.identity)
             player.EarnMoney(200)
         else :
             player.setPosition(value)
+            self.board.boxes[player.getPosition()].players.append(player.identity)
             self.onAStreetOrStation(player)
             player.EarnMoney(200)
 
@@ -251,11 +262,13 @@ class Game:
 
     def card_backwards(self, player, number):
         pos = player.getPosition()
+        self.board.boxes[player.getPosition()].players.remove(player.identity)
         value = self.board.cards[number].value
         player.setPosition(pos - value)
         if player.getPosition() < 0:
             pos = player.getPosition()
             player.setPosition(pos + 40)
+        self.board.boxes[player.getPosition()].players.append(player.identity)
         case = self.board.getBox(player.getPosition())
         if case.getType() == "station" or case.getType() == "street":
             self.onAStreetOrStation(player)
