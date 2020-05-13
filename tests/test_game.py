@@ -28,6 +28,7 @@ class TestGame(unittest.TestCase):
         game = Game(players)
         chloe = game.players[0]
         chloe.setPosition(25)
+        game.board.boxes[25].players.append(chloe.identity)
         game.goToJail(chloe)
         self.assertEqual(chloe.getPosition(), 10)
         self.assertTrue(chloe.getInPrison())
