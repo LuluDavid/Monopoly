@@ -13,13 +13,13 @@ $( document ).ready(function() {
     }
 
     socket.on('join_game', function(data) {
-        let newPlayerName = data["new_player"]
-        console.log(data)
+        let newPlayerName = data["new_player"];
+        console.log(data);
         console.log(newPlayerName + " a rejoint la partie");
         let playersInGameNames = data["players_in_game_names"];
         console.log(playersInGameNames);
-        if(playerName == newPlayerName){
-            let playerNamesToAdd = playersInGameNames.filter(name => name != newPlayerName);
+        if(playerName === newPlayerName){
+            let playerNamesToAdd = playersInGameNames.filter(name => name !== newPlayerName);
             playerNamesToAdd.forEach(nameToAdd => addPlayerNameToSidebar(nameToAdd));
         }
         else{
