@@ -26,8 +26,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.target = new THREE.Vector3();
 
 	// How far you can dolly in and out ( PerspectiveCamera only )
-	this.minDistance = 5;
-	this.maxDistance = 300;
+	this.minDistance = 100;
+	this.maxDistance = 200;
 
 	// How far you can zoom in and out ( OrthographicCamera only )
 	this.minZoom = 2;
@@ -35,18 +35,18 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// How far you can orbit vertically, upper and lower limits.
 	// Range is 0 to Math.PI radians.
-	this.minPolarAngle = 0; // radians
-	this.maxPolarAngle = 2/5*Math.PI; // radians
+	this.minPolarAngle = 0.65; // radians
+	this.maxPolarAngle = 1; // radians
 
 	// How far you can orbit horizontally, upper and lower limits.
 	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-	this.minAzimuthAngle = - Infinity; // radians
-	this.maxAzimuthAngle = Infinity; // radians
+	this.minAzimuthAngle = - 1.2; // radians
+	this.maxAzimuthAngle = -0.4; // radians
 
 	// Set to true to enable damping (inertia)
 	// If damping is enabled, you must call controls.update() in your animation loop
 	this.enableDamping = false;
-	this.dampingFactor = 0.25;
+	this.dampingFactor = 0.1;
 
 	// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
 	// Set to false to disable zooming
@@ -65,8 +65,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// Set to true to automatically rotate around the target
 	// If auto-rotate is enabled, you must call controls.update() in your animation loop
-	this.autoRotate = false;
-	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
+	this.autoRotate = true;
+	this.autoRotateSpeed = 0.5; // 30 seconds per round when fps is 60
 
 	// Set to false to disable use of the keys
 	this.enableKeys = false;
@@ -144,6 +144,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			// angle from z-axis around y-axis
 			spherical.setFromVector3( offset );
+
+			if (scope.maxAzimuthAngle <= spherical.theta || scope.minAzimuthAngle >= spherical.theta){
+				scope.autoRotateSpeed = -scope.autoRotateSpeed;
+			}
 
 			if ( scope.autoRotate && state === STATE.NONE ) {
 

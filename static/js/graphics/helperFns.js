@@ -94,11 +94,13 @@ const closeViewFurtherRatio = 2;
 const houseRelativePos = getHouseRelativePositions();
 var housePositions = getHousesPositions(cardboardWidth);
 // The ratio the card travels to towards the player
-const cardUserRatio = 0.6;
+const cardUserRatio = 0.5;
 var movingCard = false;
 const cardAxis = new THREE.Vector3(0,-1,0).normalize();
 // The angle the cards has rotated when it reaches the player
-const thetaF = Math.PI/2;
+const revealAngle = 2*Math.PI/5;
+const tReveal = 1;
+const tTravel = 2;
 // Number of house per box
 // var numberOfHousesPerBox = noHousesPerBox();
 // Hotel
@@ -173,38 +175,56 @@ const chanceDeck = createChanceDeck();
 scene.add(chanceDeck);
 
 // Try a card animation
-$(document).on('click',() => animateCommunityCard());
+$(document).on('click',() => animateCard("chance"));
 
 function createCommunityCard() {
 	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
 	let topMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Community.jpg'), side:2});
 	let card = new THREE.Mesh(cardGeometry, topMaterial);
-	card.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/heightRatio-0.1);
+	card.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/heightRatio-0.1); // Quick fix
 	card.rotateZ(Math.PI/4);
 	return card;
 }
 
-function animateCommunityCard(){
+function createChanceCard() {
+	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Chance.jpg'), side:2});
+	let card = new THREE.Mesh(cardGeometry, topMaterial);
+	card.position.set(3/11*cardboardWidth, 3/11*cardboardWidth, cardboardHeight+deckSize/heightRatio-0.1);
+	card.rotateZ(Math.PI/4);
+	return card;
+}
+
+function disableControls(){
+	controls.enabled = false;
+	controls.autoRotate = false;
+}
+
+// TODO: maybe also rotate the card horizontally and allow full autoRotation in ObritControls
+function animateCard(type){
+	disableControls();
 	if (movingCard){
 		console.log("A card is already moving currently");
 		return;
 	}
 	// First, create the card to lift
-	let card = createCommunityCard();
+	let card = (type === "community")?createCommunityCard():createChanceCard();
 	scene.add(card);
 	render();
 	// Then, lift the card towards the camera
 	let fps = 60;           // seconds
-	let deltaT = tMotion;
-	let step = 1 / (deltaT * fps);  // t-step per frame
-	let angleStep = thetaF*step;
+	let tau = tTravel;
+	let step = 1 / (tau * fps);  // t-step per frame
+	let finalAngle = Math.PI/2 - Math.asin(view.camera.position.z/norm(view.camera.position));
+	let angleStep = finalAngle*step;
 	let t = 0;
 	var object = scene.children[6];
 	let initialPosition = object.position.clone();
 	let goalPosition = new THREE.Vector3(view.camera.position.x,
 										 view.camera.position.y,
-										 view.camera.position.z*(1+0.25)); // Quick fix
+										 view.camera.position.z);
 	movingCard = true;
 	loopCard(object, initialPosition, goalPosition, step, t, angleStep);
 }
@@ -212,9 +232,9 @@ function animateCommunityCard(){
 // Loop function
 function loopCard(object, initialPosition, goalPosition, step, t, angleStep) {
 	// Update the pawn's position
-	let X = translation(initialPosition.x, goalPosition.x*cardUserRatio, t);   // interpolate between a and b where
-	let Y = translation(initialPosition.y, goalPosition.y*cardUserRatio, t);   // t is first passed through a easing
-	let Z = translation(initialPosition.z, goalPosition.z*cardUserRatio, t);   // function in this example.
+	let X = translation(initialPosition.x, goalPosition.x, ease(cardUserRatio*t));   // interpolate between a and b where
+	let Y = translation(initialPosition.y, goalPosition.y, ease(cardUserRatio*t));   // t is first passed through a easing
+	let Z = translation(initialPosition.z, goalPosition.z, ease(cardUserRatio*t));   // function in this example.
 	object.position.set(X, Y, Z);  // set new position
 	object.rotateOnAxis(cardAxis, angleStep);
 	// Increment the time and loop back
@@ -228,12 +248,31 @@ function loopCard(object, initialPosition, goalPosition, step, t, angleStep) {
 function loopCard2(step, t) {
 	t = t + step;
 	if (t >= 1 / coverRatio) {
-		console.log("Carte bougée");
-		removeCard();
-		movingCard = false;
-		return;
+		let fps = 60;           // seconds
+		let dt = tReveal;
+		let step = 1 / (dt * fps);  // t-step per frame
+		let angleStep = -revealAngle*step;
+		return semiReveal(scene.children[6], step, 0, angleStep);
 	}
 	requestAnimationFrame(() => loopCard2(step, t));
+}
+
+function norm(v) {
+	return Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
+}
+
+function semiReveal(object, step, t, angleStep){
+	t += step;
+	if (t >= 1) {
+		console.log("Done");
+		removeCard();
+		movingCard = false;
+		controls.enabled = true;
+		controls.autoRotate = true;
+		return;
+	}
+	object.rotateOnAxis(cardAxis, angleStep);
+	requestAnimationFrame(() => semiReveal(object, step, t, angleStep));
 }
 
 function removeCard() {
@@ -241,7 +280,6 @@ function removeCard() {
 }
 
 function init() {
-	controls.update();
 	animate();
 }
 
@@ -251,6 +289,7 @@ function init() {
  */
 
 function animate() {
+	controls.update();
 	render();
 	requestAnimationFrame(animate);
 }
