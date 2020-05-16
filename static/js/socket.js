@@ -13,7 +13,6 @@ $( document ).ready(function() {
 
     socket.on('join_game', function(data) {
         let newPlayerName = data["new_player"];
-        console.log(data);
         console.log(newPlayerName + " a rejoint la partie");
         let playersInGameNames = data["players_in_game_names"];
         console.log(playersInGameNames);
@@ -49,32 +48,30 @@ $( document ).ready(function() {
     });
 
     socket.on('play_turn', function(data) {
-        console.log("Game played");
-        if(data["box_price"]===9999) console.log("999999999999999999999999");
+        console.log("Turn played");
         stateArray = data["state_array"];
         // updateAllHouses();
         updateAllPlayers();
 
-        console.log(data);
-        if(data["action"] === "play_turn") {
-            if(playerId === data["player_turn"]) {
-                if(data["box_price"]===9999) console.log("Not street nor station");
-                $("#playTurnModal").modal({
-                    keyboard: false,
-                    backdrop: 'static'
-                });
-                console.log("Post modal")
+        if(playerId === data["player_turn"]) {
+            console.log(data);
+            if (data["action"] === "play_turn") {
+                if (playerId === data["player_turn"]) {
+                    $("#playTurnModal").modal({
+                        keyboard: false,
+                        backdrop: 'static'
+                    });
+                }
+            } else if (data["action"] === "ask_buy") {
+                let questionData = {
+                    label: "Acheter un terrain",
+                    content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                    prop1: "J'achète le terrain",
+                    prop2: "Je n'achète pas le terrain",
+                    action: "buy"
+                };
+                showQuestionModal(questionData);
             }
-        }
-        else if(data["action"] === "ask_buy") {
-            let questionData = {
-                label: "Acheter un terrain",
-                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
-                prop1: "J'achète le terrain",
-                prop2: "Je n'achète pas le terrain",
-                action: "buy"
-            };
-            showQuestionModal(questionData)
         }
     });
 

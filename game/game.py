@@ -1,6 +1,7 @@
 import random
 from game.user import User
 from game.board import Board
+import time
 
 
 class Game:
@@ -529,7 +530,6 @@ class Game:
 
     def play_turn(self, data):
         action = data["action"]
-        print(action)
 
         if action == "play_turn":
             player = self.players[self.players_order[self.current_player_turn]]
@@ -545,7 +545,8 @@ class Game:
                 self.current_player_turn += 1
                 if self.current_player_turn >= len(self.players_order):
                     self.current_player_turn = 0
-                return self.game_to_json(box_price=9999)
+                time.sleep(0.5)  # otherwise it goes too fast lol
+                return self.game_to_json()
 
         elif action == "buy":
             if data["action_value"]:
