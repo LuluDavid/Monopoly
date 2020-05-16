@@ -93,10 +93,20 @@ const closeViewFurtherRatio = 2;
 // House relative position
 const houseRelativePos = getHouseRelativePositions();
 var housePositions = getHousesPositions(cardboardWidth);
+// The ratio the card travels to towards the player
+const cardUserRatio = 0.6;
+var movingCard = false;
+const cardAxis = new THREE.Vector3(0,-1,0).normalize();
+// The angle the cards has rotated when it reaches the player
+const thetaF = Math.PI/2;
 // Number of house per box
 // var numberOfHousesPerBox = noHousesPerBox();
 // Hotel
 const hotelHouseRatio = 3;
+// Deck stuff
+const deckRatio = 1.587;
+const heightRatio = 5.827;
+const deckSize = 20;
 // Represents the current state for all players
 var stateArray = initState();
 
@@ -161,6 +171,74 @@ scene.add(communityDeck);
 // Create the deck of chance cards
 const chanceDeck = createChanceDeck();
 scene.add(chanceDeck);
+
+// Try a card animation
+$(document).on('click',() => animateCommunityCard());
+
+function createCommunityCard() {
+	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Community.jpg'), side:2});
+	let card = new THREE.Mesh(cardGeometry, topMaterial);
+	card.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/heightRatio-0.1);
+	card.rotateZ(Math.PI/4);
+	return card;
+}
+
+function animateCommunityCard(){
+	if (movingCard){
+		console.log("A card is already moving currently");
+		return;
+	}
+	// First, create the card to lift
+	let card = createCommunityCard();
+	scene.add(card);
+	render();
+	// Then, lift the card towards the camera
+	let fps = 60;           // seconds
+	let deltaT = tMotion;
+	let step = 1 / (deltaT * fps);  // t-step per frame
+	let angleStep = thetaF*step;
+	let t = 0;
+	var object = scene.children[6];
+	let initialPosition = object.position.clone();
+	let goalPosition = new THREE.Vector3(view.camera.position.x,
+										 view.camera.position.y,
+										 view.camera.position.z*(1+0.25)); // Quick fix
+	movingCard = true;
+	loopCard(object, initialPosition, goalPosition, step, t, angleStep);
+}
+
+// Loop function
+function loopCard(object, initialPosition, goalPosition, step, t, angleStep) {
+	// Update the pawn's position
+	let X = translation(initialPosition.x, goalPosition.x*cardUserRatio, t);   // interpolate between a and b where
+	let Y = translation(initialPosition.y, goalPosition.y*cardUserRatio, t);   // t is first passed through a easing
+	let Z = translation(initialPosition.z, goalPosition.z*cardUserRatio, t);   // function in this example.
+	object.position.set(X, Y, Z);  // set new position
+	object.rotateOnAxis(cardAxis, angleStep);
+	// Increment the time and loop back
+	t = t + step;
+	if (t >= 1) {
+		return loopCard2(step, t);
+	}
+	requestAnimationFrame(() => loopCard(object, initialPosition, goalPosition, step, t, angleStep))
+}
+
+function loopCard2(step, t) {
+	t = t + step;
+	if (t >= 1 / coverRatio) {
+		console.log("Carte bougée");
+		removeCard();
+		movingCard = false;
+		return;
+	}
+	requestAnimationFrame(() => loopCard2(step, t));
+}
+
+function removeCard() {
+	scene.remove(scene.children[6]);
+}
 
 function init() {
 	controls.update();
@@ -645,9 +723,6 @@ function createGround(parentNode) {
 }
 
 function createCommunityDeck() {
-	let deckRatio = 1.587;
-	let heightRatio = 5.827;
-	let deckSize = 20;
 	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
 	let sideMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
@@ -669,9 +744,6 @@ function createCommunityDeck() {
 }
 
 function createChanceDeck() {
-	let deckRatio = 1.587;
-	let heightRatio = 5.827;
-	let deckSize = 20;
 	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
 	let sideMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
