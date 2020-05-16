@@ -13,12 +13,26 @@
     let gameId = {{ game_id }};
     let playerId = {{ player_id }};
     let playerName = "{{ player_name }}";
-    //sockets(gameId, playerId, playerName)
     </script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
 
-    <div class="modal fade" style="margin: 0 auto;" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestionLabel" aria-hidden="true">
+    <div class="modal fade" id="playTurnModal" tabindex="-1" role="dialog" aria-labelledby="playTurnModal" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">C'est à votre tour de jouer</h5>
+          </div>
+          <div class="modal-body">
+              <div class="my-3">
+                <button type="button" id="playTurn" class="btn btn-light" data-dismiss="modal">Lancer les dés</button>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div class="modal fade" style="margin: 0 auto;" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestionLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">

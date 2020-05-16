@@ -1,5 +1,5 @@
 import json
-from game.boxes import Box, Street, Station, Tax, Public_services
+from game.boxes import Box, Street, Station, Tax, PublicService
 from game.cards import Card
 
 
@@ -41,7 +41,7 @@ class Board:
                     json_boxes[box]["rent"]
                 )
             elif json_boxes[box]["type"] == "public-service":
-                boxes[i] = Public_services(
+                boxes[i] = PublicService(
                     int(box),
                     json_boxes[box]["type"],
                     json_boxes[box]["name"],

@@ -13,8 +13,6 @@
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="{{ url_for("home")}}">Monopoly</a>
-    <button type="button" id="start_game">Start game</button>
-    <button type="button" id="play_turn">Play turn</button>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto"></ul>
     </div>
@@ -25,16 +23,16 @@
 <div class="d-flex" id="wrapper">
     {% if game_id %}
     <div class="bg-light border-right" id="sidebar-wrapper">
-        <div class="sidebar-heading">{{ game_name }} <span class="badge badge-success align-middle mx-2" id="copy">Copier l'id</span></div>
+        <div class="sidebar-heading">
+          {{ game_id }} <span class="badge badge-success align-middle mx-2" id="copy">Copier</span> <br>
+          <button type="button" class="btn btn-outline-info btn-sm" id="startGame">Lancer la partie</button>
+        </div>
         <div class="list-group list-group-flush" id="player_list">
             <div class="list-group-item list-group-item-action bg-light">
                 <strong>{{ player_name }}</strong>
             </div>
         </div>
-        <div style="margin-top: 30px;">
-            <div style="margin-top: 10px;"><button type="button" class="btn btn-secondary" id="question">Open modal Question</button></div>
-            <div style="margin-top: 10px;"><button type="button" class="btn btn-secondary" id="information">Open modal Infos</button></div>
-        </div>
+
         <div id="chatbox">
             <div id="messages"></div>
             <input type="text" name="msgInput" id="msgInput" placeholder="Entrez votre message">
@@ -42,7 +40,7 @@
     </div>
     {% endif %}
 
-    <main role="main">
+    <main>
 
       <div>
         {% block body %}

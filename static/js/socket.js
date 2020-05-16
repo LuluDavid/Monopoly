@@ -1,6 +1,5 @@
 $( document ).ready(function() {
     let socket = io.connect('http://' + document.domain + ':' + location.port);
-    $("#play_turn").hide();
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
@@ -33,34 +32,84 @@ $( document ).ready(function() {
         $("#player_list").append(playerHtmlLine);
     }
 
-    $("#start_game").click(function(){
+    $("#startGame").click(function(){
         console.log("Starting Game...");
-        $("#start_game").hide();
         socket.emit('start_game', {game_id: gameId, player_id: playerId});
     });
 
     socket.on('start_game', function(data) {
         console.log("Game started");
-        $("#play_turn").show();
-        console.log(data);
-    });
-
-    $("#play_turn").click(function(){
-        socket.emit('play_turn', {game_id: gameId, player_id: playerId});
+        $("#startGame").hide();
+        if(playerId === data["player_turn"]) {
+            $("#playTurnModal").modal({
+                keyboard: false,
+                backdrop: 'static'
+            });
+        }
     });
 
     socket.on('play_turn', function(data) {
         console.log("Game played");
-        console.log(data);
-        stateArray = data;
+        if(data["box_price"]===9999) console.log("999999999999999999999999");
+        stateArray = data["state_array"];
         // updateAllHouses();
         updateAllPlayers();
+
+        console.log(data);
+        if(data["action"] === "play_turn") {
+            if(playerId === data["player_turn"]) {
+                if(data["box_price"]===9999) console.log("Not street nor station");
+                $("#playTurnModal").modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+                console.log("Post modal")
+            }
+        }
+        else if(data["action"] === "ask_buy") {
+            let questionData = {
+                label: "Acheter un terrain",
+                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                prop1: "J'achète le terrain",
+                prop2: "Je n'achète pas le terrain",
+                action: "buy"
+            };
+            showQuestionModal(questionData)
+        }
+    });
+
+    function showQuestionModal(questionData){
+        $("#modalQuestionLabel").text(questionData["label"]);
+        $("#modalQuestionContent").text(questionData["content"]);
+        $("#modalQuestion1").text(questionData["prop1"]);
+        $("#modalQuestion2").text(questionData["prop2"]);
+        $("#modalQuestion1").attr("data-action", questionData["action"]);
+        $("#modalQuestion2").attr("data-action", questionData["action"]);
+        $('#modalQuestion').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    }
+
+    $("#playTurn").click(function(){
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
+    });
+
+    $("#modalQuestion1").click(function(){
+        let action = $(this).attr("data-action");
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: true});
+    });
+    $("#modalQuestion2").click(function(){
+        let action = $(this).attr("data-action");
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: false});
     });
 
 
 
+    // Subsidiary functions (chat...)
+
     $('#msgInput').on('keypress', function (e) {
-        if(e.keyCode == 13){
+        if(e.keyCode === 13){
             let newMsg = escapeHtml($('#msgInput').val());
             $('#msgInput').val('');
             socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
@@ -101,6 +150,7 @@ $( document ).ready(function() {
         temp.remove();
     });
 
+    /*
     $("#question").on('click', function(){
         //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
         $("#modalQuestionLabel").text('Acheter un terrain');
@@ -113,6 +163,8 @@ $( document ).ready(function() {
         });
     });
 
+
+
     $("#information").on('click', function(){
         //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
         $("#modalInfoLabel").text('Caisse de communauté');
@@ -122,6 +174,7 @@ $( document ).ready(function() {
           backdrop: 'static'
         });
     });
+    */
 
 });
 

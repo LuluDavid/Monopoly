@@ -1,17 +1,15 @@
 from game.globs import INITIAL_MONEY
 
+
 class User:
     """A simple class to describe the lambda monopoly player"""
 
-    def __init__(self, name, identity, position=0, goods=None, inPrison=False, prisonTurn=None, money=INITIAL_MONEY, dices=None):
+    def __init__(self, name, identity, position=0, goods=[], inPrison=False, prisonTurn=None, money=INITIAL_MONEY, dices=None):
         self.name = name
         self.identity = identity
         self.money = money
         self.position = position
-        if goods is None:
-            self.goods = []
-        else:
-            self.goods = goods
+        self.goods = goods
         self.inPrison = inPrison
         self.prisonTurn = prisonTurn
         self.dices = dices
@@ -62,3 +60,6 @@ class User:
         self.goods.append(station)
         station.owner = self
         self.money = self.LooseMoney(price)
+
+    def can_buy_box(self, box):
+        return box.box_type in ["street", "station"] and box.owner is None and self.money >= box.get_price()

@@ -38,9 +38,9 @@ class Game:
 
     def actualizePosition(self, player):
         dices = self.launchDices()
-        print(dices)
         self.actualizePositionAux(player, dices)
         self.board.boxes[player.getPosition()].players.append(player.identity)
+        return player.getPosition()
 
     def actualizePositionAux(self, player, dices):
         """
@@ -440,23 +440,23 @@ class Game:
                 price) + " euros. Voulez-vous l'acheter ? (Il vous reste " + str(player.money) + " euros)")
             if choice.lower() == "oui".lower():
                 player.buyAStreet(case) if case_type == "street" else player.buyAStation(case)  # check
-                input("Vous venez d'acheter la propriete " + str(case.getBoxName()) + ". Il vous reste " + str(
+                print("Vous venez d'acheter la propriete " + str(case.getBoxName()) + ". Il vous reste " + str(
                     player.getMoney()) + " euros.")
                 # if case_type == "street":
                 #     player.buyAStreet(case)
                 if case_type == "street":
                     self.putHomes(player)
             else:
-                input("Vous avez decide de ne pas acheter, vous avez toujours " + str(player.money) + " euros.")
+                print("Vous avez decide de ne pas acheter, vous avez toujours " + str(player.money) + " euros.")
         else:
             if case.getOwner() == None and player.getMoney() < price:
-                input(
-                    "Cette propriete est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter. Il vous reste " + str(
+                print(
+                    "Cette propriete est libre, malheureusement vous n'avez pas assez d'argent pour l'acheter.\ Il vous reste " + str(
                         player.money) + " euros et le prix est de " + str(price) + " euros.")
             else:  # the street belongs to someone
                 ownerName = case.getOwner().getUserName()
                 if case.getOwner() == player:
-                    input("Cette propriete vous appartient")
+                    print("Cette propriete vous appartient")
                     if (case_type == "street"):
                         self.putHomes(player)
                 else:
@@ -470,7 +470,7 @@ class Game:
                     player.LooseMoney(rent)
                     print("Il vous reste " + str(player.money) + " euros.")
                     case.owner.EarnMoney(rent)
-                    input("" + ownerName + " gagne " + str(rent) + " euros, il lui reste " + str(
+                    print("" + ownerName + " gagne " + str(rent) + " euros, il lui reste " + str(
                         case.owner.money) + " euros.")
 
     def turn(self):
@@ -486,7 +486,7 @@ class Game:
             self.actualizePosition(player)
             pos = player.getPosition()
             playerStreetPosition = self.board.getBox(pos).getBoxName()
-            input("Tu es sur la case : " + playerStreetPosition)
+            print("Tu es sur la case : " + playerStreetPosition)
             case = self.board.getBox(pos)
             if case.getType() == "station" or case.getType() == "street":
                 self.onAStreetOrStation(player)
@@ -505,23 +505,51 @@ class Game:
             elif case.getType() == "public-service":
                 self.onAStreetOrStation(player)
             else:
-                input("ce type de case n est pas encore traite")
+                print("ce type de case n est pas encore traite")
             loosers = []
-            if (player.getMoney() < 0):
-                input("" + player.getUserName() + ", tu as perdu! Tu n'as plus d'argent.")
+            if player.getMoney() < 0:
+                print("" + player.getUserName() + ", tu as perdu! Tu n'as plus d'argent.")
                 loosers.append(player)
-        if (len(loosers) > 0):
-            for looser in loosers:
-                self.players_order.remove(looser)
+            if len(loosers) > 0:
+                for looser in loosers:
+                    self.players_order.remove(looser)
         return self.players_order
 
-    def play_turn(self, data):
-        self.actualizePosition(self.players[self.players_order[self.current_player_turn]])
-        self.current_player_turn += 1
-        if self.current_player_turn >= len(self.players_order):
-            self.current_player_turn = 0
-
-    def game_to_json(self):
-        return {
-            i: [self.board.boxes[i].players, self.board.boxes[i].home] for i in list(self.board.boxes.keys())
+    def game_to_json(self, action="play_turn", box_name=None, box_price=None):
+        response = {
+            "state_array": {
+                i: [self.board.boxes[i].players, self.board.boxes[i].home] for i in list(self.board.boxes.keys())
+            },
+            "player_turn": self.players_order[self.current_player_turn],
+            "action": action,
+            "box_name": box_name,
+            "box_price": box_price
         }
+        return response
+
+    def play_turn(self, data):
+        action = data["action"]
+        print(action)
+
+        if action == "play_turn":
+            player = self.players[self.players_order[self.current_player_turn]]
+            new_pos = self.board.boxes[self.actualizePosition(player)]
+
+            if new_pos.box_type in ["street", "station"]:
+                if player.can_buy_box(new_pos):
+                    return self.game_to_json(action="ask_buy", box_name=new_pos.name, box_price=new_pos.get_price())
+                else:
+                    return self.game_to_json()
+
+            else:
+                self.current_player_turn += 1
+                if self.current_player_turn >= len(self.players_order):
+                    self.current_player_turn = 0
+                return self.game_to_json(box_price=9999)
+
+        elif action == "buy":
+            if data["action_value"]:
+                print("BUYING A BOX")
+            else:
+                print("NOT BUYING A BOX")
+            return self.game_to_json()

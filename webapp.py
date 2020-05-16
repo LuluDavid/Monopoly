@@ -20,38 +20,33 @@ def home():
 def play_game():
     try:
         if request.form.get('request_type') == "create":
-            game_name = request.form.get('game_name')
             game_id = generate_id()
             while game_id in GAMES:
                 game_id = generate_id()
             GAMES[game_id] = {
-                "name": game_name,
                 "game": None,
                 "players": {}
             }
 
         elif request.form.get('request_type') == "join":
             game_id = int(request.form.get('game_id'))
-            if game_id in GAMES:
-                game_name = GAMES[game_id]["name"]
-            else:
+            if game_id not in GAMES:
                 print("Game id does not exist")
                 return redirect_home()
         else:
             return redirect_home()
 
         player_name = request.form.get('player_name')
-        player_id = len(GAMES[game_id]["players"]) #generate_id()
-        #while player_id in GAMES[game_id]["players"]:
-        #    player_id = generate_id()
+        player_id = len(GAMES[game_id]["players"])  # generate_id()
+        # while player_id in GAMES[game_id]["players"]:
+        #     player_id = generate_id()
         GAMES[game_id]["players"][player_id] = player_name
 
         return render_template(
             'lobby.html.jinja2',
             game_id=game_id,
             player_id=player_id,
-            player_name=player_name,
-            game_name=game_name
+            player_name=player_name
         )
 
     except ValueError:
@@ -87,8 +82,7 @@ def on_start_game(data):
 @socketio.on('play_turn')
 def on_play_turn(data):
     game_id = data["game_id"]
-    GAMES[game_id]["game"].play_turn(data)
-    response = GAMES[game_id]["game"].game_to_json()
+    response = GAMES[game_id]["game"].play_turn(data)
     emit("play_turn", response, room=game_id)
 
 
