@@ -55,7 +55,8 @@ const cardboardWidth = 110;
 // Number of boxes
 const numberOfBoxes = 40;
 // Pawns
-const numberOfPawns = 2;
+var numberOfPawns = 0;
+
 const pawnHeight = 2;
 const pawnRadius = 0.5;
 // House Ratio
@@ -81,8 +82,7 @@ const epsilon = 1;
 const coverMotion = 0.8;
 // Pawn motion
 const tMotion = 3; // duration to go to next case (seconds)
-// Pawn positions per box (where to put them to make them fit in)
-var pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+
 // Incrementing boolean to avoid multi-calls
 var incrementing = false;
 // CloseView activation boolean
@@ -109,8 +109,6 @@ const hotelHouseRatio = 3;
 const deckRatio = 1.587;
 const heightRatio = 5.827;
 const deckSize = 20;
-// Represents the current state for all players
-var stateArray = initState();
 
 /*
  * Build scene
@@ -159,11 +157,15 @@ const cardboard = createCardboard(cardboardWidth, scene);
 cardboard.rotateZ(Math.PI / 2);
 cardboard.castShadow = true;
 cardboard.receiveShadow = true;
-// Create and add the pawns
-let pawnObjects = createPawns(numberOfPawns);
+
+// Pawn positions per box (where to put them to make them fit in)
+var pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+// To fill in when players start the game
 var pawns = new THREE.Group();
-addPawns(pawnObjects, pawns);
-scene.add(pawns);
+// Fill empty
+updatePawns();
+// Represents the current state for all players
+var stateArray = initState();
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
@@ -175,7 +177,17 @@ const chanceDeck = createChanceDeck();
 scene.add(chanceDeck);
 
 // Try a card animation
-$(document).on('click',() => animateCard("chance"));
+// $(document).on('click',() => animateCard("chance"));
+
+function updatePawns(){
+	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+	let pawnObjects = createPawns(numberOfPawns);
+	pawns = new THREE.Group();
+	addPawns(pawnObjects, pawns);
+	// Replace previous pawns with the new ones, or just create them
+	scene.children[3] = pawns;
+}
+
 
 function createCommunityCard() {
 	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);

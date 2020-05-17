@@ -34,33 +34,44 @@ $( document ).ready(function() {
     }
 
     $("#start_game").click(function(){
-        console.log("Starting Game...");
+        console.log("Adding a new player to the game");
         $("#start_game").hide();
         socket.emit('start_game', {game_id: gameId, player_id: playerId});
     });
 
     socket.on('start_game', function(data) {
-        console.log("Game started");
-        $("#play_turn").show();
-        console.log(data);
+        console.log("New player added to the game");
+        // Add a new pawn for the new player
+        numberOfPawns++;
+        updatePawns();
+        // Change the page state
+        stateArray = initState();
+        // Once all players have clicked start game, display the play turn
+        // TODO: add a "game joined" symbol near a player's name
+        // TODO: display play turn only if it is your turn
+        if (numberOfPawns === $("#player_list").children().length){
+            $("#play_turn").show();
+        }
+        else {
+            console.log(numberOfPawns+"/"+$("#player_list").children().length+" players are ready to play")
+        }
     });
 
     $("#play_turn").click(function(){
-        socket.emit('play_turn', {game_id: gameId, player_id: playerId});
+        if (incrementing) console.log("Last turn's animation is not finished yet");
+        else socket.emit('play_turn', {game_id: gameId, player_id: playerId});
     });
 
     socket.on('play_turn', function(data) {
-        console.log("Game played");
-        console.log(data);
+        console.log("Animating new turn");
         stateArray = data;
-        // updateAllHouses();
         updateAllPlayers();
     });
 
 
 
     $('#msgInput').on('keypress', function (e) {
-        if(e.keyCode == 13){
+        if(e.keyCode === 13){
             let newMsg = escapeHtml($('#msgInput').val());
             $('#msgInput').val('');
             socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
