@@ -592,9 +592,9 @@ class Game:
                 if new_pos.is_good:
                     return self.landing_on_good(player, new_pos)
                 elif new_pos.box_type in ["community-fund", "chance"]:
-                    self.landing_on_card(player)
+                    return self.landing_on_card(player)
                 elif new_pos.box_type == "park":
-                    self.landing_on_park(player)
+                    return self.landing_on_park(player)
                 else:
                     return self.do_nothing()
 
