@@ -31,9 +31,9 @@ $( document ).ready(function() {
         $("#player_list").append(playerHtmlLine);
     }
 
-    $("#start_game").click(function(){
+    $("#startGame").click(function(){
         console.log("Adding a new player to the game");
-        $("#start_game").hide();
+        $("#startGame").hide();
         socket.emit('start_game', {game_id: gameId, player_id: playerId});
     });
 
@@ -50,7 +50,6 @@ $( document ).ready(function() {
         if (numberOfPawns === $("#player_list").children().length){
             if(playerId === data["player_turn"]) {
                 $("#playTurnModal").modal({
-                $("#playTurnModal").modal({
                 keyboard: false,
                 backdrop: 'static'
                 });
@@ -61,36 +60,32 @@ $( document ).ready(function() {
         }
     });
 
-    $("#play_turn").click(function(){
+    $("#playTurn").click(function(){
         if (incrementing) console.log("Last turn's animation is not finished yet");
-        else socket.emit('play_turn', {game_id: gameId, player_id: playerId});
+        else socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
     });
     
     socket.on('play_turn', function(data) {
-        console.log("Game played");
         console.log(data);
-        stateArray = data;
-        // updateAllHouses();
+        stateArray = data["state_array"];
         updateAllPlayers();
 
         if(playerId === data["player_turn"]) {
-            console.log(data);
             if (data["action"] === "play_turn") {
-                if (playerId === data["player_turn"]) {
-                    $("#playTurnModal").modal({
-                        keyboard: false,
-                        backdrop: 'static'
-                    });
-                }
-            } else if (data["action"] === "ask_buy") {
+                $("#playTurnModal").modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+            }
+            else if (data["action"] === "ask_buy") {
                 let questionData = {
-                    label: "Acheter un terrain",
-                    content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
-                    prop1: "J'achète le terrain",
-                    prop2: "Je n'achète pas le terrain",
-                    action: "buy"
+                label: "Acheter un terrain",
+                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                prop1: "J'achète le terrain",
+                prop2: "Je n'achète pas le terrain",
+                action: "buy"
                 };
-                showQuestionModal(questionData);
+            showQuestionModal(questionData);
             }
         }
     });
