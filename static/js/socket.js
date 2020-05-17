@@ -31,25 +31,45 @@ $( document ).ready(function() {
         $("#player_list").append(playerHtmlLine);
     }
 
-    $("#startGame").click(function(){
-        console.log("Starting Game...");
+    $("#start_game").click(function(){
+        console.log("Adding a new player to the game");
+        $("#start_game").hide();
         socket.emit('start_game', {game_id: gameId, player_id: playerId});
     });
 
     socket.on('start_game', function(data) {
-        console.log("Game started");
-        $("#startGame").hide();
-        if(playerId === data["player_turn"]) {
-            $("#playTurnModal").modal({
+        console.log("New player added to the game");
+        // Add a new pawn for the new player
+        numberOfPawns++;
+        // Change the page state
+        updatePawns();
+        stateArray = initState();
+        // Once all players have clicked start game, display the play turn
+        // TODO: add a "game joined" symbol near a player's name
+        // TODO: display play turn only if it is your turn
+        if (numberOfPawns === $("#player_list").children().length){
+            if(playerId === data["player_turn"]) {
+                $("#playTurnModal").modal({
+                $("#playTurnModal").modal({
                 keyboard: false,
                 backdrop: 'static'
-            });
+                });
+            }
+        }
+        else {
+            console.log(numberOfPawns+"/"+$("#player_list").children().length+" players are ready to play")
         }
     });
 
+    $("#play_turn").click(function(){
+        if (incrementing) console.log("Last turn's animation is not finished yet");
+        else socket.emit('play_turn', {game_id: gameId, player_id: playerId});
+    });
+    
     socket.on('play_turn', function(data) {
-        console.log("Turn played");
-        stateArray = data["state_array"];
+        console.log("Game played");
+        console.log(data);
+        stateArray = data;
         // updateAllHouses();
         updateAllPlayers();
 
@@ -87,10 +107,6 @@ $( document ).ready(function() {
           backdrop: 'static'
         });
     }
-
-    $("#playTurn").click(function(){
-        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
-    });
 
     $("#modalQuestion1").click(function(){
         let action = $(this).attr("data-action");
