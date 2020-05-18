@@ -1,6 +1,6 @@
 import random
 from deprecated import deprecated
-from game.globs import INITIAL_MONEY, NUMBER_HOUSES_COLOR
+from game.globs import INITIAL_MONEY, NUMBER_HOUSES_COLOR, MAX_HOUSES_BOX, JAIL_POSITION
 
 
 class Player:
@@ -95,7 +95,7 @@ class Player:
 
     def go_to_jail(self, board):
         board.boxes[self.position].players.remove(self.id)
-        self.position = 10
+        self.position = JAIL_POSITION
         self.jail_turn = 0
         self.in_jail = True
         board.boxes[self.position].players.append(self.id)
@@ -106,20 +106,26 @@ class Player:
     def can_buy_good(self, good):
         return good.is_good and good.owner is None and self.money >= good.price
 
+    def can_buy_houses(self, good):
+        if good.box_type == "street" and good.owner == self:
+            return min(self.money//good.price_house, MAX_HOUSES_BOX - good.nb_houses)
+        else:
+            return 0
+
     def buy_good(self, good):
         if self.can_buy_good(good):
             self.goods.append(good)
             good.owner = self
             self.loose_money(good.price)
         else:
-            if not good.is_good:
-                raise Exception("Can't buy the good : not a good")
-            elif good.owner is not None:
-                raise Exception("Can't buy the good : owner is not None")
-            elif self.money < good.price:
-                raise Exception("Can't buy the good : not enough money")
-            else:
-                raise Exception("Can't buy the good")
+            raise Exception("Can't buy the good")
+
+    def buy_houses(self, good, new_houses):
+        if 0 < new_houses <= self.can_buy_houses(good):
+            good.nb_houses += new_houses
+            self.loose_money(good.price_house * new_houses)
+        else:
+            raise Exception("Can't buy houses")
 
     def has_full_color(self, color):
         count = sum([good.box_type == "street" and good.color == color for good in self.goods])
