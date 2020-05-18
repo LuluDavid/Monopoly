@@ -26,10 +26,15 @@ $( document ).ready(function() {
     });
 
     function addPlayerNameToSidebar(nameToAdd){
-        let playerHtmlLine = '<div class="list-group-item list-group-item-action bg-light" id="player_list">';
-        playerHtmlLine += nameToAdd + '</div>';
+        let playerHtmlLine = '<div class="list-group-item list-group-item-action bg-light" id="'+nameToAdd+'">';
+        playerHtmlLine += nameToAdd;
+        playerHtmlLine += '<svg class="bi bi-x" style="float : right" width="2em" height="2em" viewBox="0 0 16 16" fill="red" xmlns="http://www.w3.org/2000/svg">';
+        playerHtmlLine += '<path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd"/>';
+        playerHtmlLine += '<path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd"/>';
+        playerHtmlLine += '</svg></div>';
         $("#player_list").append(playerHtmlLine);
     }
+
 
     $("#startGame").click(function(){
         console.log("Adding a new player to the game");

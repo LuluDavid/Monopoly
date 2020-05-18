@@ -102,6 +102,7 @@ class Player:
 
     def leave_jail(self):
         self.in_jail = False
+        self.jail_turn = None
 
     def can_buy_good(self, good):
         return good.is_good and good.owner is None and self.money >= good.price
