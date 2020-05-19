@@ -166,6 +166,7 @@ var pawns = new THREE.Group();
 updatePawns();
 // Represents the current state for all players
 var stateArray = initState();
+var idsToPawns = {};
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
@@ -376,7 +377,8 @@ function updateAllPlayers(){
 	for (let i = 0; i<numberOfBoxes; i++){
 		let pawns = stateArray[i][0];
 		for (let j = 0; j<pawns.length; j++){
-			let pawnNumber = pawns[j];
+			let playerId = pawns[j];
+			let pawnNumber = idsToPawns[playerId];
 			let pawn = scene.children[3].children[pawnNumber];
 			if (pawn.currentBox !== i){
 				translatePawnToBox(pawnNumber, i);
@@ -448,7 +450,7 @@ function loop2(step, t) {
 		if (currentPawn === numberOfPawns) {
 			currentPawn = 0;
 		}
-		return;
+		return "done";
 	}
 	requestAnimationFrame(() => loop2(step, t))
 }

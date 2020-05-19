@@ -37,9 +37,9 @@ def play_game():
             return redirect_home()
 
         player_name = request.form.get('player_name')
-        player_id = len(GAMES[game_id]["players"])  # generate_id()
-        # while player_id in GAMES[game_id]["players"]:
-        #     player_id = generate_id()
+        player_id = generate_id()
+        while player_id in GAMES[game_id]["players"]:
+            player_id = generate_id()
         GAMES[game_id]["players"][player_id] = player_name
 
         return render_template(
@@ -59,7 +59,7 @@ def on_join(data):
     game_id = data['game_id']
     if game_id in GAMES:
         join_room(game_id)
-        new_player = { "id": data['player_id'], "name": GAMES[game_id]["players"][data['player_id']] }
+        new_player = {"id": data['player_id'], "name": GAMES[game_id]["players"][data['player_id']]}
         players_in_game = GAMES[game_id]["players"]
         emit(
             'join_game',
@@ -75,9 +75,10 @@ def on_join(data):
 def on_start_game(data):
     game_id = data["game_id"]
     GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
-    response_one = GAMES[game_id]["game"].game_to_json()
-    response_two = data["player_id"]
-    response = {"playerReady": response_two, "gameState": response_one};
+    game_state = GAMES[game_id]["game"].game_to_json()
+    player_id = data["player_id"]
+    player_name = data["player_name"]
+    response = {"newPlayer": {"id": player_id, "name": player_name}, "gameState": game_state};
     emit("start_game", response, room=game_id)
 
 

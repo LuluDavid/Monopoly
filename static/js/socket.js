@@ -44,28 +44,25 @@ $( document ).ready(function() {
     $("#startGame").click(function(){
         console.log("Adding a new player to the game");
         $("#startGame").hide();
-        $("#"+playerId+" svg").remove();
-        $("#"+playerId).append(check);
-        socket.emit('start_game', {game_id: gameId, player_id: playerId});
+        socket.emit('start_game', {game_id: gameId, player_id: playerId, player_name: playerName});
     });
 
     socket.on('start_game', function(data) {
-        let playerReady = data["playerReady"];
+        let newPlayerId = data["newPlayer"]["id"];
+        let newPlayerName = data["newPlayer"]["name"];
 
-        $("#"+playerReady+" svg").remove();
-        $("#"+playerReady).append(check);
+        $("#"+newPlayerId+" svg").remove();
+        $("#"+newPlayerId).append(check);
 
         data = data["gameState"];
-        console.log("Player "+playerReady+" is ready to play");
+        console.log("Player "+newPlayerName+" is ready to play");
         // Add a new pawn for the new player
+        idsToPawns[newPlayerId] = numberOfPawns;
         numberOfPawns++;
         // Change the page state
         updatePawns();
-        // TODO: create a map id <-> pawn number here would be easy as fuck
-        stateArray = data;
+        stateArray = initState();
         // Once all players have clicked start game, display the play turn
-        // TODO: add a "game joined" symbol near a player's name
-        // TODO: display play turn only if it is your turn
         if (numberOfPawns === $("#player_list").children().length){
             if(playerId === data["player_turn"]) {
                 $("#playTurnModal").modal({
@@ -85,6 +82,7 @@ $( document ).ready(function() {
         console.log(data);
         stateArray = data["state_array"];
         updateAllPlayers();
+        updateAllHouses();
         if(playerId === data["player_turn"]) {
             if (data["action"] === "play_turn") {
                 $("#playTurnModal").modal({
@@ -100,7 +98,7 @@ $( document ).ready(function() {
                 prop2: "Je n'achète pas le terrain",
                 action: "buy"
                 };
-             // Wait 2 seconds
+            // Wait 2 seconds
             await new Promise(r => setTimeout(r, 2000));
             showQuestionModal(questionData);
             }
