@@ -26,7 +26,7 @@ class PlayerTest(unittest.TestCase):
 
     def test_can_buy_good(self):
         chloe = Player("Chloe", 0, money=300)
-        lucien = Player("Lucien", 0)
+        lucien = Player("Lucien", 1)
         board = Board()
         chloe.buy_good(board.boxes[3])
         lucien.buy_good(board.boxes[9])
@@ -37,6 +37,18 @@ class PlayerTest(unittest.TestCase):
         self.assertFalse(chloe.can_buy_good(board.boxes[3]))  # chloe is owner
         self.assertFalse(chloe.can_buy_good(board.boxes[9]))  # lucien is owner
         self.assertFalse(chloe.can_buy_good(board.boxes[39]))  # not enough money
+
+    def test_can_buy_houses(self):
+        chloe = Player("Chloe", 0, money=600)
+        board = Board()
+        chloe.buy_good(board.boxes[1])
+        self.assertEqual(0, chloe.can_buy_houses(board.boxes[5]))  # not a street
+        self.assertEqual(5, chloe.can_buy_houses(board.boxes[1]))
+        board.boxes[1].nb_houses = 3
+        self.assertEqual(2, chloe.can_buy_houses(board.boxes[1]))  # only 2 houses available
+        self.assertEqual(0, chloe.can_buy_houses(board.boxes[39]))  # not the owner
+        chloe.buy_good(board.boxes[39])
+        self.assertEqual(0, chloe.can_buy_houses(board.boxes[39]))  # not enough money
 
     def test_buy_good(self):
         chloe = Player("Chloe", 0)
@@ -51,6 +63,21 @@ class PlayerTest(unittest.TestCase):
         self.assertEqual(INITIAL_MONEY - sum([good.price for good in chloe.goods]), chloe.money)
         with self.assertRaises(Exception):
             chloe.buy_good(board.boxes[2])
+
+    def test_buy_houses(self):
+        chloe = Player("Chloe", 0)
+        board = Board()
+        chloe.buy_good(board.boxes[1])
+        chloe.buy_houses(board.boxes[1], 5)
+        self.assertEqual(5, board.boxes[1].nb_houses)
+        self.assertEqual(INITIAL_MONEY - 60 - 50*5, chloe.money)
+        with self.assertRaises(Exception):
+            chloe.buy_houses(board.boxes[1], 2)
+        with self.assertRaises(Exception):
+            chloe.buy_houses(board.boxes[2], 1)
+        chloe.buy_good(board.boxes[39])
+        with self.assertRaises(Exception):
+            chloe.buy_houses(board.boxes[39], 4)
 
     def test_has_full_color(self):
         chloe = Player("Chloe", 0)

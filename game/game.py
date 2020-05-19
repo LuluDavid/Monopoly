@@ -27,27 +27,25 @@ class Game:
         """Choosing randomly what is the order of players"""
         order = list(players.keys())
         #random.shuffle(order)
-        for i in range(len(order)):
-            pass #print("Le joueur " + str(i+1) + " est " + self.players[order[i]].name)
         return order
 
     # Game
 
     @staticmethod
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def launch_dices():
         dice1 = random.randint(1, 6)
         dice2 = random.randint(1, 6)
         return [dice1, dice2]
 
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def actualizePosition(self, player):
         dices = self.launch_dices()
         self.actualizePositionAux(player, dices)
         self.board.boxes[player.getPosition()].players.append(player.id)
         return player.getPosition()
 
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def actualizePositionAux(self, player, dices):
         """
         Find the new position of the player after rolling dices
@@ -71,7 +69,7 @@ class Game:
         else:
             self.isInJail(player)
 
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def playerHasAllColorStreets(self, player, streetPosition):
         """
         Check if a player has all the streets of the same color that the box on 'positionOfStreet'
@@ -104,7 +102,7 @@ class Game:
             else:
                 return False
 
-    @deprecated
+    @deprecated  # DONE -----------------------
     def putHomes(self, player):  # TODO : verify that owner has enough money to pay for houses
 
         """
@@ -351,7 +349,9 @@ class Game:
         else:
             print("type pas encore traite")
 
-    @deprecated
+    # Others
+
+    @deprecated  # DONE -----------------------
     def on_tax(self, player):
         pos = player.getPosition()
         rent = self.board.get_box(pos).rent
@@ -359,9 +359,7 @@ class Game:
         self.board.park_money = self.board.park_money + rent
         print("Vous perdez "+str(rent)+" euros.")
 
-    # Others
-
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def nbOfStations(self, owner):
         """
         How many stations does a player have ?
@@ -374,7 +372,7 @@ class Game:
                 nb = nb + 1
         return nb
 
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def get_rent_public_service(self, player):
         pos = player.getPosition()
         owner = self.board.get_box(pos).getOwner()
@@ -391,7 +389,7 @@ class Game:
         rent = factor*dices
         return rent
 
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def getRentStreet(self, player):
         """
         The rent is different if their is homes in it or if the owner has all streets of the same color
@@ -412,7 +410,7 @@ class Game:
             else:
                 return rent
 
-    @deprecated  # Done
+    @deprecated  # DONE -----------------------
     def getRentStation(self, player):
         """
         What is the rent to pay for the player on the station (position of station is player.position)
@@ -424,7 +422,7 @@ class Game:
         rent = 50 * nbStations
         return rent
 
-    @deprecated
+    @deprecated  # DONE -----------------------
     def onAStreetOrStation(self, player):
 
         """
@@ -531,7 +529,7 @@ class Game:
 
     # JOINING WITH FRONT --------------------------------------------
 
-    def game_to_json(self, action="play_turn", box_name=None, box_price=None):
+    def game_to_json(self, action="play_turn", box_name=None, box_price=None, house_price=None, buyable_houses=None):
         response = {
             "state_array": {
                 i: [self.board.boxes[i].players, self.board.boxes[i].nb_houses] for i in list(self.board.boxes.keys())
@@ -539,7 +537,9 @@ class Game:
             "player_turn": self.players_order[self.current_player_turn],
             "action": action,
             "box_name": box_name,
-            "box_price": box_price
+            "box_price": box_price,
+            "house_price": house_price,
+            "buyable_houses": buyable_houses
         }
         return response
 
@@ -556,12 +556,22 @@ class Game:
     def landing_on_good(self, player, pos):
         if player.can_buy_good(pos):
             return self.game_to_json(action="ask_buy", box_name=pos.name, box_price=pos.price)
+
         elif pos.owner == player:
-            pass  # TODO : ask_buy_house if possible
+            nb_houses_buyable = player.can_buy_houses(pos)
+            if nb_houses_buyable > 0:
+                return self.game_to_json(action="ask_buy_house",
+                                         box_name=pos.name,
+                                         house_price=pos.price,
+                                         buyable_houses=nb_houses_buyable)
+            else:
+                return self.do_nothing()
+
         elif pos.owner is not None:
             player.pay_player(pos.get_rent())
             time.sleep(0.5)
             return self.game_to_json()  # TODO: Message "X payed Y"
+
         else:
             return self.do_nothing()
 
@@ -570,8 +580,15 @@ class Game:
         return self.do_nothing()
 
     # TODO: card Class to manage everything
-    def landing_on_card(self, player):
+    def landing_on_card(self, player, pos):
         return self.do_nothing()
+
+    def landing_on_tax(self, player, pos):
+        player.loose_money(pos.rent)
+        self.board.park_money += pos.rent
+        time.sleep(0.5)
+        self.next_player()
+        return self.game_to_json()
 
     def landing_on_park(self, player):
         player.earn_money(self.board.park_money)
@@ -592,7 +609,9 @@ class Game:
                 if new_pos.is_good:
                     return self.landing_on_good(player, new_pos)
                 elif new_pos.box_type in ["community-fund", "chance"]:
-                    return self.landing_on_card(player)
+                    return self.landing_on_card(player, new_pos)
+                elif new_pos.box_type == "tax":
+                    return self.landing_on_tax(player, new_pos)
                 elif new_pos.box_type == "park":
                     return self.landing_on_park(player)
                 else:
@@ -601,5 +620,11 @@ class Game:
         elif action == "buy":
             if data["action_value"]:
                 player.buy_good(self.board.boxes[player.position])
+            self.next_player()
+            return self.game_to_json()
+
+        elif action == "buy_houses":
+            if data["action_value"] > 0:
+                player.buy_houses(self.board.boxes[player.position])
             self.next_player()
             return self.game_to_json()
