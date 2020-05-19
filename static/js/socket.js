@@ -12,51 +12,67 @@ $( document ).ready(function() {
     }
 
     socket.on('join_game', function(data) {
-        let newPlayerName = data["new_player"];
+        let newPlayer = data["new_player"];
+        let newPlayerName = newPlayer["name"];
+        let newPlayerId = newPlayer["id"];
         console.log(newPlayerName + " a rejoint la partie");
-        let playersInGameNames = data["players_in_game_names"];
-        console.log(playersInGameNames);
+        let playersInGame = data["players_in_game"];
+        let ids = Object.keys(playersInGame);
+        let names = Object.values(playersInGame);
         if(playerName === newPlayerName){
-            let playerNamesToAdd = playersInGameNames.filter(name => name !== newPlayerName);
-            playerNamesToAdd.forEach(nameToAdd => addPlayerNameToSidebar(nameToAdd));
+            for (let i = 0; i<ids.length; i++){
+                let id = ids[i];
+                if (parseInt(id) !== playerId){
+                    console.log("id "+id+" different from "+playerId);
+                    addPlayerNameToSidebar(names[i], id);
+                }
+            }
         }
         else{
-            addPlayerNameToSidebar(newPlayerName, playerName);
+            addPlayerNameToSidebar(newPlayerName, newPlayerId);
         }
     });
 
-    function addPlayerNameToSidebar(nameToAdd){
-        let playerHtmlLine = '<div class="list-group-item list-group-item-action bg-light" id="player_list">';
-        playerHtmlLine += nameToAdd + '</div>';
+    function addPlayerNameToSidebar(nameToAdd, id){
+        let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light">';
+        playerHtmlLine += nameToAdd;
+        playerHtmlLine += uncheck+'</div>';
         $("#player_list").append(playerHtmlLine);
     }
+
 
     $("#startGame").click(function(){
         console.log("Adding a new player to the game");
         $("#startGame").hide();
+        $("#"+playerId+" svg").remove();
+        $("#"+playerId).append(check);
         socket.emit('start_game', {game_id: gameId, player_id: playerId});
     });
 
     socket.on('start_game', function(data) {
-        console.log("New player added to the game");
+        let playerReady = data["playerReady"];
+
+        $("#"+playerReady+" svg").remove();
+        $("#"+playerReady).append(check);
+
+        data = data["gameState"];
+        console.log("Player "+playerReady+" is ready to play");
         // Add a new pawn for the new player
         numberOfPawns++;
         // Change the page state
         updatePawns();
-        stateArray = initState();
+        // TODO: create a map id <-> pawn number here would be easy as fuck
+        stateArray = data;
         // Once all players have clicked start game, display the play turn
         // TODO: add a "game joined" symbol near a player's name
         // TODO: display play turn only if it is your turn
         if (numberOfPawns === $("#player_list").children().length){
             if(playerId === data["player_turn"]) {
                 $("#playTurnModal").modal({
-                keyboard: false,
-                backdrop: 'static'
+                    keyboard: false,
+                    backdrop: 'static'
                 });
             }
-        }
-        else {
-            console.log(numberOfPawns+"/"+$("#player_list").children().length+" players are ready to play")
         }
     });
 
@@ -65,11 +81,10 @@ $( document ).ready(function() {
         else socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
     });
     
-    socket.on('play_turn', function(data) {
+    socket.on('play_turn', async function(data) {
         console.log(data);
         stateArray = data["state_array"];
         updateAllPlayers();
-
         if(playerId === data["player_turn"]) {
             if (data["action"] === "play_turn") {
                 $("#playTurnModal").modal({
@@ -85,6 +100,8 @@ $( document ).ready(function() {
                 prop2: "Je n'achète pas le terrain",
                 action: "buy"
                 };
+             // Wait 2 seconds
+            await new Promise(r => setTimeout(r, 2000));
             showQuestionModal(questionData);
             }
         }
