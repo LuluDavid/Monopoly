@@ -84,9 +84,7 @@ def on_start_game(data):
 
 @socketio.on('play_turn')
 def on_play_turn(data):
-    print(data)
     game_id = data["game_id"]
-    print(GAMES[game_id]["game"].game_to_json())
     response = GAMES[game_id]["game"].play_turn(data)
     emit("play_turn", response, room=game_id)
 
