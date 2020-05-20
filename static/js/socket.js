@@ -15,15 +15,16 @@ $( document ).ready(function() {
         let newPlayer = data["new_player"];
         let newPlayerName = newPlayer["name"];
         let newPlayerId = newPlayer["id"];
-        console.log(newPlayerName + " a rejoint la partie");
+        idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
         let playersInGame = data["players_in_game"];
         let ids = Object.keys(playersInGame);
         let names = Object.values(playersInGame);
         if(playerName === newPlayerName){
             for (let i = 0; i<ids.length; i++){
+                // Rebuild the mapping for the new player
+                idsToPawns[ids[i]] = i;
                 let id = ids[i];
                 if (parseInt(id) !== playerId){
-                    console.log("id "+id+" different from "+playerId);
                     addPlayerNameToSidebar(names[i], id);
                 }
             }
@@ -34,9 +35,9 @@ $( document ).ready(function() {
     });
 
     function addPlayerNameToSidebar(nameToAdd, id){
-        let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light">';
+        let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light"><div id="top-info" style="color: black; font-size: 18px">';
         playerHtmlLine += nameToAdd;
-        playerHtmlLine += uncheck+'</div>';
+        playerHtmlLine += uncheck+'</div>'+frontGoods+'</div>';
         $("#player_list").append(playerHtmlLine);
     }
 
@@ -52,12 +53,11 @@ $( document ).ready(function() {
         let newPlayerName = data["newPlayer"]["name"];
 
         $("#"+newPlayerId+" svg").remove();
-        $("#"+newPlayerId).append(check);
+        $("#"+newPlayerId+" #top-info").append(check);
 
         data = data["gameState"];
         console.log("Player "+newPlayerName+" is ready to play");
         // Add a new pawn for the new player
-        idsToPawns[newPlayerId] = numberOfPawns;
         numberOfPawns++;
         // Change the page state
         updatePawns();
@@ -79,7 +79,7 @@ $( document ).ready(function() {
     });
     
     socket.on('play_turn', async function(data) {
-        console.log(data);
+        console.log(data["state_array"]);
         stateArray = data["state_array"];
         updateAllPlayers();
         updateAllHouses();

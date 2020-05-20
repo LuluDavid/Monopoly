@@ -378,7 +378,9 @@ function updateAllPlayers(){
 		let pawns = stateArray[i][0];
 		for (let j = 0; j<pawns.length; j++){
 			let playerId = pawns[j];
+			console.log("Updating playerId "+playerId);
 			let pawnNumber = idsToPawns[playerId];
+			console.log("Found pawn number "+pawnNumber);
 			let pawn = scene.children[3].children[pawnNumber];
 			if (pawn.currentBox !== i){
 				translatePawnToBox(pawnNumber, i);
