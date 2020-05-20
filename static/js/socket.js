@@ -1,6 +1,5 @@
 $( document ).ready(function() {
     let socket = io.connect('http://' + document.domain + ':' + location.port);
-    $("#play_turn").hide();
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
@@ -13,51 +12,127 @@ $( document ).ready(function() {
     }
 
     socket.on('join_game', function(data) {
-        let newPlayerName = data["new_player"]
-        console.log(data)
+        let newPlayer = data["new_player"];
+        let newPlayerName = newPlayer["name"];
+        let newPlayerId = newPlayer["id"];
         console.log(newPlayerName + " a rejoint la partie");
-        let playersInGameNames = data["players_in_game_names"];
-        console.log(playersInGameNames);
-        if(playerName == newPlayerName){
-            let playerNamesToAdd = playersInGameNames.filter(name => name != newPlayerName);
-            playerNamesToAdd.forEach(nameToAdd => addPlayerNameToSidebar(nameToAdd));
+        let playersInGame = data["players_in_game"];
+        let ids = Object.keys(playersInGame);
+        let names = Object.values(playersInGame);
+        if(playerName === newPlayerName){
+            for (let i = 0; i<ids.length; i++){
+                let id = ids[i];
+                if (parseInt(id) !== playerId){
+                    console.log("id "+id+" different from "+playerId);
+                    addPlayerNameToSidebar(names[i], id);
+                }
+            }
         }
         else{
-            addPlayerNameToSidebar(newPlayerName, playerName);
+            addPlayerNameToSidebar(newPlayerName, newPlayerId);
         }
     });
 
-    function addPlayerNameToSidebar(nameToAdd){
-        let playerHtmlLine = '<div class="list-group-item list-group-item-action bg-light" id="player_list">';
-        playerHtmlLine += nameToAdd + '</div>';
+    function addPlayerNameToSidebar(nameToAdd, id){
+        let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light">';
+        playerHtmlLine += nameToAdd;
+        playerHtmlLine += uncheck+'</div>';
         $("#player_list").append(playerHtmlLine);
     }
 
-    $("#start_game").click(function(){
-        console.log("Starting Game...");
-        $("#start_game").hide();
-        socket.emit('start_game', {game_id: gameId, player_id: playerId});
+
+    $("#startGame").click(function(){
+        console.log("Adding a new player to the game");
+        $("#startGame").hide();
+        socket.emit('start_game', {game_id: gameId, player_id: playerId, player_name: playerName});
     });
 
     socket.on('start_game', function(data) {
-        console.log("Game started");
-        $("#play_turn").show();
+        let newPlayerId = data["newPlayer"]["id"];
+        let newPlayerName = data["newPlayer"]["name"];
+
+        $("#"+newPlayerId+" svg").remove();
+        $("#"+newPlayerId).append(check);
+
+        data = data["gameState"];
+        console.log("Player "+newPlayerName+" is ready to play");
+        // Add a new pawn for the new player
+        idsToPawns[newPlayerId] = numberOfPawns;
+        numberOfPawns++;
+        // Change the page state
+        updatePawns();
+        stateArray = initState();
+        // Once all players have clicked start game, display the play turn
+        if (numberOfPawns === $("#player_list").children().length){
+            if(playerId === data["player_turn"]) {
+                $("#playTurnModal").modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+            }
+        }
+    });
+
+    $("#playTurn").click(function(){
+        if (incrementing) console.log("Last turn's animation is not finished yet");
+        else socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
+    });
+    
+    socket.on('play_turn', async function(data) {
         console.log(data);
+        stateArray = data["state_array"];
+        updateAllPlayers();
+        updateAllHouses();
+        if(playerId === data["player_turn"]) {
+            if (data["action"] === "play_turn") {
+                $("#playTurnModal").modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+            }
+            else if (data["action"] === "ask_buy") {
+                let questionData = {
+                label: "Acheter un terrain",
+                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                prop1: "J'achète le terrain",
+                prop2: "Je n'achète pas le terrain",
+                action: "buy"
+                };
+            // Wait 2 seconds
+            await new Promise(r => setTimeout(r, 2000));
+            showQuestionModal(questionData);
+            }
+        }
     });
 
-    $("#play_turn").click(function(){
-        socket.emit('play_turn', {game_id: gameId, player_id: playerId});
+    function showQuestionModal(questionData){
+        $("#modalQuestionLabel").text(questionData["label"]);
+        $("#modalQuestionContent").text(questionData["content"]);
+        $("#modalQuestion1").text(questionData["prop1"]);
+        $("#modalQuestion2").text(questionData["prop2"]);
+        $("#modalQuestion1").attr("data-action", questionData["action"]);
+        $("#modalQuestion2").attr("data-action", questionData["action"]);
+        $('#modalQuestion').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    }
+
+    $("#modalQuestion1").click(function(){
+        let action = $(this).attr("data-action");
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: true});
+    });
+    $("#modalQuestion2").click(function(){
+        let action = $(this).attr("data-action");
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: false});
     });
 
-    socket.on('play_turn', function(data) {
-        console.log("Game played");
-        console.log(data);
-    });
 
 
+    // Subsidiary functions (chat...)
 
     $('#msgInput').on('keypress', function (e) {
-        if(e.keyCode == 13){
+        if(e.keyCode === 13){
             let newMsg = escapeHtml($('#msgInput').val());
             $('#msgInput').val('');
             socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
@@ -97,6 +172,32 @@ $( document ).ready(function() {
         document.execCommand("copy");
         temp.remove();
     });
+
+    /*
+    $("#question").on('click', function(){
+        //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
+        $("#modalQuestionLabel").text('Acheter un terrain');
+        $("#modalQuestionContent").text('Voulez vous acheter le terrain : Rue de Paradis, pour 3 cacahuètes ?');
+        $("#modalQuestion1").text('J\'achète le terrain');
+        $("#modalQuestion2").text('Je n\'achète pas le terrain');
+        $('#modalQuestion').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    });
+
+
+
+    $("#information").on('click', function(){
+        //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
+        $("#modalInfoLabel").text('Caisse de communauté');
+        $("#modalInfoContent").text('Félicitations, vous héritez de .... ah bah rien en fait, tout va à la banque');
+        $('#modalInfo').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    });
+    */
 
 });
 

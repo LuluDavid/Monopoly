@@ -8,7 +8,7 @@
     "name": "Boulevard de Belleville",
     "price": [60,50],
     "rent": [2,10,30,90,160,250],
-    "color": "pink"
+    "color": "brown"
   },
   "2": {
     "type": "community-fund",
@@ -19,7 +19,7 @@
     "name": "Rue Lecourbe",
     "price": [60,50],
     "rent": [4,20,60,180,320,450],
-    "color": "pink"
+    "color": "brown"
   },
   "4": {
     "type": "tax",
@@ -65,27 +65,26 @@
     "name": "Boulevard de la Vilette",
     "price": [140,100],
     "rent": [10,50,150,450,625,750],
-    "color": "purple"
+    "color": "pink"
   },
   "12": {
-    "type": "public-service",
-    "name": "Compagnie de distribution d'elctricite",
-    "price": 150,
-    "rent": 0
+    "type": "public-company",
+    "name": "Compagnie de distribution d'electricite",
+    "price": 150
   },
   "13": {
     "type": "street",
     "name": "Avenue de Neuilly",
     "price": [140,100],
     "rent": [10,50,150,450,625,750],
-    "color": "purple"
+    "color": "pink"
   },
   "14": {
     "type": "street",
     "name": "Rue de paradis",
     "price": [160,100],
     "rent": [12,60,180,500,700,900],
-    "color": "purple"
+    "color": "pink"
   },
   "15": {
     "type": "station",
@@ -166,10 +165,9 @@
     "color": "yellow"
   },
   "28": {
-    "type": "public-service",
+    "type": "public-company",
     "name": "Compagnie de distribution des eaux",
-    "price": 150,
-    "rent": 0
+    "price": 150
   },
   "29": {
     "type": "street",

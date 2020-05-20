@@ -5,9 +5,9 @@ var currentPawn = 0;
 var windowWidth, windowHeight;
 const view =
 	{
-		near: 0.1,
+		near: 1,
 		far: 10000,
-		background: new THREE.Color(0, 0, 0),
+		background: new THREE.Color(255, 255, 255),
 
 		// The camera's position
 		eye: [-100, -100, 100],
@@ -29,7 +29,7 @@ const closeView =
 	{
 		near: 0.1,
 		far: 1000,
-		background: new THREE.Color(0, 0, 0),
+		background: new THREE.Color(255, 255, 255),
 
 		// The camera's position
 		eye: [55, 55, 30],
@@ -55,7 +55,8 @@ const cardboardWidth = 110;
 // Number of boxes
 const numberOfBoxes = 40;
 // Pawns
-const numberOfPawns = 6;
+var numberOfPawns = 0;
+
 const pawnHeight = 2;
 const pawnRadius = 0.5;
 // House Ratio
@@ -81,8 +82,7 @@ const epsilon = 1;
 const coverMotion = 0.8;
 // Pawn motion
 const tMotion = 3; // duration to go to next case (seconds)
-// Pawn positions per box (where to put them to make them fit in)
-var pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+
 // Incrementing boolean to avoid multi-calls
 var incrementing = false;
 // CloseView activation boolean
@@ -93,12 +93,22 @@ const closeViewFurtherRatio = 2;
 // House relative position
 const houseRelativePos = getHouseRelativePositions();
 var housePositions = getHousesPositions(cardboardWidth);
+// The ratio the card travels to towards the player
+const cardUserRatio = 0.5;
+var movingCard = false;
+const cardAxis = new THREE.Vector3(0,-1,0).normalize();
+// The angle the cards has rotated when it reaches the player
+const revealAngle = 2*Math.PI/5;
+const tReveal = 1;
+const tTravel = 2;
 // Number of house per box
 // var numberOfHousesPerBox = noHousesPerBox();
 // Hotel
 const hotelHouseRatio = 3;
-// Represents the current state for all players
-var stateArray = initState();
+// Deck stuff
+const deckRatio = 1.587;
+const heightRatio = 5.827;
+const deckSize = 20;
 
 /*
  * Build scene
@@ -147,17 +157,142 @@ const cardboard = createCardboard(cardboardWidth, scene);
 cardboard.rotateZ(Math.PI / 2);
 cardboard.castShadow = true;
 cardboard.receiveShadow = true;
-// Create and add the pawns
-let pawnObjects = createPawns(numberOfPawns);
+
+// Pawn positions per box (where to put them to make them fit in)
+var pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+// To fill in when players start the game
 var pawns = new THREE.Group();
-addPawns(pawnObjects, pawns);
-scene.add(pawns);
+// Fill empty
+updatePawns();
+// Represents the current state for all players
+var stateArray = initState();
+var idsToPawns = {};
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
+// Create the deck of community cards
+const communityDeck = createCommunityDeck();
+scene.add(communityDeck);
+// Create the deck of chance cards
+const chanceDeck = createChanceDeck();
+scene.add(chanceDeck);
+
+// Try a card animation
+// $(document).on('click',() => animateCard("chance"));
+
+function updatePawns(){
+	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+	let pawnObjects = createPawns(numberOfPawns);
+	pawns = new THREE.Group();
+	addPawns(pawnObjects, pawns);
+	// Replace previous pawns with the new ones, or just create them
+	scene.children[3] = pawns;
+}
+
+
+function createCommunityCard() {
+	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Community.jpg'), side:2});
+	let card = new THREE.Mesh(cardGeometry, topMaterial);
+	card.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/heightRatio-0.1); // Quick fix
+	card.rotateZ(Math.PI/4);
+	return card;
+}
+
+function createChanceCard() {
+	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Chance.jpg'), side:2});
+	let card = new THREE.Mesh(cardGeometry, topMaterial);
+	card.position.set(3/11*cardboardWidth, 3/11*cardboardWidth, cardboardHeight+deckSize/heightRatio-0.1);
+	card.rotateZ(Math.PI/4);
+	return card;
+}
+
+function disableControls(){
+	controls.enabled = false;
+	controls.autoRotate = false;
+}
+
+// TODO: maybe also rotate the card horizontally and allow full autoRotation in ObritControls
+function animateCard(type){
+	disableControls();
+	if (movingCard){
+		console.log("A card is already moving currently");
+		return;
+	}
+	// First, create the card to lift
+	let card = (type === "community")?createCommunityCard():createChanceCard();
+	scene.add(card);
+	render();
+	// Then, lift the card towards the camera
+	let fps = 60;           // seconds
+	let tau = tTravel;
+	let step = 1 / (tau * fps);  // t-step per frame
+	let finalAngle = Math.PI/2 - Math.asin(view.camera.position.z/norm(view.camera.position));
+	let angleStep = finalAngle*step;
+	let t = 0;
+	var object = scene.children[6];
+	let initialPosition = object.position.clone();
+	let goalPosition = new THREE.Vector3(view.camera.position.x,
+										 view.camera.position.y,
+										 view.camera.position.z);
+	movingCard = true;
+	loopCard(object, initialPosition, goalPosition, step, t, angleStep);
+}
+
+// Loop function
+function loopCard(object, initialPosition, goalPosition, step, t, angleStep) {
+	// Update the pawn's position
+	let X = translation(initialPosition.x, goalPosition.x, ease(cardUserRatio*t));   // interpolate between a and b where
+	let Y = translation(initialPosition.y, goalPosition.y, ease(cardUserRatio*t));   // t is first passed through a easing
+	let Z = translation(initialPosition.z, goalPosition.z, ease(cardUserRatio*t));   // function in this example.
+	object.position.set(X, Y, Z);  // set new position
+	object.rotateOnAxis(cardAxis, angleStep);
+	// Increment the time and loop back
+	t = t + step;
+	if (t >= 1) {
+		return loopCard2(step, t);
+	}
+	requestAnimationFrame(() => loopCard(object, initialPosition, goalPosition, step, t, angleStep))
+}
+
+function loopCard2(step, t) {
+	t = t + step;
+	if (t >= 1 / coverRatio) {
+		let fps = 60;           // seconds
+		let dt = tReveal;
+		let step = 1 / (dt * fps);  // t-step per frame
+		let angleStep = -revealAngle*step;
+		return semiReveal(scene.children[6], step, 0, angleStep);
+	}
+	requestAnimationFrame(() => loopCard2(step, t));
+}
+
+function norm(v) {
+	return Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
+}
+
+function semiReveal(object, step, t, angleStep){
+	t += step;
+	if (t >= 1) {
+		console.log("Done");
+		removeCard();
+		movingCard = false;
+		controls.enabled = true;
+		controls.autoRotate = true;
+		return;
+	}
+	object.rotateOnAxis(cardAxis, angleStep);
+	requestAnimationFrame(() => semiReveal(object, step, t, angleStep));
+}
+
+function removeCard() {
+	scene.remove(scene.children[6]);
+}
 
 function init() {
-	controls.update();
 	animate();
 }
 
@@ -167,6 +302,7 @@ function init() {
  */
 
 function animate() {
+	controls.update();
 	render();
 	requestAnimationFrame(animate);
 }
@@ -241,7 +377,8 @@ function updateAllPlayers(){
 	for (let i = 0; i<numberOfBoxes; i++){
 		let pawns = stateArray[i][0];
 		for (let j = 0; j<pawns.length; j++){
-			let pawnNumber = pawns[j];
+			let playerId = pawns[j];
+			let pawnNumber = idsToPawns[playerId];
 			let pawn = scene.children[3].children[pawnNumber];
 			if (pawn.currentBox !== i){
 				translatePawnToBox(pawnNumber, i);
@@ -313,7 +450,7 @@ function loop2(step, t) {
 		if (currentPawn === numberOfPawns) {
 			currentPawn = 0;
 		}
-		return;
+		return "done";
 	}
 	requestAnimationFrame(() => loop2(step, t))
 }
@@ -636,6 +773,48 @@ function createGround(parentNode) {
 	let ground = new THREE.Mesh(groundGeometry, groundMaterial);
 	parentNode.add(ground);
 	return ground;
+}
+
+function createCommunityDeck() {
+	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
+	let sideMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
+		});
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Community.jpg')
+		});
+	let materials =
+		[sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			topMaterial,
+			new THREE.MeshBasicMaterial()];
+	let deck = new THREE.Mesh(deckGeometry, materials);
+	deck.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/(2*heightRatio));
+	deck.rotateZ(Math.PI/4);
+	return deck;
+}
+
+function createChanceDeck() {
+	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
+	let sideMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
+		});
+	let topMaterial = new THREE.MeshBasicMaterial(
+		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Chance.jpg')
+		});
+	let materials =
+		[sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			sideMaterial,
+			topMaterial,
+			new THREE.MeshBasicMaterial()];
+	let deck = new THREE.Mesh(deckGeometry, materials);
+	deck.position.set(3/11*cardboardWidth, 3/11*cardboardWidth, cardboardHeight+deckSize/(2*heightRatio));
+	deck.rotateZ(Math.PI/4);
+	return deck;
 }
 
 function addALight(parentNode) {

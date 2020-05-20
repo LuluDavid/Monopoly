@@ -6,19 +6,14 @@ from game.boxes import Street
 
 class BoardTest(unittest.TestCase):
 
-    def test_get_box(self):
-        position = 39
-        board = Board()
-        self.assertEqual(board.boxes[position], board.getBox(position))
-
     def test_make_boxes(self):
         board = Board()
-        self.assertEqual(board.boxes[32].box_type, "street")
-        self.assertEqual(type(board.boxes[13]), Street)
-        self.assertEqual(board.boxes[29].name, "Rue de la Fayette")
-        self.assertEqual(board.boxes[39].color, "dark-blue")
-        self.assertEqual(board.boxes[1].rent, [2, 10, 30, 90, 160, 250])
-        self.assertEqual(board.boxes[5].price, 200)
+        self.assertEqual("street", board.boxes[32].box_type)
+        self.assertEqual(Street, type(board.boxes[13]))
+        self.assertEqual("Rue de la Fayette", board.boxes[29].name)
+        self.assertEqual("dark-blue", board.boxes[39].color)
+        self.assertEqual([2, 10, 30, 90, 160, 250], board.boxes[1].rent)
+        self.assertEqual(200, board.boxes[5].price)
 
 
 if __name__ == '__main__':
