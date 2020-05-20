@@ -64,11 +64,33 @@
     </script>
     <script>
         /* We suppose we have a mapping :
-        * dict : { "player1":{"money":..., "houses":{"brown":..., ...}, "station":..., "companies":...} ... }
+        * dict : { "player1":{"money":int, "houses":{"brown":int, ...},
+        * "station":int, "electricity":bool, "water":bool} ... }
         * */
-        function updateSidebar(dict){
-            // TODO: update the sidebar status ith dict
+        function updateSidebar(){
+            for (let pid of Object.keys(idsToPossessions)){
+                updateSidebarId(pid);
+            }
         }
+        function updateSidebarId(pid){
+            let possessions, houses;
+            let money, brown, lightBlue, magenta, orange, red, yellow, green, blue, station, electricity, water;
+            possessions = idsToPossessions[pid];
+            money = possessions["money"];
+            houses = possessions["houses"];
+            brown = houses["brown"];
+            lightBlue = houses["lightBlue"];
+            magenta = houses["magenta"];
+            orange = houses["orange"];
+            red = houses["red"];
+            yellow = houses["yellow"];
+            green = houses["green"];
+            blue = houses["blue"];
+            station = possessions["station"];
+            electricity = possessions["electricity"];
+            water = possessions["water"];
+        };
+
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>

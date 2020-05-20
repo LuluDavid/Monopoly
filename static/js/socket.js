@@ -59,6 +59,7 @@ $( document ).ready(function() {
         console.log("Player "+newPlayerName+" is ready to play");
         // Add a new pawn for the new player
         numberOfPawns++;
+        idsToPossessions = initPossessions();
         // Change the page state
         updatePawns();
         stateArray = initState();
