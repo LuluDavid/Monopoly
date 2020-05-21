@@ -93,15 +93,15 @@ $( document ).ready(function() {
             }
             else if (data["action"] === "ask_buy") {
                 let questionData = {
-                label: "Acheter un terrain",
-                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
-                prop1: "J'achète le terrain",
-                prop2: "Je n'achète pas le terrain",
-                action: "buy"
+                    label: "Acheter un terrain",
+                    content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                    prop1: "J'achète le terrain",
+                    prop2: "Je n'achète pas le terrain",
+                    action: "buy"
                 };
-            // Wait 2 seconds
-            await new Promise(r => setTimeout(r, 2000));
-            showQuestionModal(questionData);
+                // Wait 2 seconds
+                await new Promise(r => setTimeout(r, 2000));
+                showQuestionModal(questionData);
             }
         }
     });
