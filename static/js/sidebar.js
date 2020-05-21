@@ -9,55 +9,14 @@ const uncheck =
 "  <path fill-rule=\"evenodd\" d=\"M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z\" clip-rule=\"evenodd\"/>\n" +
 "</svg>";
 
-const frontGoods = `<div id="player-money">
-            <i class="fa fa-money" style="color:green"> 0 $</i>
-        </div>
-        <div id="player-goods">
-            <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
-                <div id="brown">
-                    <i class="fa fa-home" style="color:#8B4513"> 0</i>
-                </div>
-                <div id="light-blue">
-                    <i class="fa fa-home" style="color:#87CEEB"> 0</i>
-                </div>
-                <div id="magenta">
-                    <i class="fa fa-home" style="color:#FF69B4"> 0</i>
-                </div>
-                <div id="orange">
-                    <i class="fa fa-home" style="color:#FF8C00"> 0</i>
-                </div>
-                <div id="red">
-                    <i class="fa fa-home" style="color:red"> 0</i>
-                </div>
-                <div id="yellow">
-                    <i class="fa fa-home" style="color:#FFD700"> 0</i>
-                </div>
-                <div id="green">
-                    <i class="fa fa-home" style="color:green"> 0</i>
-                </div>
-                <div id="blue">
-                    <i class="fa fa-home" style="color:blue"> 0</i>
-                </div>
-            </div>
-            <div id="player-station-services" style="display : flex; flex-direction: row">
-                <div id=player-station" style="height:20px">
-                    <i class="fa fa-train" aria-hidden="true" style="color:black"> 0 </i>
-                </div>
-                <div id="electricity" style="margin-left: 10px">
-                    <i class="fa fa-lightbulb-o" style="color:black"> 0 </i>
-                </div>
-                <div id="water" style="margin-left: 10px">
-                    <i class="fa fa-tint" style="color:black"> 0 </i>
-                </div>
-            </div>
-        </div>` ;
-
-function frontMoney(money){
+function frontMoney(money = initialMoney){
     return `<div id="player-money">
                 <i class="fa fa-money" style="color:green"> ` + money + `$</i></div>`;
 }
 
-function frontPossessions(brown, lightBlue, magenta, orange, red, yellow, green, blue, station, electricity, water){
+function frontPossessions(brown = 0, lightBlue = 0, magenta = 0, orange = 0,
+                          red = 0, yellow = 0, green = 0, blue = 0,
+                          station = 0, electricity = 0, water = 0){
     return `<div id="player-goods">
             <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
                 <div id="brown">
@@ -98,6 +57,8 @@ function frontPossessions(brown, lightBlue, magenta, orange, red, yellow, green,
             </div>
         </div>` ;
 }
+
+const frontGoods = frontMoney()+frontPossessions();
 
 /* We suppose we have a mapping :
 * dict : { "player1":{"money":int, "houses":{"brown":int, ...},
