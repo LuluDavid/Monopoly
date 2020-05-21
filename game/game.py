@@ -14,6 +14,7 @@ class Game:
         self.current_player_turn = 0
         self.board.boxes[0].players = list(players.keys())
 
+
     @staticmethod
     def init_players(players):
         """Define the players at the beginning of the game"""
@@ -549,7 +550,7 @@ class Game:
             self.current_player_turn = 0
 
     def do_nothing(self):
-        time.sleep(0.5)  # otherwise modal doesn't show
+        time.sleep(1)  # otherwise modal doesn't show
         self.next_player()
         return self.game_to_json()
 
@@ -560,7 +561,7 @@ class Game:
         elif pos.owner == player:
             nb_houses_buyable = player.can_buy_houses(pos)
             if nb_houses_buyable > 0:
-                return self.game_to_json(action="ask_buy_house",
+                return self.game_to_json(action="ask_buy_houses",
                                          box_name=pos.name,
                                          house_price=pos.price,
                                          buyable_houses=nb_houses_buyable)
@@ -568,7 +569,7 @@ class Game:
                 return self.do_nothing()
 
         elif pos.owner is not None:
-            player.pay_player(pos.get_rent())
+            player.pay_player(pos.get_rent(player))
             time.sleep(0.5)
             return self.game_to_json()  # TODO: Message "X payed Y"
 
@@ -624,7 +625,8 @@ class Game:
             return self.game_to_json()
 
         elif action == "buy_houses":
-            if data["action_value"] > 0:
-                player.buy_houses(self.board.boxes[player.position])
+            nb_houses = int(data["action_value"])
+            if nb_houses > 0:
+                player.buy_houses(self.board.boxes[player.position], nb_houses)
             self.next_player()
             return self.game_to_json()
