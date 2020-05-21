@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_socketio import SocketIO, join_room, emit, send
+from flask_socketio import SocketIO, join_room, emit
 import random as rd
 
 from game.game import Game
@@ -77,7 +77,7 @@ def on_start_game(data):
     GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
     game_state = GAMES[game_id]["game"].game_to_json()
     player_id = data["player_id"]
-    player_name = data["player_name"]
+    player_name = GAMES[game_id]["players"][player_id]
     response = {"newPlayer": {"id": player_id, "name": player_name}, "gameState": game_state};
     emit("start_game", response, room=game_id)
 

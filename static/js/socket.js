@@ -64,11 +64,13 @@ $( document ).ready(function() {
         updatePawns();
         stateArray = initState();
         // Once all players have clicked start game, display the play turn
+        // TODO: add a "game joined" symbol near a player's name
+        // TODO: display play turn only if it is your turn
         if (numberOfPawns === $("#player_list").children().length){
             if(playerId === data["player_turn"]) {
-                $("#playTurnModal").modal({
-                    keyboard: false,
-                    backdrop: 'static'
+                $("#modalPlayTurn").modal({
+                keyboard: false,
+                backdrop: 'static'
                 });
             }
         }
@@ -84,9 +86,10 @@ $( document ).ready(function() {
         stateArray = data["state_array"];
         updateAllPlayers();
         updateAllHouses();
+
         if(playerId === data["player_turn"]) {
             if (data["action"] === "play_turn") {
-                $("#playTurnModal").modal({
+                $("#modalPlayTurn").modal({
                     keyboard: false,
                     backdrop: 'static'
                 });
@@ -102,6 +105,14 @@ $( document ).ready(function() {
                 // Wait 2 seconds
                 await new Promise(r => setTimeout(r, 2000));
                 showQuestionModal(questionData);
+            }
+            else if (data["action"] === "ask_buy_houses") {
+                let buyHousesData = {
+                    content: `Voulez vous acheter des maisons sur ${data["box_name"]} (${data["house_price"]} l'unité)`,
+                    buyable_houses: data["buyable_houses"],
+                    action: "buy_houses"
+                };
+                showBuyHousesModal(buyHousesData);
             }
         }
     });
@@ -119,6 +130,18 @@ $( document ).ready(function() {
         });
     }
 
+    function showBuyHousesModal(buyHousesData){
+        $("#modalBuyHousesContent").text(buyHousesData["content"]);
+        $("#modalBuyHousesYes").attr("data-action", buyHousesData["action"]);
+        $("#modalBuyHousesNo").attr("data-action", buyHousesData["action"]);
+        $("#nbHousesInput").attr("max", buyHousesData["buyable_houses"]);
+        $("#nbHousesInput").val(0);
+        $('#modalBuyHouses').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    }
+
     $("#modalQuestion1").click(function(){
         let action = $(this).attr("data-action");
         socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: true});
@@ -126,6 +149,13 @@ $( document ).ready(function() {
     $("#modalQuestion2").click(function(){
         let action = $(this).attr("data-action");
         socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: false});
+    });
+    $("#modalBuyHousesYes").click(function(){
+        let action_value = $("#nbHousesInput").val();
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "buy_houses", action_value: action_value});
+    });
+    $("#modalBuyHousesNo").click(function(){
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "buy_houses", action_value: 0});
     });
 
 
@@ -174,21 +204,8 @@ $( document ).ready(function() {
         temp.remove();
     });
 
+
     /*
-    $("#question").on('click', function(){
-        //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
-        $("#modalQuestionLabel").text('Acheter un terrain');
-        $("#modalQuestionContent").text('Voulez vous acheter le terrain : Rue de Paradis, pour 3 cacahuètes ?');
-        $("#modalQuestion1").text('J\'achète le terrain');
-        $("#modalQuestion2").text('Je n\'achète pas le terrain');
-        $('#modalQuestion').modal({
-          keyboard: false,
-          backdrop: 'static'
-        });
-    });
-
-
-
     $("#information").on('click', function(){
         //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
         $("#modalInfoLabel").text('Caisse de communauté');
