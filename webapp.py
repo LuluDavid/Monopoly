@@ -46,7 +46,8 @@ def play_game():
             'lobby.html.jinja2',
             game_id=game_id,
             player_id=player_id,
-            player_name=player_name
+            player_name=player_name,
+            initialMoney=1500
         )
 
     except ValueError:

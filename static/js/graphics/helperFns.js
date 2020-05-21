@@ -167,7 +167,6 @@ updatePawns();
 // Represents the current state for all players
 var stateArray = initState();
 var idsToPawns = {};
-const initialMoney = 1500;
 var idsToPossessions = initPossessions();
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
