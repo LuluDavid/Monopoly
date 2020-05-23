@@ -1,6 +1,6 @@
 import random
 from deprecated import deprecated
-from game.globs import INITIAL_MONEY, NUMBER_HOUSES_COLOR, MAX_HOUSES_BOX, JAIL_POSITION
+from game.globs import INITIAL_MONEY, NUMBER_HOUSES_COLOR, MAX_HOUSES_BOX, JAIL_POSITION, NB_BOXES, MONEY_START_BOX
 
 
 class Player:
@@ -77,8 +77,12 @@ class Player:
             board.boxes[self.position].players.remove(self.id)
             self.position += sum(dices)
             if self.position > 39:
-                self.money += 200
-                self.position -= 40
+                self.money += MONEY_START_BOX
+                self.position -= NB_BOXES
+            elif self.position < 0:
+                self.position += NB_BOXES
+            elif self.position == 0:
+                self.money += MONEY_START_BOX
             board.boxes[self.position].players.append(self.id)
             return self.position
         else:
@@ -131,6 +135,14 @@ class Player:
     def has_full_color(self, color):
         count = sum([good.box_type == "street" and good.color == color for good in self.goods])
         return count == NUMBER_HOUSES_COLOR[color]
+
+    def get_number_of_buildings(self):
+        houses, hotels = 0, 0
+        for good in self.goods:
+            if good.box_type == "street" and 0 <= good.nb_houses <= MAX_HOUSES_BOX:
+                houses += good.nb_houses % MAX_HOUSES_BOX
+                hotels += good.nb_houses == MAX_HOUSES_BOX
+        return houses, hotels
 
     def get_number_of_stations(self):
         return sum([good.box_type == "station" for good in self.goods])
