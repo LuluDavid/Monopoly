@@ -151,6 +151,7 @@ class Game:
                      box_price=None,
                      house_price=None,
                      buyable_houses=None,
+                     card_type=None,
                      card_message=None):
         response = {
             "state_array": {
@@ -162,6 +163,7 @@ class Game:
             "box_price": box_price,
             "house_price": house_price,
             "buyable_houses": buyable_houses,
+            "card_type": card_type,
             "card_message": card_message
         }
         return response
@@ -222,7 +224,7 @@ class Game:
             card_id = random.randint(17, 32)
         card = self.board.cards[card_id]
         self.board.last_open_card = card
-        return self.game_to_json(action="open_card", card_message=card.name)
+        return self.game_to_json(action="draw_card", card_type=pos.box_type, card_message=card.name)
 
     def landing_on_tax(self, player, pos):
         player.loose_money(pos.rent)
@@ -244,7 +246,8 @@ class Game:
             if player.in_jail:
                 return self.jail_turn(player)
             else:
-                player.update_position(player.throw_dices(), self.board)
+                player.update_position([1,1], self.board)
+                #player.update_position(player.throw_dices(), self.board)
                 return self.landing_on_position(player, self.board.boxes[player.position])
 
         elif action == "buy":
@@ -261,11 +264,11 @@ class Game:
             return self.game_to_json()
 
         elif action == "execute_card":
-            init_pos = player.positon
+            init_pos = player.position
             self.board.last_open_card.execute(player, self.players, self.board)
             new_pos = player.position
             if init_pos != new_pos:
-                return self.landing_on_position(player, self.board.boxes[new_pos].box_type)
+                return self.landing_on_position(player, self.board.boxes[new_pos])
             else:
                 self.next_player()
                 return self.game_to_json()

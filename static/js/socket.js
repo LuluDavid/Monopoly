@@ -95,15 +95,14 @@ $( document ).ready(function() {
             }
             else if (data["action"] === "ask_buy") {
                 let questionData = {
-                label: "Acheter un terrain",
-                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
-                prop1: "J'achète le terrain",
-                prop2: "Je n'achète pas le terrain",
-                action: "buy"
+                    label: "Acheter un terrain",
+                    content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                    prop1: "J'achète le terrain",
+                    prop2: "Je n'achète pas le terrain",
+                    action: "buy"
                 };
-            // Wait 2 seconds
-            await new Promise(r => setTimeout(r, 2000));
-            showQuestionModal(questionData);
+                await new Promise(r => setTimeout(r, 2000));
+                showQuestionModal(questionData);
             }
             else if (data["action"] === "ask_buy_houses") {
                 let buyHousesData = {
@@ -111,10 +110,33 @@ $( document ).ready(function() {
                     buyable_houses: data["buyable_houses"],
                     action: "buy_houses"
                 };
+                await new Promise(r => setTimeout(r, 2000));
                 showBuyHousesModal(buyHousesData);
+            }
+            else if (data["action"] === "draw_card") {
+                await animateCard(data["card_type"]);
+                console.log("Awaited executor")
+                //await animateCard(data["card_type"]);
+                let labels = {"community-fund": "Caisse de communauté", "chance": "Chance"};
+                let infoData = {
+                    label: labels[data["card_type"]],
+                    content: data["card_message"],
+                    action: "execute_card"
+                };
+                showInfoModal(infoData);
             }
         }
     });
+
+    function showInfoModal(infoData){
+        $("#modalInfoLabel").text(infoData["label"]);
+        $("#modalInfoContent").text(infoData["content"]);
+        $("#modalInfoOk").attr("data-action", infoData["action"]);
+        $('#modalInfo').modal({
+          keyboard: false,
+          backdrop: 'static'
+        });
+    }
 
     function showQuestionModal(questionData){
         $("#modalQuestionLabel").text(questionData["label"]);
@@ -155,6 +177,10 @@ $( document ).ready(function() {
     });
     $("#modalBuyHousesNo").click(function(){
         socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "buy_houses", action_value: 0});
+    });
+    $("#modalInfoOk").click(function(){
+        let action = $(this).attr("data-action");
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action});
     });
 
 
@@ -202,19 +228,6 @@ $( document ).ready(function() {
         document.execCommand("copy");
         temp.remove();
     });
-
-
-    /*
-    $("#information").on('click', function(){
-        //C'est juste un example, ce sera générique une fois qu'on aura les infos depuis le back (titre, contenu, ...)
-        $("#modalInfoLabel").text('Caisse de communauté');
-        $("#modalInfoContent").text('Félicitations, vous héritez de .... ah bah rien en fait, tout va à la banque');
-        $('#modalInfo').modal({
-          keyboard: false,
-          backdrop: 'static'
-        });
-    });
-    */
 
 });
 

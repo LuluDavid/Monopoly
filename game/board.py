@@ -63,11 +63,12 @@ class Board:
         with open(cards_filename) as cards_file:
             json_cards = json.loads(cards_file.read())
         cards = {}
-        for card_id in json_cards:
+        for card in json_cards:
+            card_id = int(card)
             cards[card_id] = Card(
-                int(card_id),
-                json_cards[card_id]["name"],
-                json_cards[card_id]["type"],
-                json_cards[card_id]["value"]
+                card_id,
+                json_cards[card]["name"],
+                json_cards[card]["type"],
+                json_cards[card]["value"]
             )
         return cards
