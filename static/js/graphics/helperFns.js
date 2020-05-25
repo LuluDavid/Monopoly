@@ -134,6 +134,8 @@ scene.background = new THREE.Color(0x0000ff);
  * Renderer Settings
  */
 const renderer = new THREE.WebGLRenderer({antialias: true});
+// Enable extension
+renderer.getContext().getExtension('EXT_color_buffer_half_float');
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight - 54);
 renderer.shadowMap.enabled = true;
@@ -168,6 +170,8 @@ updatePawns();
 var stateArray = initState();
 var idsToPawns = {};
 var idsToPossessions = initPossessions();
+// Instantiate empty houses group
+updateAllHouses();
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
@@ -177,9 +181,6 @@ scene.add(communityDeck);
 // Create the deck of chance cards
 const chanceDeck = createChanceDeck();
 scene.add(chanceDeck);
-
-// Try a card animation
-// $(document).on('click',() => animateCard("chance"));
 
 function updatePawns(){
 	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
@@ -244,7 +245,7 @@ function animateCard(type){
 	let finalAngle = Math.PI/2 - Math.asin(view.camera.position.z/norm(view.camera.position));
 	let angleStep = finalAngle*step;
 	let t = 0;
-	var object = scene.children[6];
+	var object = scene.children[7];
 	let initialPosition = object.position.clone();
 	let goalPosition = new THREE.Vector3(view.camera.position.x,
 										 view.camera.position.y,
@@ -276,7 +277,7 @@ function loopCard2(step, t) {
 		let dt = tReveal;
 		let step = 1 / (dt * fps);  // t-step per frame
 		let angleStep = -revealAngle*step;
-		return semiReveal(scene.children[6], step, 0, angleStep);
+		return semiReveal(scene.children[7], step, 0, angleStep);
 	}
 	requestAnimationFrame(() => loopCard2(step, t));
 }
@@ -300,7 +301,7 @@ function semiReveal(object, step, t, angleStep){
 }
 
 function removeCard() {
-	scene.remove(scene.children[6]);
+	scene.remove(scene.children[7]);
 }
 
 function init() {
@@ -407,12 +408,12 @@ function translatePawnToBox(i, j) {
 	let deltaT = tMotion * Math.pow(j / numberOfBoxes, 1 / 3);
 	scene.children[3].children[i].currentBox = j;
 	updateNewPositions();
-	addCanvas();
 	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight / 2 + cardboardHeight), deltaT);
 }
 
 // Translate pawn n°i to goalPosition
 function translate(i, goalPosition, deltaT) {
+	incrementing = true;
 	closeViewDisplay = true;
 	render();
 	let fps = 60;           // seconds
@@ -422,6 +423,7 @@ function translate(i, goalPosition, deltaT) {
 	let initialPosition = object.position.clone();
 	let initialCameraPosition = closeView.camera.position.clone();
 	let goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight);
+	addCanvas();
 	loop(object, initialPosition, initialCameraPosition, goalPosition, goalPositionCamera, step, t);
 }
 
@@ -445,27 +447,30 @@ function loop(object, initialPosition, initialPositionCam, goalPosition, goalPos
 	// Increment the time and loop back
 	t = t + step;
 	if (t >= 1) {
-		return loop2(step, t);
+		loop2(step, t);
 	}
-	requestAnimationFrame(() => loop(object, initialPosition, initialPositionCam, goalPosition, goalPositionCam, step, t))
+	else{
+		requestAnimationFrame(() => loop(object, initialPosition, initialPositionCam, goalPosition, goalPositionCam, step, t))
+	}
 }
 
 function loop2(step, t) {
 	t = t + step;
 	if (t >= 1 / coverRatio) {
+		removeCanvas();
 		console.log("Tour fini");
 		incrementing = false;
 		closeViewDisplay = false;
 		currentPawn++;
 		closeView.camera.position.set(closeView.eye[0], closeView.eye[1], closeView.eye[2]);
-		removeCanvas();
 		updatePositions();
 		if (currentPawn === numberOfPawns) {
 			currentPawn = 0;
 		}
-		return "done";
 	}
-	requestAnimationFrame(() => loop2(step, t))
+	else{
+		requestAnimationFrame(() => loop2(step, t))
+	}
 }
 
 

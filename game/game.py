@@ -50,7 +50,7 @@ class Game:
         """The player in jail chose not to pay or had not enough money to pay, so he has to make a double to get        out"""
 
         # dices=launchDices()
-        if (dices[0] == dices[1]):
+        if dices[0] == dices[1]:
             input("Bravo, vous avez fait un double " + str(
                 dices[0]) + ". Vous etes sortis de prison et avancez de " + str(2 * dices[0]) + "")
             self.board.boxes[player.getPosition()].players.remove(player.identity)
@@ -246,8 +246,8 @@ class Game:
             if player.in_jail:
                 return self.jail_turn(player)
             else:
-                player.update_position([1,1], self.board)
-                #player.update_position(player.throw_dices(), self.board)
+                # player.update_position([1, 1], self.board)
+                player.update_position(player.throw_dices(), self.board)
                 return self.landing_on_position(player, self.board.boxes[player.position])
 
         elif action == "buy":

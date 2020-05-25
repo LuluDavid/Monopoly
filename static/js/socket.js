@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    let socket = io.connect('http://' + document.domain + ':' + location.port);
+    let socket = io.connect('http://' + document.domain + ':' + location.port, {secure: true});
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
@@ -64,8 +64,6 @@ $( document ).ready(function() {
         updatePawns();
         stateArray = initState();
         // Once all players have clicked start game, display the play turn
-        // TODO: add a "game joined" symbol near a player's name
-        // TODO: display play turn only if it is your turn
         if (numberOfPawns === $("#player_list").children().length){
             if(playerId === data["player_turn"]) {
                 $("#modalPlayTurn").modal({
@@ -86,7 +84,20 @@ $( document ).ready(function() {
         stateArray = data["state_array"];
         updateAllPlayers();
         updateAllHouses();
+        await waitForModal(data);
+    });
 
+    async function waitForModal(data){
+        // Block the following if still animating pawns
+        if (!incrementing){
+            await switchModal(data);
+        }
+        else{
+            requestAnimationFrame(() => waitForModal(data));
+        }
+    }
+
+    async function switchModal(data){
         if(playerId === data["player_turn"]) {
             if (data["action"] === "play_turn") {
                 $("#modalPlayTurn").modal({
@@ -102,8 +113,6 @@ $( document ).ready(function() {
                     prop2: "Je n'achète pas le terrain",
                     action: "buy"
                 };
-                // Wait 2 seconds
-                await new Promise(r => setTimeout(r, 2000));
                 showQuestionModal(questionData);
             }
             else if (data["action"] === "ask_buy_houses") {
@@ -112,13 +121,13 @@ $( document ).ready(function() {
                     buyable_houses: data["buyable_houses"],
                     action: "buy_houses"
                 };
-                await new Promise(r => setTimeout(r, 2000));
                 showBuyHousesModal(buyHousesData);
             }
             else if (data["action"] === "draw_card") {
-                await animateCard(data["card_type"]);
-                console.log("Awaited executor")
-                //await animateCard(data["card_type"]);
+                animateCard(data["card_type"]);
+                // Wait for the animation to stop
+                await new Promise(r => setTimeout(r, 1000*(tReveal+tTravel/coverRatio)));
+                console.log("Awaited executor");
                 let labels = {"community-fund": "Caisse de communauté", "chance": "Chance"};
                 let infoData = {
                     label: labels[data["card_type"]],
@@ -128,7 +137,7 @@ $( document ).ready(function() {
                 showInfoModal(infoData);
             }
         }
-    });
+    }
 
     function showInfoModal(infoData){
         $("#modalInfoLabel").text(infoData["label"]);
