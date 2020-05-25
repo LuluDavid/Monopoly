@@ -153,11 +153,13 @@ class Game:
                      buyable_houses=None,
                      card_type=None,
                      card_message=None):
+        player_turn_id = self.players_order[self.current_player_turn]
         response = {
             "state_array": {
                 i: [self.board.boxes[i].players, self.board.boxes[i].nb_houses] for i in list(self.board.boxes.keys())
             },
-            "player_turn": self.players_order[self.current_player_turn],
+            "player_turn": player_turn_id,
+            "is_in_jail": self.players[player_turn_id].in_jail,
             "action": action,
             "box_name": box_name,
             "box_price": box_price,
@@ -197,7 +199,6 @@ class Game:
     def landing_on_good(self, player, pos):
         if player.can_buy_good(pos):
             return self.game_to_json(action="ask_buy", box_name=pos.name, box_price=pos.price)
-
         elif pos.owner == player:
             nb_houses_buyable = player.can_buy_houses(pos)
             if nb_houses_buyable > 0:
@@ -208,12 +209,10 @@ class Game:
                     buyable_houses=nb_houses_buyable)
             else:
                 return self.do_nothing()
-
         elif pos.owner is not None:
-            player.pay_player(pos.get_rent(player))
+            player.pay_player(pos.owner, pos.get_rent(player))
             self.next_player()
             return self.game_to_json()  # TODO: Message "X payed Y"
-
         else:
             return self.do_nothing()
 
@@ -222,6 +221,7 @@ class Game:
             card_id = random.randint(0, 16)
         else:
             card_id = random.randint(17, 32)
+        # card = self.board.cards[10]
         card = self.board.cards[card_id]
         self.board.last_open_card = card
         return self.game_to_json(action="draw_card", card_type=pos.box_type, card_message=card.name)
@@ -267,7 +267,7 @@ class Game:
             init_pos = player.position
             self.board.last_open_card.execute(player, self.players, self.board)
             new_pos = player.position
-            if init_pos != new_pos:
+            if init_pos != new_pos and not player.in_jail:
                 return self.landing_on_position(player, self.board.boxes[new_pos])
             else:
                 self.next_player()
