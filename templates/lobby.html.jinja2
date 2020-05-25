@@ -17,6 +17,8 @@ let playerName = "{{ player_name }}";
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
 
+
+<!-- MODAL PLAY TURN -->
 <div class="modal fade" id="modalPlayTurn" tabindex="-1" role="dialog" aria-labelledby="modalPlayTurn" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -32,6 +34,7 @@ let playerName = "{{ player_name }}";
   </div>
 </div>
 
+<!-- MODAL QUESTIONS -->
 <div class="modal fade" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestion" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -51,32 +54,30 @@ let playerName = "{{ player_name }}";
   </div>
 </div>
 
-<div class="modal fade" id="modalInfo" tabindex="-1" role="dialog" aria-labelledby="modalQuestionInfo" aria-hidden="true">
+<!-- MODAL INFO -->
+<div class="modal fade" id="modalInfo" tabindex="-1" role="dialog" aria-labelledby="modalInfo" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalInfoLabel"></h5>
       </div>
-      <div class="modal-body">
-         <div id="modalInfoContent">
-
-         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+      <div class="modal-body text-center">
+        <div id="modalInfoContent"></div>
+        <button type="button" class="btn btn-secondary my-3" data-dismiss="modal" id="modalInfoOk">OK</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- MODAL BUY HOUSES -->
 <div class="modal fade" id="modalBuyHouses" tabindex="-1" role="dialog" aria-labelledby="modalBuyHouses" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalQuestionLabel">Acheter des maisons</h5>
+        <h5 class="modal-title" id="modalBuyHousesLabel">Acheter des maisons</h5>
       </div>
       <div class="modal-body">
-        <div id="modalQuestionContent" class="text-center" >
+        <div id="modalBuyHousesContent" class="text-center" >
           Voulez vous acheter des maisons sur votre terrain ?
         </div>
         <div class="row my-3 text-center">
@@ -96,4 +97,5 @@ let playerName = "{{ player_name }}";
     </div>
   </div>
 </div>
+
 {% endblock %}

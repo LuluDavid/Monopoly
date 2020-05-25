@@ -16,7 +16,7 @@
     },
     "3" : {
         "name" : "Retournez a Belleville",
-        "type" : "moove-backwards",
+        "type" : "move-backward-to",
         "value" : 1
     },
     "4" : {
@@ -30,7 +30,7 @@
         "value" : 100
     },
     "6" : {
-        "name" : "Payez une amende de 10 euros ou bien tiez une carte CHANCE",
+        "name" : "Payez une amende de 10 euros ou bien tirez une carte CHANCE",
         "type" : "loose-money-or-chance",
         "value" : 10
     },
@@ -56,7 +56,7 @@
     },
     "11" : {
         "name" : "Avancez jusqu'a la case Depart",
-        "type" : "moove-forward",
+        "type" : "move-to",
         "value" : 0
     },
     "12" : {
@@ -111,7 +111,7 @@
     },
     "22" : {
         "name" : "Allez a la gare de Lyon. Si vous passez par la case Depart recevez 200 euros",
-        "type" : "moove-forward",
+        "type" : "move-forward-to",
         "value" : 15
     },
     "23" : {
@@ -131,17 +131,17 @@
     },
     "26" : {
         "name" : "Rendez-vous a l'Avenue Henry-Martin. Si vous passez par la case Depart recevez 200 euros.",
-        "type" : "moove-forward",
+        "type" : "move-forward-to",
         "value" : 24
     },
     "27" : {
         "name" : "Rendez-vous à la Rue de la Paix ",
-        "type" : "moove-forward",
+        "type" : "move-forward-to",
         "value" : 39
     },
     "28" : {
         "name" : "Avancez au Boulevard de la Vilette. Si vous passez par la case Depart recevez 200 euros. ",
-        "type" : "moove-forward",
+        "type" : "move-forward-to",
         "value" : 11
     },
     "29" : {
@@ -151,7 +151,7 @@
     },
     "30" : {
         "name" : "Avancez jusqu'a la case Depart.",
-        "type" : "moove-forward",
+        "type" : "move-forward-to",
         "value" : 0
     },
     "31" : {

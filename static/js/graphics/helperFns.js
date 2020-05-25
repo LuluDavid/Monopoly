@@ -234,7 +234,7 @@ function animateCard(type){
 		return;
 	}
 	// First, create the card to lift
-	let card = (type === "community")?createCommunityCard():createChanceCard();
+	let card = (type === "community-fund")?createCommunityCard():createChanceCard();
 	scene.add(card);
 	render();
 	// Then, lift the card towards the camera
