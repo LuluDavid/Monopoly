@@ -151,7 +151,7 @@ const controls = new THREE.OrbitControls(view.camera, renderer.domElement);
 // Add a light
 addALight(scene);
 // Add a ground
-const ground = createGround(scene);
+createGround(scene);
 // Add the cardboard
 const cardboard = createCardboard(cardboardWidth, scene);
 cardboard.rotateZ(Math.PI / 2);
@@ -167,6 +167,7 @@ updatePawns();
 // Represents the current state for all players
 var stateArray = initState();
 var idsToPawns = {};
+var idsToPossessions = initPossessions();
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
@@ -189,6 +190,16 @@ function updatePawns(){
 	scene.children[3] = pawns;
 }
 
+function initPossessions(){
+	let ids = Object.keys(idsToPawns);
+	let res = {};
+	let initialPossession = {"money":initialMoney, "houses":{"brown":0, "lightBlue":0, "magenta":0, "orange":0,
+			"red":0, "yellow":0, "green":0, "blue":0}, "station":0, "electricity":0, "water":0};
+	for (let i = 0; i<numberOfPawns; i++){
+		res[ids[i]] = initialPossession;
+	}
+	return res;
+}
 
 function createCommunityCard() {
 	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
@@ -378,7 +389,9 @@ function updateAllPlayers(){
 		let pawns = stateArray[i][0];
 		for (let j = 0; j<pawns.length; j++){
 			let playerId = pawns[j];
+			console.log("Updating playerId "+playerId);
 			let pawnNumber = idsToPawns[playerId];
+			console.log("Found pawn number "+pawnNumber);
 			let pawn = scene.children[3].children[pawnNumber];
 			if (pawn.currentBox !== i){
 				translatePawnToBox(pawnNumber, i);

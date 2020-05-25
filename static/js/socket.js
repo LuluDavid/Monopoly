@@ -15,15 +15,16 @@ $( document ).ready(function() {
         let newPlayer = data["new_player"];
         let newPlayerName = newPlayer["name"];
         let newPlayerId = newPlayer["id"];
-        console.log(newPlayerName + " a rejoint la partie");
+        idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
         let playersInGame = data["players_in_game"];
         let ids = Object.keys(playersInGame);
         let names = Object.values(playersInGame);
         if(playerName === newPlayerName){
             for (let i = 0; i<ids.length; i++){
+                // Rebuild the mapping for the new player
+                idsToPawns[ids[i]] = i;
                 let id = ids[i];
                 if (parseInt(id) !== playerId){
-                    console.log("id "+id+" different from "+playerId);
                     addPlayerNameToSidebar(names[i], id);
                 }
             }
@@ -34,9 +35,9 @@ $( document ).ready(function() {
     });
 
     function addPlayerNameToSidebar(nameToAdd, id){
-        let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light">';
+        let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light"><div id="top-info" style="color: black; font-size: 18px">';
         playerHtmlLine += nameToAdd;
-        playerHtmlLine += uncheck+'</div>';
+        playerHtmlLine += uncheck+'</div>'+frontGoods+'</div>';
         $("#player_list").append(playerHtmlLine);
     }
 
@@ -52,13 +53,13 @@ $( document ).ready(function() {
         let newPlayerName = data["newPlayer"]["name"];
 
         $("#"+newPlayerId+" svg").remove();
-        $("#"+newPlayerId).append(check);
+        $("#"+newPlayerId+" #top-info").append(check);
 
         data = data["gameState"];
         console.log("Player "+newPlayerName+" is ready to play");
         // Add a new pawn for the new player
-        idsToPawns[newPlayerId] = numberOfPawns;
         numberOfPawns++;
+        idsToPossessions = initPossessions();
         // Change the page state
         updatePawns();
         stateArray = initState();
@@ -81,7 +82,7 @@ $( document ).ready(function() {
     });
     
     socket.on('play_turn', async function(data) {
-        console.log(data);
+        console.log(data["state_array"]);
         stateArray = data["state_array"];
         updateAllPlayers();
         updateAllHouses();
@@ -95,15 +96,15 @@ $( document ).ready(function() {
             }
             else if (data["action"] === "ask_buy") {
                 let questionData = {
-                label: "Acheter un terrain",
-                content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
-                prop1: "J'achète le terrain",
-                prop2: "Je n'achète pas le terrain",
-                action: "buy"
+                    label: "Acheter un terrain",
+                    content: `Voulez vous acheter ${data["box_name"]} pour ${data["box_price"]} euros ?`,
+                    prop1: "J'achète le terrain",
+                    prop2: "Je n'achète pas le terrain",
+                    action: "buy"
                 };
-            // Wait 2 seconds
-            await new Promise(r => setTimeout(r, 2000));
-            showQuestionModal(questionData);
+                // Wait 2 seconds
+                await new Promise(r => setTimeout(r, 2000));
+                showQuestionModal(questionData);
             }
             else if (data["action"] === "ask_buy_houses") {
                 let buyHousesData = {
