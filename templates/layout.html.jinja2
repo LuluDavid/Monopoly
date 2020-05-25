@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/sidebar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script>const initialMoney = "{{ initial_money }}";</script>
+    <script>const initialMoney = 1500; // TODO</script>
     <script src="{{ url_for('static',filename='js/sidebar.js') }}"></script>
 </head>
 
@@ -40,7 +40,7 @@
                     </svg>
                 </div>
                 <div id="player-money">
-                    <i class="fa fa-money" style="color:green"> {{ initialMoney }} $</i>
+                    <i class="fa fa-money" style="color:green"> 1500 $</i>
                 </div>
                 <div id="player-goods">
                     <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
