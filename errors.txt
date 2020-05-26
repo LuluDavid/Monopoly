@@ -1,0 +1,21 @@
+Exception in thread Thread-144:
+Traceback (most recent call last):
+  File "/Users/luciendavid/anaconda3/lib/python3.6/threading.py", line 916, in _bootstrap_inner
+    self.run()
+  File "/Users/luciendavid/anaconda3/lib/python3.6/threading.py", line 864, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/luciendavid/MonopolyChloé/lib/python3.6/site-packages/socketio/server.py", line 679, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "/Users/luciendavid/MonopolyChloé/lib/python3.6/site-packages/socketio/server.py", line 708, in _trigger_event
+    return self.handlers[namespace][event](*args)
+  File "/Users/luciendavid/MonopolyChloé/lib/python3.6/site-packages/flask_socketio/__init__.py", line 283, in _handler
+    *args)
+  File "/Users/luciendavid/MonopolyChloé/lib/python3.6/site-packages/flask_socketio/__init__.py", line 713, in _handle_event
+    ret = handler(*args)
+  File "/Users/luciendavid/Desktop/Monopoly/webapp.py", line 88, in on_play_turn
+    response = GAMES[game_id]["game"].play_turn(data)
+  File "/Users/luciendavid/Desktop/Monopoly/game/game.py", line 268, in play_turn
+    self.board.last_open_card.execute(player, self.players, self.board)
+  File "/Users/luciendavid/Desktop/Monopoly/game/card.py", line 50, in execute
+    raise Exception("This card type does not exist")
+Exception: This card type does not exist

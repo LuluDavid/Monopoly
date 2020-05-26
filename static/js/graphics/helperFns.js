@@ -146,7 +146,6 @@ container.appendChild(renderer.domElement);
 
 // Orbit controls
 const controls = new THREE.OrbitControls(view.camera, renderer.domElement);
-
 /*
  * Instantiate and add the objects
  */
@@ -244,6 +243,8 @@ function animateCard(type){
 	let step = 1 / (tau * fps);  // t-step per frame
 	let finalAngle = Math.PI/2 - Math.asin(view.camera.position.z/norm(view.camera.position));
 	let angleStep = finalAngle*step;
+	let lateralAngle = controls.getAzimuthalAngle()+Math.PI/4;
+	let lateralAngleStep = lateralAngle*step;
 	let t = 0;
 	var object = scene.children[7];
 	let initialPosition = object.position.clone();
@@ -251,23 +252,25 @@ function animateCard(type){
 										 view.camera.position.y,
 										 view.camera.position.z);
 	movingCard = true;
-	loopCard(object, initialPosition, goalPosition, step, t, angleStep);
+	loopCard(object, initialPosition, goalPosition, step, t, angleStep, lateralAngleStep);
 }
 
 // Loop function
-function loopCard(object, initialPosition, goalPosition, step, t, angleStep) {
+function loopCard(object, initialPosition, goalPosition, step, t, angleStep, lateralAngleStep) {
 	// Update the pawn's position
 	let X = translation(initialPosition.x, goalPosition.x, ease(cardUserRatio*t));   // interpolate between a and b where
 	let Y = translation(initialPosition.y, goalPosition.y, ease(cardUserRatio*t));   // t is first passed through a easing
 	let Z = translation(initialPosition.z, goalPosition.z, ease(cardUserRatio*t));   // function in this example.
 	object.position.set(X, Y, Z);  // set new position
 	object.rotateOnAxis(cardAxis, angleStep);
+	object.rotateZ(lateralAngleStep);
 	// Increment the time and loop back
 	t = t + step;
 	if (t >= 1) {
 		return loopCard2(step, t);
 	}
-	requestAnimationFrame(() => loopCard(object, initialPosition, goalPosition, step, t, angleStep))
+	requestAnimationFrame(() => loopCard(object, initialPosition, goalPosition,
+												  step, t, angleStep, lateralAngleStep))
 }
 
 function loopCard2(step, t) {
