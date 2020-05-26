@@ -1,4 +1,3 @@
-from deprecated import deprecated
 from game.globs import FACTORS_PUBLIC_COMPANIES_RENT
 
 
@@ -11,14 +10,6 @@ class Box:
         self.players = players or []
         self.is_good = False
         self.nb_houses = 0
-
-    @deprecated
-    def getBoxName(self):
-        return self.name
-
-    @deprecated
-    def getType(self):
-        return self.box_type
 
 
 class Good(Box):
@@ -53,30 +44,6 @@ class Street(Good):
         else:
             return self.rent[0]
 
-    @deprecated
-    def getOwner(self):
-        return self.owner
-
-    @deprecated
-    def getPrice(self):
-        return self.price
-
-    @deprecated
-    def getColor(self):
-        return self.color
-
-    @deprecated
-    def getRent(self):
-        return self.rent
-
-    @deprecated
-    def getHome(self):
-        return self.nb_houses
-
-    @deprecated
-    def setHomes(self, number):
-        self.nb_houses = number
-
 
 class Station(Good):
 
@@ -90,15 +57,6 @@ class Station(Good):
             return 50 * self.owner.get_number_of_stations()
 
 
-    @deprecated
-    def getOwner(self):
-        return self.owner
-
-    @deprecated
-    def getPrice(self):
-        return self.price
-
-
 class PublicCompany(Good):
 
     def __init__(self, index, box_type, name, price, players=None, owner=None):
@@ -109,15 +67,6 @@ class PublicCompany(Good):
             return 0
         else:
             return FACTORS_PUBLIC_COMPANIES_RENT[self.owner.get_number_of_companies()] * sum(player.dices)
-
-
-    @deprecated
-    def getOwner(self):
-        return self.owner
-
-    @deprecated
-    def getPrice(self):
-        return self.price
 
 
 class Tax(Box):

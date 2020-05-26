@@ -1,7 +1,6 @@
 import json
-from deprecated import deprecated
 from game.boxes import Box, Street, Station, Tax, PublicCompany
-from game.cards import Card
+from game.card import Card
 
 
 class Board:
@@ -11,6 +10,7 @@ class Board:
         self.boxes = self.make_boxes(boxes_filename)
         self.cards = self.make_cards(cards_filename)
         self.park_money = park_money
+        self.last_open_card = None
 
     @staticmethod
     def make_boxes(boxes_filename):
@@ -56,27 +56,18 @@ class Board:
                     json_boxes[box]["name"]
                 )
         return boxes
-
-    @deprecated
-    def get_box(self, position):
-        return self.boxes[position]
         
     @staticmethod
     def make_cards(cards_filename):
         with open(cards_filename) as cards_file:
             json_cards = json.loads(cards_file.read())
-            card = []
-            for com in json_cards:
-                card.append(
-                    Card(
-                        int(com),
-                        json_cards[com]["name"],
-                        json_cards[com]["type"],
-                        json_cards[com]["value"]
-                        )
-                    )
-        return card
-
-
-if __name__ == "__main__":
-    Board()
+        cards = {}
+        for card in json_cards:
+            card_id = int(card)
+            cards[card_id] = Card(
+                card_id,
+                json_cards[card]["name"],
+                json_cards[card]["type"],
+                json_cards[card]["value"]
+            )
+        return cards

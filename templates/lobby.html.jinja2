@@ -2,70 +2,128 @@
 {% set page_title = "Monopoly" %}
 
 {% block body %}
-    <div id = "container"></div>
-    <script src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
-    <script>
-        init();
-    </script>
-    <script>
-    let gameId = {{ game_id }};
-    let playerId = {{ player_id }};
-    let playerName = "{{ player_name }}";
-    </script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
+<div id = "container"></div>
+<script src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
+<script src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
+<script>
+    init();
+</script>
+<script>
+let gameId = {{ game_id }};
+let playerId = {{ player_id }};
+let playerName = "{{ player_name }}";
+</script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
 
-    <div class="modal fade" id="playTurnModal" tabindex="-1" role="dialog" aria-labelledby="playTurnModal" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">C'est à votre tour de jouer</h5>
+
+<!-- MODAL PLAY TURN -->
+<div class="modal fade" id="modalPlayTurn" tabindex="-1" role="dialog" aria-labelledby="modalPlayTurn" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">C'est à votre tour de jouer</h5>
+      </div>
+      <div class="modal-body">
+        <div class="my-3 text-center">
+          <button type="button" id="playTurn" class="btn btn-secondary" data-dismiss="modal">Lancer les dés</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL JAIL TURN -->
+<div class="modal fade" id="modalJailTurn" tabindex="-1" role="dialog" aria-labelledby="modalJailTurn" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Vous êtes en prison</h5>
+      </div>
+      <div class="modal-body px-5">
+        <div class="row my-2">
+          <button type="button" id="jailTurnDouble" class="btn btn-secondary btn-block" data-dismiss="modal">
+            Tenter le double
+          </button>
+        </div>
+        <div class="row my-2">
+          <button type="button" id="jailTurnPay" class="btn btn-secondary btn-block" data-dismiss="modal">
+            Payer une amende de 50€ et jouer
+          </button>
+        </div>
+        <div class="row my-2">
+          <button type="button" id="jailTurnCard" class="btn btn-secondary btn-block" data-dismiss="modal">
+            Utiliser ma carte "Vous êtes libéré de prison"
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QUESTIONS -->
+<div class="modal fade" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestion" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalQuestionLabel"></h5>
+      </div>
+      <div class="modal-body">
+         <div id="modalQuestionContent" class="text-center">
+
+         </div>
+         <div class="row my-4 text-center">
+           <div class="col-6"><button type="button" id="modalQuestion1" class="btn btn-secondary" data-dismiss="modal"></button></div>
+           <div class="col-6"><button type="button" id="modalQuestion2" class="btn btn-secondary" data-dismiss="modal"></button></div>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INFO -->
+<div class="modal fade" id="modalInfo" tabindex="-1" role="dialog" aria-labelledby="modalInfo" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalInfoLabel"></h5>
+      </div>
+      <div class="modal-body text-center">
+        <div id="modalInfoContent"></div>
+        <button type="button" class="btn btn-secondary my-3" data-dismiss="modal" id="modalInfoOk">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BUY HOUSES -->
+<div class="modal fade" id="modalBuyHouses" tabindex="-1" role="dialog" aria-labelledby="modalBuyHouses" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBuyHousesLabel">Acheter des maisons</h5>
+      </div>
+      <div class="modal-body">
+        <div id="modalBuyHousesContent" class="text-center" >
+          Voulez vous acheter des maisons sur votre terrain ?
+        </div>
+        <div class="row my-3 text-center">
+          <div class="col-8 input-group mx-auto">
+            <input class="form-control" id="nbHousesInput" type="number" class="form-control" min="0" max="5" value="0">
+            <div class="input-group-append">
+              <button type="button" id="modalBuyHousesYes" class="btn btn-secondary" data-dismiss="modal">
+                Acheter des maisons
+              </button>
+            </div>
           </div>
-          <div class="modal-body">
-              <div class="my-3">
-                <button type="button" id="playTurn" class="btn btn-light" data-dismiss="modal">Lancer les dés</button>
-              </div>
+          <div class="col-4 text-center">
+            <button type="button" id="modalBuyHousesNo" class="btn btn-secondary" data-dismiss="modal">Non</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-  <div class="modal fade" style="margin: 0 auto;" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestionLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalQuestionLabel"></h5>
-          </div>
-          <div class="modal-body">
-             <div id="modalQuestionContent">
-
-             </div>
-             <div class="form-group">
-                <div style="margin-top: 10px;"><button type="button" id="modalQuestion1" class="btn btn-light" data-dismiss="modal"></button></div>
-                <div style="margin-top: 10px;"><button type="button" id="modalQuestion2" class="btn btn-light" data-dismiss="modal"></button></div>
-             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="modalInfo" tabindex="-1" role="dialog" aria-labelledby="modalQuestionInfo" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalInfoLabel"></h5>
-          </div>
-          <div class="modal-body">
-             <div id="modalInfoContent">
-
-             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
-          </div>
-        </div>
-      </div>
-    </div>
 {% endblock %}
