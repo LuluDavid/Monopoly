@@ -3,6 +3,7 @@ MONEY_START_BOX = 200
 NB_BOXES = 40
 MAX_HOUSES_BOX = 5
 JAIL_POSITION = 10
+JAIL_FEE = 50
 NUMBER_HOUSES_COLOR = {
     "brown": 2,
     "light-blue": 3,

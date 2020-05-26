@@ -81,7 +81,7 @@
     },
     "16" : {
         "name" : "Vous etes libere de prison. Cette carte peut etre conservee jusqu'a ce qu'elle soit utilisee ou vendue",
-        "type" : "card-out-jail",
+        "type" : "leave-jail",
         "value" : -1
     },
      "17" : {

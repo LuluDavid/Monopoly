@@ -1,7 +1,7 @@
 import random
-from deprecated import deprecated
 from game.player import Player
 from game.board import Board
+from game.globs import JAIL_FEE
 import time
 
 
@@ -27,124 +27,8 @@ class Game:
     def order_players(players):
         """Choosing randomly what is the order of players"""
         order = list(players.keys())
-        #random.shuffle(order)
+        random.shuffle(order)
         return order
-
-    ##Jail
-
-    @deprecated
-    def jail_chooseToPay(self, player):
-
-        """The player who is in jail chose to get out by paying 50euros"""
-
-        print("Vous avez decide de payer 50euros, vous n'etes plus en prison")
-        player.loose_money(50)
-        player.setInPrison(False)
-        player.setPrisonTurn(None)
-        print("il vous reste " + str(player.getMoney()) + " euros")
-        self.actualizePosition(player)
-
-    @deprecated
-    def jail_chooseDouble(self, player, dices):
-
-        """The player in jail chose not to pay or had not enough money to pay, so he has to make a double to get        out"""
-
-        # dices=launchDices()
-        if dices[0] == dices[1]:
-            input("Bravo, vous avez fait un double " + str(
-                dices[0]) + ". Vous etes sortis de prison et avancez de " + str(2 * dices[0]) + "")
-            self.board.boxes[player.getPosition()].players.remove(player.identity)
-            player.setPosition(10 + 2 * dices[0])
-            self.board.boxes[player.getPosition()].players.append(player.identity)
-            player.setInPrison(False)
-            player.setPrisonTurn(None)
-        else:
-            input("Vous avez fait " + str(dices[0]) + " et " + str(
-                dices[1]) + ". Ce n'est pas un double vous ne sortez pas de prison")
-            player.setPrisonTurn(player.getPrisonTurn() + 1)  # one turn more in jail
-            self.board.boxes[player.getPosition()].players.remove(player.identity)
-
-    @deprecated
-    def isInJail(self, player):
-        dices = self.launch_dices()
-        self.isInJailAux(player, dices)
-
-    @deprecated
-    def isInJailAux(self, player, dices):
-
-        """
-        The player is in jail,
-        case 1 : he is in prison for less than 3 turns so he has to choose between paying or make a double
-        case 2 : it's been 3 turns in prison so he gets out of jail and returns to normal game
-        """
-
-        turnInPrison = player.getPrisonTurn()  # how many turns since player is in jail ?
-        if (turnInPrison < 3):
-            if (player.getMoney() >= 50):
-                choice = input(
-                    "" + player.getUserName() + ", vous avez 2 options, la premiere est de payer 50euros pour sortir de prison. La deuxieme est d'essayer de faire des doubles, vous sortirez automatiquement au bout de 3 tours. Rq : vous pouvez payer 50 euros a chaque tour. Choisissez 1 ou 2")
-                while (choice != "1" and choice != "2"):
-                    choice = input(
-                        "Vous devez choisir 1 ou 2. 1=payer 50euros, 2=attendre 3 tours en tentant de faire un double")
-                if (choice == "1"):
-                    self.jail_chooseToPay(player)
-                else:
-                    print("Vous avez choisi d'essayer de faire un double")
-                    self.jail_chooseDouble(player, dices)
-            else:
-                input(
-                    "" + player.getUserName() + "Vous n'avez pas assez d'argent pour sortir en payant 50euros, vous pouvez tenter de sortir en faisant un double")
-                self.jail_chooseDouble(player, dices)
-        else:
-            print("Vous avez passe 3 tours en prison, vous sortez de prison")
-            player.setInPrison(False)
-            player.setPrisonTurn(None)
-            self.actualizePosition(player)
-
-    @deprecated
-    def turn(self):
-        """
-        Simulates one turn :
-        1-actualize position of the player
-        2- different actions if on street station or jail
-        3- if the player has not mony anymore --> he looses
-        """
-        numberOfPlayers = len(self.players_order)
-        for i in range(numberOfPlayers):
-            player = self.players[self.players_order[i]]
-            self.actualizePosition(player)
-            pos = player.getPosition()
-            playerStreetPosition = self.board.get_box(pos).getBoxName()
-            print("Tu es sur la case : " + playerStreetPosition)
-            case = self.board.get_box(pos)
-            if case.getType() == "station" or case.getType() == "street":
-                self.onAStreetOrStation(player)
-            elif case.getType() == "to-jail":
-                self.goToJail(player)
-            elif case.getType() == "chance" or case.getType() == "community-fund":
-                self.on_card(player)
-            elif case.getType() == "start":
-                pass
-            elif case.getType() == "tax":
-                self.on_tax(player)
-            elif case.getType() == "park":
-                self.on_park(player)
-            elif case.getType() == "jail":
-                print("Vous etes en simple visite de la prison")
-            elif case.getType() == "public-service":
-                self.onAStreetOrStation(player)
-            else:
-                print("ce type de case n est pas encore traite")
-            loosers = []
-            if player.getMoney() < 0:
-                print("" + player.getUserName() + ", tu as perdu! Tu n'as plus d'argent.")
-                loosers.append(player)
-            if len(loosers) > 0:
-                for looser in loosers:
-                    self.players_order.remove(looser)
-        return self.players_order
-
-    # JOINING WITH FRONT --------------------------------------------
 
     def game_to_json(self, action="play_turn",
                      box_name=None,
@@ -159,7 +43,10 @@ class Game:
                 i: [self.board.boxes[i].players, self.board.boxes[i].nb_houses] for i in list(self.board.boxes.keys())
             },
             "player_turn": player_turn_id,
+            "player_money": self.players[player_turn_id].money,
             "is_in_jail": self.players[player_turn_id].in_jail,
+            "jail_turn": self.players[player_turn_id].jail_turn,
+            "card_leave_jail": self.players[player_turn_id].card_leave_jail,
             "action": action,
             "box_name": box_name,
             "box_price": box_price,
@@ -176,9 +63,29 @@ class Game:
         if self.current_player_turn >= len(self.players_order):
             self.current_player_turn = 0
 
-    # TODO: Manage jail turn
-    def jail_turn(self, player):
-        return self.do_nothing()
+    def jail_turn(self, player, choice):
+        if choice == "double":
+            dices = player.throw_dices()
+            if dices[0] == dices[1]:
+                player.leave_jail()
+                player.update_position(dices, self.board)
+                return self.landing_on_position(player, self.board.boxes[player.position])
+            else:
+                player.loose_money(JAIL_FEE)
+                player.jail_turn += 1
+                self.next_player()
+                return self.game_to_json()
+        elif choice == "pay" and player.money > JAIL_FEE:
+            player.leave_jail()
+            player.update_position(player.throw_dices(), self.board)
+            return self.landing_on_position(player, self.board.boxes[player.position])
+        elif choice == "card" and player.card_leave_jail > 0:
+            player.card_leave_jail -= 1
+            player.leave_jail()
+            player.update_position(player.throw_dices(), self.board)
+            return self.landing_on_position(player, self.board.boxes[player.position])
+        else:
+            raise Exception("Failed to execute the following choice for jail turn : ", choice)
 
     def landing_on_position(self, player, pos):
         if pos.is_good:
@@ -221,7 +128,6 @@ class Game:
             card_id = random.randint(0, 16)
         else:
             card_id = random.randint(17, 32)
-        # card = self.board.cards[10]
         card = self.board.cards[card_id]
         self.board.last_open_card = card
         return self.game_to_json(action="draw_card", card_type=pos.box_type, card_message=card.name)
@@ -244,9 +150,14 @@ class Game:
 
         if action == "play_turn":
             if player.in_jail:
-                return self.jail_turn(player)
+                player.jail_turn += 1
+                if player.jail_turn > 3:
+                    player.leave_jail()
+                    player.update_position(player.throw_dices(), self.board)
+                    return self.landing_on_position(player, self.board.boxes[player.position])
+                else:
+                    return self.jail_turn(player, data["action_value"])
             else:
-                # player.update_position([1, 1], self.board)
                 player.update_position(player.throw_dices(), self.board)
                 return self.landing_on_position(player, self.board.boxes[player.position])
 

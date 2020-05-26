@@ -73,14 +73,9 @@ $( document ).ready(function() {
             }
         }
     });
-
-    $("#playTurn").click(function(){
-        if (incrementing) console.log("Last turn's animation is not finished yet");
-        else socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
-    });
     
     socket.on('play_turn', async function(data) {
-        console.log(data["state_array"]);
+        console.log(data);
         stateArray = data["state_array"];
         updateAllPlayers();
         updateAllHouses();
@@ -100,10 +95,20 @@ $( document ).ready(function() {
     async function switchModal(data){
         if(playerId === data["player_turn"]) {
             if (data["action"] === "play_turn") {
-                $("#modalPlayTurn").modal({
-                    keyboard: false,
-                    backdrop: 'static'
-                });
+                if (data["is_in_jail"] && data["jail_turn"] < 3){
+                    if(data["player_money"]>50) $("#jailTurnPay").show(); else $("#jailTurnPay").hide();
+                    if(data["card_leave_jail"]>0) $("#jailTurnCard").show(); else $("#jailTurnCard").hide();
+                    $("#modalJailTurn").modal({
+                        keyboard: false,
+                        backdrop: 'static'
+                    });
+                }
+                else {
+                    $("#modalPlayTurn").modal({
+                        keyboard: false,
+                        backdrop: 'static'
+                    });
+                }
             }
             else if (data["action"] === "ask_buy") {
                 let questionData = {
@@ -174,6 +179,19 @@ $( document ).ready(function() {
         });
     }
 
+    $("#playTurn").click(function(){
+        if (incrementing) console.log("Last turn's animation is not finished yet");
+        else socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
+    });
+    $("#jailTurnDouble").click(function(){
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn", action_value: "double"});
+    });
+    $("#jailTurnPay").click(function(){
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn", action_value: "pay"});
+    });
+    $("#jailTurnCard").click(function(){
+        socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn", action_value: "card"});
+    });
     $("#modalQuestion1").click(function(){
         let action = $(this).attr("data-action");
         socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action, action_value: true});

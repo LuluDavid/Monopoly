@@ -1,5 +1,3 @@
-from deprecated import deprecated
-
 from game.globs import NB_BOXES
 
 
@@ -46,5 +44,8 @@ class Card:
             player.loose_money(self.value)
             board.park_money += self.value
 
+        elif self.card_type == "leave_jail":
+            player.card_leave_jail += 1
+
         else:
-            raise Exception("This card type does not exist")
+            raise Exception("This card type does not exist : ", self.card_type)

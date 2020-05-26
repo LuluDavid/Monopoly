@@ -34,6 +34,34 @@ let playerName = "{{ player_name }}";
   </div>
 </div>
 
+<!-- MODAL JAIL TURN -->
+<div class="modal fade" id="modalJailTurn" tabindex="-1" role="dialog" aria-labelledby="modalJailTurn" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Vous êtes en prison</h5>
+      </div>
+      <div class="modal-body px-5">
+        <div class="row my-2">
+          <button type="button" id="jailTurnDouble" class="btn btn-secondary btn-block" data-dismiss="modal">
+            Tenter le double
+          </button>
+        </div>
+        <div class="row my-2">
+          <button type="button" id="jailTurnPay" class="btn btn-secondary btn-block" data-dismiss="modal">
+            Payer une amende de 50€ et jouer
+          </button>
+        </div>
+        <div class="row my-2">
+          <button type="button" id="jailTurnCard" class="btn btn-secondary btn-block" data-dismiss="modal">
+            Utiliser ma carte "Vous êtes libéré de prison"
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL QUESTIONS -->
 <div class="modal fade" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestion" aria-hidden="true">
   <div class="modal-dialog" role="document">

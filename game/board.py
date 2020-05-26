@@ -1,5 +1,4 @@
 import json
-from deprecated import deprecated
 from game.boxes import Box, Street, Station, Tax, PublicCompany
 from game.card import Card
 

@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_socketio import SocketIO, join_room, emit
 import random as rd
-
 from game.game import Game
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
