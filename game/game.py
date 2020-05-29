@@ -27,7 +27,6 @@ class Game:
     def order_players(players):
         """Choosing randomly what is the order of players"""
         order = list(players.keys())
-        random.shuffle(order)
         return order
 
     def game_to_json(self, action="play_turn",
