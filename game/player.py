@@ -63,10 +63,10 @@ class Player:
         return good.is_good and good.owner is None and self.money >= good.price
 
     def can_buy_houses(self, good):
-        if self.has_full_color(good.color) and good.box_type == "street" and good.owner == self:
-            return min(self.money//good.price_house, MAX_HOUSES_BOX - good.nb_houses)
-        else:
-            return 0
+        if good.box_type == "street" and good.owner == self:
+            if self.has_full_color(good.color):
+                return min(self.money//good.price_house, MAX_HOUSES_BOX - good.nb_houses)
+        return 0
 
     def buy_good(self, good):
         if self.can_buy_good(good):
