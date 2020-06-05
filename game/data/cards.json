@@ -56,7 +56,7 @@
     },
     "11" : {
         "name" : "Avancez jusqu'a la case Depart",
-        "type" : "move-to",
+        "type" : "move-forward-to",
         "value" : 0
     },
     "12" : {

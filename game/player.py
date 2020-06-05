@@ -21,18 +21,21 @@ class Player:
         return self.dices
 
     def update_position(self, dices, board):
+        new_turn = False
         if not self.in_jail:
             board.boxes[self.position].players.remove(self.id)
             self.position += sum(dices)
             if self.position > 39:
+                new_turn = True
                 self.money += MONEY_START_BOX
                 self.position -= NB_BOXES
             elif self.position < 0:
                 self.position += NB_BOXES
             elif self.position == 0:
+                new_turn = True
                 self.money += MONEY_START_BOX
             board.boxes[self.position].players.append(self.id)
-            return self.position
+            return new_turn
         else:
             raise Exception("Player can't move because is in jail")
 
@@ -60,7 +63,7 @@ class Player:
         return good.is_good and good.owner is None and self.money >= good.price
 
     def can_buy_houses(self, good):
-        if good.box_type == "street" and good.owner == self:
+        if self.has_full_color(good.color) and good.box_type == "street" and good.owner == self:
             return min(self.money//good.price_house, MAX_HOUSES_BOX - good.nb_houses)
         else:
             return 0
@@ -83,6 +86,9 @@ class Player:
     def has_full_color(self, color):
         count = sum([good.box_type == "street" and good.color == color for good in self.goods])
         return count == NUMBER_HOUSES_COLOR[color]
+
+    def get_number_of_color(self, color):
+        return sum([good.box_type == "street" and good.color == color for good in self.goods])
 
     def get_number_of_buildings(self):
         houses, hotels = 0, 0

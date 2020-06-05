@@ -99,8 +99,8 @@ var movingCard = false;
 const cardAxis = new THREE.Vector3(0,-1,0).normalize();
 // The angle the cards has rotated when it reaches the player
 const revealAngle = 2*Math.PI/5;
-const tReveal = 1;
-const tTravel = 2;
+const tReveal = 0.5;
+const tTravel = 1;
 // Number of house per box
 // var numberOfHousesPerBox = noHousesPerBox();
 // Hotel
@@ -193,8 +193,8 @@ function updatePawns(){
 function initPossessions(){
 	let ids = Object.keys(idsToPawns);
 	let res = {};
-	let initialPossession = {"money":initialMoney, "houses":{"brown":0, "lightBlue":0, "magenta":0, "orange":0,
-			"red":0, "yellow":0, "green":0, "blue":0}, "station":0, "electricity":0, "water":0};
+	let initialPossession = {"money":initialMoney, "brown":0, "light-blue":0, "pink":0, "orange":0,
+			"red":0, "yellow":0, "green":0, "blue":0, "station":0, "electricity":0, "water":0};
 	for (let i = 0; i<numberOfPawns; i++){
 		res[ids[i]] = initialPossession;
 	}
@@ -426,7 +426,7 @@ function translate(i, goalPosition, deltaT) {
 	let initialPosition = object.position.clone();
 	let initialCameraPosition = closeView.camera.position.clone();
 	let goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight);
-	addCanvas();
+	// addCanvas(); TODO
 	loop(object, initialPosition, initialCameraPosition, goalPosition, goalPositionCamera, step, t);
 }
 
@@ -460,7 +460,7 @@ function loop(object, initialPosition, initialPositionCam, goalPosition, goalPos
 function loop2(step, t) {
 	t = t + step;
 	if (t >= 1 / coverRatio) {
-		removeCanvas();
+		// removeCanvas(); TODO
 		console.log("Tour fini");
 		incrementing = false;
 		closeViewDisplay = false;

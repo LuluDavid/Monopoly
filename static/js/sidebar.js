@@ -14,7 +14,7 @@ function frontMoney(money = initialMoney){
                 <i class="fa fa-money" style="color:green"> ` + money + `$</i></div>`;
 }
 
-function frontPossessions(brown = 0, lightBlue = 0, magenta = 0, orange = 0,
+function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
                           red = 0, yellow = 0, green = 0, blue = 0,
                           station = 0, electricity = 0, water = 0){
     return `<div id="player-goods">
@@ -25,8 +25,8 @@ function frontPossessions(brown = 0, lightBlue = 0, magenta = 0, orange = 0,
                 <div id="light-blue">
                     <i class="fa fa-home" style="color:#87CEEB"> `+ lightBlue +`</i>
                 </div>
-                <div id="magenta">
-                    <i class="fa fa-home" style="color:#FF69B4"> `+ magenta +`</i>
+                <div id="pink">
+                    <i class="fa fa-home" style="color:#FF69B4"> `+ pink +`</i>
                 </div>
                 <div id="orange">
                     <i class="fa fa-home" style="color:#FF8C00"> `+ orange +`</i>
@@ -71,23 +71,22 @@ function updateSidebar(){
 }
 function updateSidebarId(pid){
     let possessions, houses;
-    let money, brown, lightBlue, magenta, orange, red, yellow, green, blue, station, electricity, water;
+    let money, brown, lightBlue, pink, orange, red, yellow, green, blue, station, electricity, water;
     possessions = idsToPossessions[pid];
     money = possessions["money"];
-    houses = possessions["houses"];
-    brown = houses["brown"];
-    lightBlue = houses["lightBlue"];
-    magenta = houses["magenta"];
-    orange = houses["orange"];
-    red = houses["red"];
-    yellow = houses["yellow"];
-    green = houses["green"];
-    blue = houses["blue"];
+    brown = possessions["brown"];
+    lightBlue = possessions["light-blue"];
+    pink = possessions["pink"];
+    orange = possessions["orange"];
+    red = possessions["red"];
+    yellow = possessions["yellow"];
+    green = possessions["green"];
+    blue = possessions["blue"];
     station = possessions["station"];
     electricity = possessions["electricity"];
     water = possessions["water"];
 
     $("#"+pid+" #player-money").replaceWith(frontMoney(money));
-    $("#"+pid+" #player-goods").replaceWith(frontPossessions(brown, lightBlue, magenta, orange, red,
+    $("#"+pid+" #player-goods").replaceWith(frontPossessions(brown, lightBlue, pink, orange, red,
         yellow, green, blue, station, electricity, water));
 }

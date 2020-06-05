@@ -35,7 +35,9 @@ class Game:
                      house_price=None,
                      buyable_houses=None,
                      card_type=None,
-                     card_message=None):
+                     card_message=None,
+                     changed_players=None
+                     ):
         player_turn_id = self.players_order[self.current_player_turn]
         response = {
             "state_array": {
@@ -52,7 +54,8 @@ class Game:
             "house_price": house_price,
             "buyable_houses": buyable_houses,
             "card_type": card_type,
-            "card_message": card_message
+            "card_message": card_message,
+            "changed_players": changed_players
         }
         return response
 
@@ -86,99 +89,137 @@ class Game:
         else:
             raise Exception("Failed to execute the following choice for jail turn : ", choice)
 
-    def landing_on_position(self, player, pos):
+    def landing_on_position(self, player, pos, new_turn=False):
         if pos.is_good:
-            return self.landing_on_good(player, pos)
+            return self.landing_on_good(player, pos, new_turn)
         elif pos.box_type in ["community-fund", "chance"]:
-            return self.landing_on_card(pos)
+            return self.landing_on_card(pos, player)
         elif pos.box_type == "tax":
             return self.landing_on_tax(player, pos)
         elif pos.box_type == "park":
             return self.landing_on_park(player)
         else:
-            return self.do_nothing()
+            return self.do_nothing(player, new_turn)
 
-    def do_nothing(self):
+    def do_nothing(self, player=None, new_turn=False):
         self.next_player()
-        return self.game_to_json()
+        changed_players = None
+        if player is not None and new_turn:
+            changed_players = {player.id: {"money": player.money}}
+        return self.game_to_json(changed_players=changed_players)
 
-    def landing_on_good(self, player, pos):
+    def landing_on_good(self, player, pos, new_turn=False):
+        changed_players = None
+        if new_turn:
+            changed_players = {player.id: {"money": player.money}}
         if player.can_buy_good(pos):
-            return self.game_to_json(action="ask_buy", box_name=pos.name, box_price=pos.price)
-        elif pos.owner == player:
+            return self.game_to_json(action="ask_buy", box_name=pos.name,
+                                     box_price=pos.price, changed_players=changed_players)
+        elif pos.owner == player and pos.box_type == "street":
             nb_houses_buyable = player.can_buy_houses(pos)
             if nb_houses_buyable > 0:
                 return self.game_to_json(
                     action="ask_buy_houses",
                     box_name=pos.name,
                     house_price=pos.price,
-                    buyable_houses=nb_houses_buyable)
+                    buyable_houses=nb_houses_buyable,
+                    changed_players=changed_players)
             else:
-                return self.do_nothing()
+                return self.do_nothing(player, new_turn)
         elif pos.owner is not None:
             player.pay_player(pos.owner, pos.get_rent(player))
             self.next_player()
-            return self.game_to_json()  # TODO: Message "X payed Y"
+            changed_players = {player.id: {"money": player.money}}
+            return self.game_to_json(changed_players=changed_players)  # TODO: Message "X payed Y"
         else:
             return self.do_nothing()
 
-    def landing_on_card(self, pos):
+    def landing_on_card(self, pos, player=None, new_turn=False):
         if pos.box_type == "community-fund":
             card_id = random.randint(0, 16)
         else:
             card_id = random.randint(17, 32)
         card = self.board.cards[card_id]
         self.board.last_open_card = card
-        return self.game_to_json(action="draw_card", card_type=pos.box_type, card_message=card.name)
+        changed_players = None
+        # TODO: Change all players that lost money
+        if player is not None and new_turn:
+            changed_players = {player.id: {"money": player.money}}
+        return self.game_to_json(action="draw_card", card_type=pos.box_type,
+                                 card_message=card.name, changed_players=changed_players)
 
     def landing_on_tax(self, player, pos):
         player.loose_money(pos.rent)
         self.board.park_money += pos.rent
         self.next_player()
-        return self.game_to_json()
+        changed_players = {player.id: {"money": player.money}}
+        return self.game_to_json(changed_players=changed_players)
 
     def landing_on_park(self, player):
         player.earn_money(self.board.park_money)
         self.board.park_money = 0
         self.next_player()
-        return self.game_to_json()  # TODO: Message "X earned the park money"
+        changed_players = {player.id: {"money": player.money}}
+        return self.game_to_json(changed_players=changed_players)
+        # TODO: Message "X earned the park money"
 
     def play_turn(self, data):
         action = data["action"]
         player = self.players[self.players_order[self.current_player_turn]]
-
         if action == "play_turn":
+            new_turn = False
             if player.in_jail:
                 player.jail_turn += 1
                 if player.jail_turn > 3:
                     player.leave_jail()
-                    player.update_position(player.throw_dices(), self.board)
-                    return self.landing_on_position(player, self.board.boxes[player.position])
+                    new_turn = player.update_position(player.throw_dices(), self.board)
+                    return self.landing_on_position(player, self.board.boxes[player.position],
+                                                    new_turn=new_turn)
                 else:
                     return self.jail_turn(player, data["action_value"])
             else:
-                player.update_position(player.throw_dices(), self.board)
-                return self.landing_on_position(player, self.board.boxes[player.position])
+                new_turn = player.update_position(player.throw_dices(), self.board)
+                return self.landing_on_position(player, self.board.boxes[player.position],
+                                                new_turn=new_turn)
 
         elif action == "buy":
+            changes = {}
             if data["action_value"]:
-                player.buy_good(self.board.boxes[player.position])
+                bought_box = self.board.boxes[player.position]
+                player.buy_good(bought_box)
+                changes["money"] = player.money
+                if bought_box.box_type == "street":
+                    color = bought_box.color
+                    changes[color] = player.get_number_of_color(color)
+                elif bought_box.box_type == "station":
+                    changes["station"] = player.get_number_of_stations()
+                elif bought_box.box_type == "public-company":
+                    # TODO: ugly fix to come...
+                    if player.position == 12:
+                        changes["electricity"] = 1
+                    else:
+                        changes["water"] = 1
+            changed_players = {player.id: changes}
             self.next_player()
-            return self.game_to_json()
+            return self.game_to_json(changed_players=changed_players)
 
         elif action == "buy_houses":
+            changed_players = None
             nb_houses = int(data["action_value"])
             if nb_houses > 0:
                 player.buy_houses(self.board.boxes[player.position], nb_houses)
+                changed_players = {player.id: {"money": player.money}}
+                # TODO: display number of houses on sidebar ?
             self.next_player()
-            return self.game_to_json()
+            return self.game_to_json(changed_players=changed_players)
 
         elif action == "execute_card":
             init_pos = player.position
-            self.board.last_open_card.execute(player, self.players, self.board)
+            # TODO: see if you cross the start line
+            changed_players = self.board.last_open_card.execute(player, self.players, self.board)
             new_pos = player.position
             if init_pos != new_pos and not player.in_jail:
                 return self.landing_on_position(player, self.board.boxes[new_pos])
             else:
                 self.next_player()
-                return self.game_to_json()
+                return self.game_to_json(changed_players=changed_players)
