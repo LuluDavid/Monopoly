@@ -9,69 +9,106 @@ const uncheck =
 "  <path fill-rule=\"evenodd\" d=\"M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z\" clip-rule=\"evenodd\"/>\n" +
 "</svg>";
 
+
+const color_hex = {
+    "brown": "color:#8B4513",
+    "light-blue": "color:#87CEEB",
+    "pink": "color:#FF69B4",
+    "orange": "color:#FF8C00",
+    "red": "color:red",
+    "yellow": "color:#FFD700",
+    "green": "color:green",
+    "dark-blue": "color:blue"
+};
+
 function frontMoney(money = initialMoney){
     return `<div id="player-money">
-                <i class="fa fa-money" style="color:green"> ` + money + `$</i></div>`;
+                <i class="fa fa-money" style="color:green">${money} $</i></div>`;
+}
+
+function street_icon(color, i){
+    if (i === 0){
+        return "";
+    }
+    let style = color_hex[color];
+    return`<div id=`+color+`>
+              <i class="fa fa-flag" style=${style}>${i}</i>
+           </div>`;
+}
+
+function station_icon(i){
+    if (i === 0){
+        return "";
+    }
+    return`<div id="player-station">
+              <i class="fa fa-train" aria-hidden="true" style="color:black">${i}</i>
+           </div>`;
+}
+
+function electricity_icon(i){
+    if (i === 0){
+        return "";
+    }
+    return `<div id="electricity" style="margin-left: 10px">
+                <i class="fa fa-lightbulb-o" style="color:black"></i>
+            </div>`;
+}
+
+function water_icon(i){
+    if (i === 0){
+        return "";
+    }
+    return `<div id="water" style="margin-left: 10px">
+                <i class="fa fa-tint" style="color:black"></i>
+            </div>`;
 }
 
 function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
-                          red = 0, yellow = 0, green = 0, blue = 0,
+                          red = 0, yellow = 0, green = 0, darkBlue = 0,
                           station = 0, electricity = 0, water = 0){
+    // Street divs
+    let brown_div = street_icon("brown", brown);
+    let lightBlue_div = street_icon("light-blue", lightBlue);
+    let pink_div = street_icon("pink", pink);
+    let orange_div = street_icon("orange", orange);
+    let red_div = street_icon("red", red);
+    let yellow_div = street_icon("yellow", yellow);
+    let green_div = street_icon("green", green);
+    let dark_blue_div = street_icon("dark-blue", darkBlue);
+    // Service divs
+    let stations_div = station_icon(station);
+    let electricity_div = electricity_icon(electricity);
+    let water_div = water_icon(water);
+
     return `<div id="player-goods">
             <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
-                <div id="brown">
-                    <i class="fa fa-home" style="color:#8B4513"> `+ brown +`</i>
-                </div>
-                <div id="light-blue">
-                    <i class="fa fa-home" style="color:#87CEEB"> `+ lightBlue +`</i>
-                </div>
-                <div id="pink">
-                    <i class="fa fa-home" style="color:#FF69B4"> `+ pink +`</i>
-                </div>
-                <div id="orange">
-                    <i class="fa fa-home" style="color:#FF8C00"> `+ orange +`</i>
-                </div>
-                <div id="red">
-                    <i class="fa fa-home" style="color:red"> `+ red +`</i>
-                </div>
-                <div id="yellow">
-                    <i class="fa fa-home" style="color:#FFD700"> `+ yellow +`</i>
-                </div>
-                <div id="green">
-                    <i class="fa fa-home" style="color:green"> `+ green +`</i>
-                </div>
-                <div id="blue">
-                    <i class="fa fa-home" style="color:blue"> `+ blue +`</i>
-                </div>
+                ${brown_div}
+                ${lightBlue_div}
+                ${pink_div}
+                ${orange_div}
+                ${red_div}
+                ${yellow_div}
+                ${green_div}
+                ${dark_blue_div}
             </div>
             <div id="player-station-services" style="display : flex; flex-direction: row">
-                <div id=player-station" style="height:20px">
-                    <i class="fa fa-train" aria-hidden="true" style="color:black"> `+ station +` </i>
-                </div>
-                <div id="electricity" style="margin-left: 10px">
-                    <i class="fa fa-lightbulb-o" style="color:black"> `+ electricity +` </i>
-                </div>
-                <div id="water" style="margin-left: 10px">
-                    <i class="fa fa-tint" style="color:black"> `+ water +`</i>
-                </div>
+                ${stations_div}
+                ${electricity_div}
+                ${water_div}
             </div>
         </div>` ;
 }
 
 const frontGoods = frontMoney()+frontPossessions();
 
-/* We suppose we have a mapping :
-* dict : { "player1":{"money":int, "houses":{"brown":int, ...},
-* "station":int, "electricity":bool, "water":bool} ... }
-* */
 function updateSidebar(){
     for (let pid of Object.keys(idsToPossessions)){
         updateSidebarId(pid);
     }
 }
 function updateSidebarId(pid){
-    let possessions, houses;
-    let money, brown, lightBlue, pink, orange, red, yellow, green, blue, station, electricity, water;
+    let possessions;
+    let money, brown, lightBlue, pink, orange, red, yellow, green, darkBlue, station, electricity, water;
     possessions = idsToPossessions[pid];
     money = possessions["money"];
     brown = possessions["brown"];
@@ -81,12 +118,12 @@ function updateSidebarId(pid){
     red = possessions["red"];
     yellow = possessions["yellow"];
     green = possessions["green"];
-    blue = possessions["blue"];
+    darkBlue = possessions["dark-blue"];
     station = possessions["station"];
     electricity = possessions["electricity"];
     water = possessions["water"];
 
     $("#"+pid+" #player-money").replaceWith(frontMoney(money));
     $("#"+pid+" #player-goods").replaceWith(frontPossessions(brown, lightBlue, pink, orange, red,
-        yellow, green, blue, station, electricity, water));
+        yellow, green, darkBlue, station, electricity, water));
 }
