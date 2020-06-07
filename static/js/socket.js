@@ -75,13 +75,14 @@ $( document ).ready(function() {
     });
     
     socket.on('play_turn', async function(data) {
-        console.log(data["changed_players"]);
         let changedPlayers = data["changed_players"];
         if (changedPlayers != null) {
             for (let pid of Object.keys(changedPlayers)) {
                 let playerChanges = changedPlayers[pid];
-                for (let name of Object.keys(playerChanges)) {
-                    idsToPossessions[pid][name] = playerChanges[name];
+                for (let prop of Object.keys(playerChanges)) {
+                    let changes = {};
+                    changes[prop] = playerChanges[prop];
+                    idsToPossessions[pid] = Object.assign({}, idsToPossessions[pid], changes);
                     updateSidebarId(pid);
                 }
             }

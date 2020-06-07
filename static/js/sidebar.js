@@ -107,6 +107,7 @@ function updateSidebar(){
     }
 }
 function updateSidebarId(pid){
+    console.log("updateSidebarId for " + pid);
     let possessions;
     let money, brown, lightBlue, pink, orange, red, yellow, green, darkBlue, station, electricity, water;
     possessions = idsToPossessions[pid];
