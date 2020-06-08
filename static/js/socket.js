@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    let socket = io.connect('http://' + document.domain + ':' + location.port, {secure: true});
+    let socket = io.connect('https://' + document.domain + ':' + location.port, {secure: true});
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
