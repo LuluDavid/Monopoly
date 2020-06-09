@@ -78,6 +78,18 @@ $( document ).ready(function() {
     });
     
     socket.on('play_turn', async function(data) {
+        // Add user <-> property dep
+        let bought = data["bought"];
+        if (bought != null){
+            let id = Object.keys(bought)[0];
+            if (possessions[id] === undefined){
+                possessions[id] = [bought[id]]
+            }
+            else{
+                possessions[id].push(bought[id]);
+            }
+        }
+        // Update sidebar
         let changedPlayers = data["changed_players"];
         if (changedPlayers != null) {
             for (let pid of Object.keys(changedPlayers)) {

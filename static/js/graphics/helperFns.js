@@ -173,11 +173,15 @@ var stateArray = initState();
 var idsToPawns = {};
 var idsToNames = {};
 var idsToPossessions = {};
+var possessions = {};
 // Instantiate empty houses group
 updateAllHouses();
+
+
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 var positions = initPositions();
 var new_positions = initPositions();
+
 // Create the deck of community cards
 const communityDeck = createCommunityDeck();
 scene.add(communityDeck);

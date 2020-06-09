@@ -36,7 +36,8 @@ class Game:
                      buyable_houses=None,
                      card_type=None,
                      card_message=None,
-                     changed_players=None
+                     changed_players=None,
+                     bought=None
                      ):
         player_turn_id = self.players_order[self.current_player_turn]
         response = {
@@ -55,7 +56,8 @@ class Game:
             "buyable_houses": buyable_houses,
             "card_type": card_type,
             "card_message": card_message,
-            "changed_players": changed_players
+            "changed_players": changed_players,
+            "bought": bought
         }
         return response
 
@@ -191,8 +193,10 @@ class Game:
 
         elif action == "buy":
             changes = {}
+            bought = {}
             if data["action_value"]:
                 bought_box = self.board.boxes[player.position]
+                bought[player.id] = bought_box.name
                 player.buy_good(bought_box)
                 changes["money"] = player.money
                 if bought_box.box_type == "street":
@@ -208,7 +212,7 @@ class Game:
                         changes["water"] = 1
             changed_players = {player.id: changes}
             self.next_player()
-            return self.game_to_json(changed_players=changed_players)
+            return self.game_to_json(changed_players=changed_players, bought=bought)
 
         elif action == "buy_houses":
             changed_players = None
