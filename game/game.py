@@ -89,29 +89,33 @@ class Game:
         else:
             raise Exception("Failed to execute the following choice for jail turn : ", choice)
 
-    def landing_on_position(self, player, pos, new_turn=False):
+    def landing_on_position(self, player, pos, new_turn=False, changed_players=None):
+        if changed_players is None:
+            changed_players = {}
         if pos.is_good:
-            return self.landing_on_good(player, pos, new_turn)
+            return self.landing_on_good(player, pos, new_turn, changed_players=changed_players)
         elif pos.box_type in ["community-fund", "chance"]:
-            return self.landing_on_card(pos, player)
+            return self.landing_on_card(pos, player, changed_players=changed_players)
         elif pos.box_type == "tax":
-            return self.landing_on_tax(player, pos)
+            return self.landing_on_tax(player, pos, changed_players=changed_players)
         elif pos.box_type == "park":
-            return self.landing_on_park(player)
+            return self.landing_on_park(player, changed_players=changed_players)
         else:
-            return self.do_nothing(player, new_turn)
+            return self.do_nothing(player, new_turn, changed_players=changed_players)
 
-    def do_nothing(self, player=None, new_turn=False):
+    def do_nothing(self, player=None, new_turn=False, changed_players=None):
+        if changed_players is None:
+            changed_players = {}
         self.next_player()
-        changed_players = None
         if player is not None and new_turn:
-            changed_players = {player.id: {"money": player.money}}
+            changed_players[player.id] = {"money": player.money}
         return self.game_to_json(changed_players=changed_players)
 
-    def landing_on_good(self, player, pos, new_turn=False):
-        changed_players = None
+    def landing_on_good(self, player, pos, new_turn=False, changed_players=None):
+        if changed_players is None:
+            changed_players = {}
         if new_turn:
-            changed_players = {player.id: {"money": player.money}}
+            changed_players[player.id] = {"money": player.money}
         if player.can_buy_good(pos):
             return self.game_to_json(action="ask_buy", box_name=pos.name,
                                      box_price=pos.price, changed_players=changed_players)
@@ -129,37 +133,41 @@ class Game:
         elif pos.owner is not None:
             player.pay_player(pos.owner, pos.get_rent(player))
             self.next_player()
-            changed_players = {player.id: {"money": player.money}}
+            changed_players[player.id] = {"money": player.money}
             return self.game_to_json(changed_players=changed_players)  # TODO: Message "X payed Y"
         else:
             return self.do_nothing()
 
-    def landing_on_card(self, pos, player=None, new_turn=False):
+    def landing_on_card(self, pos, player=None, new_turn=False, changed_players=None):
+        if changed_players is None:
+            changed_players = {}
         if pos.box_type == "community-fund":
             card_id = random.randint(0, 16)
         else:
             card_id = random.randint(17, 32)
         card = self.board.cards[card_id]
         self.board.last_open_card = card
-        changed_players = None
-        # TODO: Change all players that lost money
         if player is not None and new_turn:
-            changed_players = {player.id: {"money": player.money}}
+            changed_players[player.id] = {"money": player.money}
         return self.game_to_json(action="draw_card", card_type=pos.box_type,
                                  card_message=card.name, changed_players=changed_players)
 
-    def landing_on_tax(self, player, pos):
+    def landing_on_tax(self, player, pos, changed_players=None):
+        if changed_players is None:
+            changed_players = {}
         player.loose_money(pos.rent)
         self.board.park_money += pos.rent
         self.next_player()
-        changed_players = {player.id: {"money": player.money}}
+        changed_players[player.id] = {"money": player.money}
         return self.game_to_json(changed_players=changed_players)
 
-    def landing_on_park(self, player):
+    def landing_on_park(self, player, changed_players=None):
+        if changed_players is None:
+            changed_players = {}
         player.earn_money(self.board.park_money)
         self.board.park_money = 0
         self.next_player()
-        changed_players = {player.id: {"money": player.money}}
+        changed_players[player.id] = {"money": player.money}
         return self.game_to_json(changed_players=changed_players)
         # TODO: Message "X earned the park money"
 
@@ -167,7 +175,6 @@ class Game:
         action = data["action"]
         player = self.players[self.players_order[self.current_player_turn]]
         if action == "play_turn":
-            new_turn = False
             if player.in_jail:
                 player.jail_turn += 1
                 if player.jail_turn > 3:
@@ -215,11 +222,10 @@ class Game:
 
         elif action == "execute_card":
             init_pos = player.position
-            # TODO: see if you cross the start line
             changed_players = self.board.last_open_card.execute(player, self.players, self.board)
             new_pos = player.position
             if init_pos != new_pos and not player.in_jail:
-                return self.landing_on_position(player, self.board.boxes[new_pos])
+                return self.landing_on_position(player, self.board.boxes[new_pos], changed_players=changed_players)
             else:
                 self.next_player()
                 return self.game_to_json(changed_players=changed_players)
