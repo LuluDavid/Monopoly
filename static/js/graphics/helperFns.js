@@ -120,6 +120,7 @@ var container = document.getElementById('container');
 view.camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, view.near, view.far);
 view.camera.position.fromArray(view.eye);
 view.camera.up.fromArray(view.up);
+view.camera.layers.enable( 1 );
 // Close camera
 closeView.camera = new THREE.PerspectiveCamera(closeView.fov, window.innerWidth / window.innerHeight, closeView.near, closeView.far);
 closeView.camera.position.fromArray(closeView.eye);
@@ -223,7 +224,6 @@ function disableControls(){
 	controls.autoRotate = false;
 }
 
-// TODO: maybe also rotate the card horizontally and allow full autoRotation in ObritControls
 function animateCard(type){
 	disableControls();
 	if (movingCard){
@@ -236,8 +236,7 @@ function animateCard(type){
 	render();
 	// Then, lift the card towards the camera
 	let fps = 60;           // seconds
-	let tau = tTravel;
-	let step = 1 / (tau * fps);  // t-step per frame
+	let step = 1 / (tTravel * fps);  // t-step per frame
 	let finalAngle = Math.PI/2 - Math.asin(view.camera.position.z/norm(view.camera.position));
 	let angleStep = finalAngle*step;
 	let lateralAngle = controls.getAzimuthalAngle()+Math.PI/4;
@@ -274,8 +273,7 @@ function loopCard2(step, t) {
 	t = t + step;
 	if (t >= 1 / coverRatio) {
 		let fps = 60;           // seconds
-		let dt = tReveal;
-		let step = 1 / (dt * fps);  // t-step per frame
+		let step = 1 / (tReveal * fps);  // t-step per frame
 		let angleStep = -revealAngle*step;
 		return semiReveal(scene.children[7], step, 0, angleStep);
 	}
@@ -697,6 +695,7 @@ function addText(name, material, parent) {
 			// Adjust to average camera position
 			textMesh.rotateY(-Math.PI/4);
 			textMesh.rotateX(-Math.PI/4);
+			textMesh.layers.set(1);
 			parent.add(textMesh);
 		});
 }
