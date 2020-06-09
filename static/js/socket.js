@@ -15,14 +15,16 @@ $( document ).ready(function() {
         let newPlayer = data["new_player"];
         let newPlayerName = newPlayer["name"];
         let newPlayerId = newPlayer["id"];
-        idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
+        // idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
+        idsToNames[newPlayerId] = newPlayerName;
         let playersInGame = data["players_in_game"];
         let ids = Object.keys(playersInGame);
         let names = Object.values(playersInGame);
         if(playerName === newPlayerName){
             for (let i = 0; i<ids.length; i++){
                 // Rebuild the mapping for the new player
-                idsToPawns[ids[i]] = i;
+                // idsToPawns[ids[i]] = i;
+                idsToNames[ids[i]] = names[i];
                 let id = ids[i];
                 if (parseInt(id) !== playerId){
                     addPlayerNameToSidebar(names[i], id);
@@ -51,15 +53,16 @@ $( document ).ready(function() {
     socket.on('start_game', function(data) {
         let newPlayerId = data["newPlayer"]["id"];
         let newPlayerName = data["newPlayer"]["name"];
-
         $("#"+newPlayerId+" svg").remove();
         $("#"+newPlayerId+" #top-info").append(check);
 
         data = data["gameState"];
+        console.log(data);
         console.log("Player "+newPlayerName+" is ready to play");
         // Add a new pawn for the new player
         numberOfPawns++;
-        idsToPossessions = initPossessions();
+        idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
+        idsToPossessions[newPlayerId] = initPossessions();
         // Change the page state
         updatePawns();
         stateArray = initState();
@@ -87,6 +90,8 @@ $( document ).ready(function() {
                 }
             }
         }
+        // Update current pawn and array
+        currentPawn = idsToPawns[data["player_turn"]];
         stateArray = data["state_array"];
         updateAllPlayers();
         updateAllHouses();

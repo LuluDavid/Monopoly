@@ -1,7 +1,7 @@
 // MAIN FUNCTION
 
 // Whose turns it is
-var currentPawn = 0;
+var currentPawn;
 var windowWidth, windowHeight;
 const view =
 	{
@@ -48,7 +48,7 @@ const closeView =
 
 // Ratio of graphics on the main page
 const graphicsRatio = 1 - 0.167;
-
+const colors = initColors();
 // Cardboard
 const cardboardHeight = 0.03;
 const cardboardWidth = 110;
@@ -82,7 +82,9 @@ const epsilon = 1;
 const coverMotion = 0.8;
 // Pawn motion
 const tMotion = 3; // duration to go to next case (seconds)
-
+// Text stuff
+const textSize = 2;
+const textHeight = 0.5;
 // Incrementing boolean to avoid multi-calls
 var incrementing = false;
 // CloseView activation boolean
@@ -168,7 +170,8 @@ updatePawns();
 // Represents the current state for all players
 var stateArray = initState();
 var idsToPawns = {};
-var idsToPossessions = initPossessions();
+var idsToNames = {};
+var idsToPossessions = {};
 // Instantiate empty houses group
 updateAllHouses();
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
@@ -191,14 +194,8 @@ function updatePawns(){
 }
 
 function initPossessions(){
-	let ids = Object.keys(idsToPawns);
-	let res = {};
-	let initialPossession = {"money":initialMoney, "brown":0, "light-blue":0, "pink":0, "orange":0,
+	return {"money":initialMoney, "brown":0, "light-blue":0, "pink":0, "orange":0,
 			"red":0, "yellow":0, "green":0, "blue":0, "station":0, "electricity":0, "water":0};
-	for (let i = 0; i<numberOfPawns; i++){
-		res[ids[i]] = initialPossession;
-	}
-	return res;
 }
 
 function createCommunityCard() {
@@ -424,7 +421,6 @@ function translate(i, goalPosition, deltaT) {
 	let initialPosition = object.position.clone();
 	let initialCameraPosition = closeView.camera.position.clone();
 	let goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight);
-	// addCanvas(); TODO
 	loop(object, initialPosition, initialCameraPosition, goalPosition, goalPositionCamera, step, t);
 }
 
@@ -458,16 +454,11 @@ function loop(object, initialPosition, initialPositionCam, goalPosition, goalPos
 function loop2(step, t) {
 	t = t + step;
 	if (t >= 1 / coverRatio) {
-		// removeCanvas(); TODO
 		console.log("Tour fini");
 		incrementing = false;
 		closeViewDisplay = false;
-		currentPawn++;
 		closeView.camera.position.set(closeView.eye[0], closeView.eye[1], closeView.eye[2]);
 		updatePositions();
-		if (currentPawn === numberOfPawns) {
-			currentPawn = 0;
-		}
 	}
 	else{
 		requestAnimationFrame(() => loop2(step, t))
@@ -493,33 +484,13 @@ function updateNewPositions() {
 	}
 }
 
-
-
 function updatePositions() {
 	positions = $.extend(true, {}, new_positions);
-}
-
-// Random int in [min,max]
-function getRandomInt(min, max) {
-	return Math.floor(Math.random() * Math.floor(max - min + 1)) + min;
 }
 
 // Distance between two points
 function distance(v1, v2) {
 	return v1.clone().distanceTo(v2.clone());
-}
-
-
-function addCanvas() {
-	let height = Math.floor(windowHeight * closeViewRatio);
-	let width = Math.floor(windowWidth * closeViewRatio);
-	console.log(width);
-	let canvas = "<canvas id = 'closeView' width='" + width + "' height='" + height + "' style=\"border:3px solid #000000; position:fixed; top: 56px; right: 0px; z-index:2;\"></canvas>"
-	$("#container").append(canvas);
-}
-
-function removeCanvas() {
-	$("#closeView").remove();
 }
 
 // Parabole to describe the motion inertia
@@ -567,15 +538,15 @@ function getPawnPositions(i) {
 	let width, height;
 	if (box.isW) {
 		if (box.isH) {
-			width = boxHeight;
-			height = boxHeight;
+			width = boxHeight.valueOf();
+			height = boxHeight.valueOf();
 		} else {
-			width = boxHeightHouse;
-			height = boxWidth;
+			width = boxHeightHouse.valueOf();
+			height = boxWidth.valueOf();
 		}
 	} else if (box.isH) {
-		width = boxWidth;
-		height = boxHeightHouse;
+		width = boxWidth.valueOf();
+		height = boxHeightHouse.valueOf();
 	}
 
 	// Just take the ratio-ed width and height to spread the pawns
@@ -689,22 +660,45 @@ function createPawns(number, j = 0) {
 	let positions = pawnsPositionsPerBox[j];
 	let pawns = [];
 	for (let i = 0; i < number; i++) {
-		let pawn = createPawn(positions[i]);
-		pawns[i] = pawn;
+		let id = Object.keys(idsToPossessions)[i];
+		let j = idsToPawns[id];
+		pawns[i] = createPawn(positions[i], id, j);
 	}
 	return pawns;
 }
 
-function createPawn(position) {
-	let clr = getRandomColor();
+function createPawn(position, id, j) {
+	let pawn = new THREE.Group();
+	let clr = colors[j];
 	let geometry = new THREE.CylinderGeometry(pawnRadius, pawnRadius, pawnHeight, 32);
 	let material = new THREE.MeshPhongMaterial({color: clr});
-	let pawn = new THREE.Mesh(geometry, material);
+	let pawnMesh = new THREE.Mesh(geometry, material);
+	pawnMesh.castShadow = true;
+	pawnMesh.receiveShadow = true;
+	pawn.add(pawnMesh);
+	let name = idsToNames[id];
+	addText(name, material, pawn);
 	pawn.rotateX(Math.PI / 2);
 	pawn.position.set(position.x, position.y, pawnHeight / 2 + cardboardHeight);
-	pawn.castShadow = true;
-	pawn.receiveShadow = true;
 	return pawn;
+}
+
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
+function addText(name, material, parent) {
+	new THREE.FontLoader().load('static/js/graphics/fonts/gentilis_regular.typeface.json',
+		function (font){
+			let textGeometry = new THREE.TextGeometry(name, {font:font, size: textSize, height: textHeight, curveSegments: 3});
+			textMesh = new THREE.Mesh(textGeometry, material);
+			textMesh.translateX(-textSize);
+			textMesh.translateY(pawnHeight*1.1);
+			// Adjust to average camera position
+			textMesh.rotateY(-Math.PI/4);
+			textMesh.rotateX(-Math.PI/4);
+			parent.add(textMesh);
+		});
 }
 
 function createHouse(clr, width, height) {
@@ -768,6 +762,28 @@ function createHouse(clr, width, height) {
 	house.add(roofBack);
 
 	return house;
+}
+
+// TODO: Max 8 players
+function initColors(){
+	let colors = {};
+	let red = new THREE.Color(255, 0, 0);
+	let green = new THREE.Color(0, 255, 0);
+	let blue = new THREE.Color(0, 0, 255);
+	let yellow = new THREE.Color(255, 255, 0);
+	let cyan = new THREE.Color(0, 255, 255);
+	let pink = new THREE.Color(255, 0, 255);
+	let white = new THREE.Color(255, 255, 255);
+	let black = new THREE.Color(0, 0, 0);
+	colors[0] = red;
+	colors[1] = green;
+	colors[2] = blue;
+	colors[3] = yellow;
+	colors[4] = cyan;
+	colors[5] = pink;
+	colors[6] = white;
+	colors[7] = black;
+	return colors;
 }
 
 function createCardboard(width, parentNode) {
@@ -862,14 +878,6 @@ function initPositions() {
 		positions[i] = [];
 	}
 	return positions;
-}
-
-function getRandomColor() {
-	let red = Math.floor(Math.random() * 255);
-	let blue = Math.floor(Math.random() * 255);
-	let green = Math.floor(Math.random() * 255);
-	let color_string = "rgb(" + red + ", " + green + ", " + blue + ")";
-	return new THREE.Color(color_string);
 }
 
 
