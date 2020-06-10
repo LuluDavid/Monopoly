@@ -102,7 +102,7 @@ $( document ).ready(function() {
             }
         }
         // Update current pawn and array
-        currentPawn = idsToPawns[data["previous_player"]];
+        currentPawn = idsToPawns[data["player_turn"]];
         stateArray = data["state_array"];
         updateAllHouses();
         let goToPrison = data["go_to_prison"];
