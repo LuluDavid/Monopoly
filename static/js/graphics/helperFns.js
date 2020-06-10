@@ -406,13 +406,11 @@ function translatePawnToBox(i, j) {
 	let boxCardinal = Math.max(positions[j].length, new_positions[j].length);
 	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal];
 	let deltaT = tMotion * Math.pow(j / numberOfBoxes, 1 / 3);
-	scene.children[3].children[i].currentBox = j;
-	updateNewPositions();
-	translate(i, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight / 2 + cardboardHeight), deltaT);
+	translate(i, j, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight / 2 + cardboardHeight), deltaT);
 }
 
 // Translate pawn n°i to goalPosition
-function translate(i, goalPosition, deltaT) {
+function translate(i, j, goalPosition, deltaT) {
 	incrementing = true;
 	closeViewDisplay = true;
 	render();
@@ -424,6 +422,15 @@ function translate(i, goalPosition, deltaT) {
 	let initialCameraPosition = closeView.camera.position.clone();
 	let goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight);
 	loop(object, initialPosition, initialCameraPosition, goalPosition, goalPositionCamera, step, t);
+	awaitToUpdate(i, j);
+}
+
+function awaitToUpdate(i, j){
+	if (!incrementing){
+		scene.children[3].children[i].currentBox = j;
+		updateNewPositions();
+	}
+	requestAnimationFrame(() => awaitToUpdate(i, j));
 }
 
 // Translation from a to b's parametric equation

@@ -17,7 +17,8 @@ class Player:
         self.card_leave_jail = 0
 
     def throw_dices(self):
-        self.dices = [random.randint(1, 6), random.randint(1, 6)]
+        #self.dices = [random.randint(1, 6), random.randint(1, 6)]
+        self.dices = [5, 5]
         return self.dices
 
     def update_position(self, dices, board):

@@ -37,7 +37,8 @@ class Game:
                      card_type=None,
                      card_message=None,
                      changed_players=None,
-                     bought=None
+                     bought=None,
+                     go_to_prison=False
                      ):
         player_turn_id = self.players_order[self.current_player_turn]
         response = {
@@ -57,7 +58,9 @@ class Game:
             "card_type": card_type,
             "card_message": card_message,
             "changed_players": changed_players,
-            "bought": bought
+            "bought": bought,
+            "go_to_prison": go_to_prison,
+            "previous_player": self.get_previous_player()
         }
         return response
 
@@ -66,6 +69,12 @@ class Game:
         self.current_player_turn += 1
         if self.current_player_turn >= len(self.players_order):
             self.current_player_turn = 0
+
+    def get_previous_player(self):
+        previous_inc = self.current_player_turn - 1
+        if previous_inc < 0:
+            previous_inc = len(self.players_order)-1
+        return self.players_order[previous_inc]
 
     def jail_turn(self, player, choice):
         if choice == "double":
@@ -102,6 +111,10 @@ class Game:
             return self.landing_on_tax(player, pos, changed_players=changed_players)
         elif pos.box_type == "park":
             return self.landing_on_park(player, changed_players=changed_players)
+        elif pos.box_type == "to-jail":
+            player.go_to_jail(self.board)
+            self.next_player()
+            return self.game_to_json(changed_players=changed_players, go_to_prison=True)
         else:
             return self.do_nothing(player, new_turn, changed_players=changed_players)
 

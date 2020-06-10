@@ -57,7 +57,6 @@ $( document ).ready(function() {
         $("#"+newPlayerId+" #top-info").append(check);
 
         data = data["gameState"];
-        console.log(data);
         console.log("Player "+newPlayerName+" is ready to play");
         // Add a new pawn for the new player
         numberOfPawns++;
@@ -103,12 +102,33 @@ $( document ).ready(function() {
             }
         }
         // Update current pawn and array
-        currentPawn = idsToPawns[data["player_turn"]];
+        currentPawn = idsToPawns[data["previous_player"]];
         stateArray = data["state_array"];
-        updateAllPlayers();
         updateAllHouses();
+        let goToPrison = data["go_to_prison"];
+        let previousPlayer = data["previous_player"];
+        if (goToPrison){
+            // First go to the jail box
+            stateArray[10][0].pop();
+            stateArray[30][0].push(previousPlayer);
+            updateAllPlayers();
+            // Then go to jail
+            stateArray[30][0].pop();
+            stateArray[10][0].push(previousPlayer);
+        }
+        waitForMotion();
         await waitForModal(data);
     });
+
+    function waitForMotion(){
+        // Block the following if still animating pawns
+        if (!incrementing){
+            updateAllPlayers();
+        }
+        else{
+            requestAnimationFrame(() => waitForMotion());
+        }
+    }
 
     async function waitForModal(data){
         // Block the following if still animating pawns

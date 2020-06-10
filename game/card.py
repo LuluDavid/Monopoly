@@ -53,7 +53,7 @@ class Card:
             changed_players = {player.id: {"money": player.money}}
             board.park_money += self.value
 
-        elif self.card_type == "leave_jail":
+        elif self.card_type == "leave-jail":
             player.card_leave_jail += 1
 
         return changed_players
