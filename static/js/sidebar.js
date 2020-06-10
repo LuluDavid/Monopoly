@@ -9,9 +9,66 @@ const uncheck =
 "  <path fill-rule=\"evenodd\" d=\"M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z\" clip-rule=\"evenodd\"/>\n" +
 "</svg>";
 
+
+function propertyCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice,
+                      hypotheque){
+    return `<div id="card" class="border border-dark" style="width:220px; margin-left: 10px; margin-top: 10px">
+        <div id="box-title" class = "border border-dark" align="center" style="background-color: yellow; width : 200px; margin-top: 10px; margin-left: 10px">
+        <h6><strong> ` + name +` </strong></h6>
+		</div>
+		<div id="rent" style="margin-left: 10px; font-size: 13px">
+			<div id="no-house" style="margin-top: 8px">
+				<strong> Terrain nu : </strong>
+				<span>`+rent+`€</span>
+			</div>
+			<div id="one-house">
+				<strong> Avec 1 maison : </strong>
+				<span> `+ oneHouse +` €</span>
+			</div>
+			<div id="two-houses">
+				<strong> Avec 2 maisons : </strong>
+				<span> `+ twoHouses+` € </span>
+			</div>
+			<div id="three-houses">
+				<strong> Avec 3 maisons : </strong>
+				<span> `+ threeHouses +`€</span>
+			</div>
+			<div id="four-houses">
+				<strong> Avec 4 maisons : </strong>
+				<span> `+ fourHouses+` €</span>
+			</div>
+			<div id="five-houses">
+				<strong> Avec Hotel : </strong>
+				<span> `+ hotel +` € </span>
+			</div>
+		</div>
+		<div class="border-top border-dark" style="font-size: 11px; margin-top: 5px; margin-left: 4px; margin-right: 4px">
+			<div class="text-justify" style="margin-top: 4px; margin-bottom: 4px">
+				Si un joueur possede <strong>TOUS</strong> les terrains d'un Groupe de couleur quelconque,
+				le loyer des terrains nus de ce groupe est double.
+			</div>
+		</div>
+		<div class="border-top border-dark" style="font-size: 12px; margin-left: 4px; margin-right: 4px">
+			<div style="margin-top: 5px">
+				<strong> Prix des maisons : </strong>
+				<span> `+ housePrice +` € </span>
+			</div>
+			<div>
+				<strong> Prix d'un Hotel : </strong>
+				<span> `+ housePrice+` € + 4 maisons</span>
+			</div>
+		</div>
+		<div id="hypotheque" align="center" style="font-size: 12px; margin-top: 6px; margin-bottom: 6px">
+			<span> Valeur hypothecaire du terrain : </span>
+			<span> `+ hypotheque+` € </span>
+		</div>
+	</div>`;
+
+}
+
 function frontMoney(money = initialMoney){
     return `<div id="player-money">
-                <i class="fa fa-money" style="color:green"> ` + money + `$</i></div>`;
+                <i class="fa fa-money" style="color:green"> ` + money + `€</i></div>`;
 }
 
 function frontPossessions(brown = 0, lightBlue = 0, magenta = 0, orange = 0,
