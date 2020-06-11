@@ -10,6 +10,15 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>const initialMoney = 1500; // TODO</script>
     <script src="{{ url_for('static',filename='js/sidebar.js') }}"></script>
+    <style>
+        .dropdown-menu-center {
+            left: 50% !important;
+            right: auto !important;
+            text-align: center !important;
+            transform: translate(-50%, 0) !important;
+        }
+}
+    </style>
 </head>
 
 <body>
@@ -17,7 +26,18 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="{{ url_for("home")}}">Monopoly</a>
     <div class="collapse navbar-collapse">
-        <ul class="navbar-nav mr-auto"></ul>
+        <ul class="navbar-nav mx-auto">
+             <li class="nav-item dropdown text-center">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Propriétés
+                </a>
+                <div class="dropdown-menu dropdown-menu-center" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="#">Player1's properties</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#">Player2's properties</a>
+                </div>
+              </li>
+        </ul>
     </div>
 </nav>
 
