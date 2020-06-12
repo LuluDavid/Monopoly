@@ -38,8 +38,10 @@ class Game:
                      card_message=None,
                      changed_players=None,
                      bought=None,
-                     go_to_prison=False
-                     ):
+                     go_to_prison=False,
+                     box_rent=None,
+                     hypotheque=None,
+                     box_color=None):
         player_turn_id = self.players_order[self.current_player_turn]
         response = {
             "state_array": {
@@ -53,7 +55,10 @@ class Game:
             "action": action,
             "box_name": box_name,
             "box_price": box_price,
+            "box_rent": box_rent,
+            "hypotheque": hypotheque,
             "house_price": house_price,
+            "box_color": box_color,
             "buyable_houses": buyable_houses,
             "card_type": card_type,
             "card_message": card_message,
@@ -132,8 +137,13 @@ class Game:
         if new_turn:
             changed_players[player.id] = {"money": player.money}
         if player.can_buy_good(pos):
+            color = None
+            if pos.box_type == "street":
+                color = pos.color
             return self.game_to_json(action="ask_buy", box_name=pos.name,
-                                     box_price=pos.price, changed_players=changed_players)
+                                     box_price=pos.price, changed_players=changed_players,
+                                     card_type=pos.box_type, box_rent=pos.rent, hypotheque=pos.price[0]/2,
+                                     box_color=color)
         elif pos.owner == player and pos.box_type == "street":
             nb_houses_buyable = player.can_buy_houses(pos)
             if nb_houses_buyable > 0:

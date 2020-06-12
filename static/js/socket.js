@@ -81,11 +81,18 @@ $( document ).ready(function() {
         let bought = data["bought"];
         if (bought != null){
             let id = Object.keys(bought)[0];
+            let new_possession = bought[id];
             if (possessions[id] === undefined){
-                possessions[id] = [bought[id]]
+                possessions[id] = [new_possession];
+                $("#properties").append("<div id = \"properties"+ id +"\">" +
+                    "                         <h5 class=\"dropdown-header\">"+ idsToNames[id] +"</h5>\n" +
+                    "                         <a class = \"dropdown-item\" href=\"#\">"+ new_possession +"</a>\n" +
+                    "                     </div>" +
+                    "                     <div class=\"dropdown-divider\"></div>");
             }
             else{
-                possessions[id].push(bought[id]);
+                possessions[id].push(new_possession);
+                $("#properties"+id).append("<a class = \"dropdown-item\" href=\"#\">"+ new_possession +"</a>");
             }
         }
         // Update sidebar
@@ -166,6 +173,7 @@ $( document ).ready(function() {
                     prop2: "Je n'achète pas le terrain",
                     action: "buy"
                 };
+                // TODO
                 showQuestionModal(questionData);
             }
             else if (data["action"] === "ask_buy_houses") {
