@@ -269,7 +269,6 @@ $( document ).ready(function() {
     });
 
 
-
     // Subsidiary functions (chat...)
 
     $('#msgInput').on('keypress', function (e) {
