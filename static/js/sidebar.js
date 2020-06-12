@@ -20,9 +20,10 @@ const color_hex = {
     "dark-blue": "color:blue"
 };
 function propertyCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice,
-                      hypotheque){
+                      hypotheque, color){
     return `<div id="card" class="border border-dark" style="width:220px; margin-left: auto; margin-right: auto; margin-top: 10px">
-        <div id="box-title" class = "border border-dark" align="center" style="background-color: yellow; width : 200px; margin-top: 10px; margin-left: 10px">
+        <div id="box-title" class = "border border-dark" align="center" style="background-` + color_hex[color] +
+        `; width : 200px; margin-top: 10px; margin-left: 10px">
         <h6><strong> ` + name +` </strong></h6>
 		</div>
 		<div id="rent" style="margin-left: 10px; font-size: 13px">
@@ -152,8 +153,8 @@ function stationCard(name){
 }
 
 
-function updateModalCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice, hypotheque){
-    $("#card").replaceWith(propertyCard(name, rent,oneHouse,twoHouses,threeHouses,fourHouses,hotel,housePrice,hypotheque));
+function updateModalCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice, hypotheque, color){
+    $("#card").replaceWith(propertyCard(name, rent,oneHouse,twoHouses,threeHouses,fourHouses,hotel,housePrice,hypotheque, color));
 }
 
 

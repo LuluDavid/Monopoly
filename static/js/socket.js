@@ -173,7 +173,9 @@ $( document ).ready(function() {
                     prop2: "Je n'achète pas le terrain",
                     action: "buy"
                 };
-                // TODO
+                updateModalCard(data["box_name"], data["box_rent"][0], data["box_rent"][1], data["box_rent"][2],
+                    data["box_rent"][3], data["box_rent"][4], data["box_rent"][5], data["house_price"],
+                    parseInt(data["box_price"])/2, data["box_color"]);
                 showQuestionModal(questionData);
             }
             else if (data["action"] === "ask_buy_houses") {
