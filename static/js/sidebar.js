@@ -28,36 +28,48 @@ function propertyCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, 
 		</div>
 		<div id="rent" style="margin-left: 10px; font-size: 13px">
 			<div id="no-house" style="margin-top: 8px">
-				<strong> Terrain nu : </strong>
-				<span>`+rent+`€</span>
+                <span style="text-align:left;">
+                    <strong> Loyer : </strong>
+                    <span style="float:right;">`+rent+`€</span>
+                </span>
 			</div>
 			<div id="one-house">
-				<strong> Avec 1 maison : </strong>
-				<span> `+ oneHouse +` €</span>
+			    <span style="text-align:left;">
+                    <strong> Avec 1 maison :</strong>
+                    <span style="float:right;">`+ oneHouse +` € </span>
+                </span>
 			</div>
 			<div id="two-houses">
-				<strong> Avec 2 maisons : </strong>
+			    <span style="text-align:left;">
+                    <strong> Avec 2 maisons :</strong>
+                    <span style="float:right;"> `+ twoHouses +` € </span>
+                </span>
 			</div>
-				<span> `+ twoHouses+` € </span>
 			<div id="three-houses">
-				<strong> Avec 3 maisons : </strong>
-				<span> `+ threeHouses +`€</span>
+			    <span style="text-align:left;">
+                    <strong> Avec 3 maisons :</strong>
+                    <span style="float:right;">`+ threeHouses + ` € </span>
+                </span>
 			</div>
 			<div id="four-houses">
-				<strong> Avec 4 maisons : </strong>
-				<span> `+ fourHouses+` €</span>
+			    <span style="text-align:left;">
+                    <strong> Avec 4 maisons :</strong>
+                    <span style="float:right;"> `+ fourHouses + ` € </span>
+                </span>
 			</div>
 			<div id="five-houses">
-				<strong> Avec Hotel : </strong>
-				<span> `+ hotel +` € </span>
+			    <span style="text-align:left;">
+                    <strong> Avec Hotel :</strong>
+                    <span style="float:right;"> `+ hotel + ` € </span>
+                </span>
 			</div>
 		</div>
-		<div class="border-top border-dark" style="font-size: 11px; margin-top: 5px; margin-left: 4px; margin-right: 4px">
+		<!--<div class="border-top border-dark" style="font-size: 11px; margin-top: 5px; margin-left: 4px; margin-right: 4px">
 			<div class="text-justify" style="margin-top: 4px; margin-bottom: 4px">
 				Si un joueur possede <strong>TOUS</strong> les terrains d'un Groupe de couleur quelconque,
 				le loyer des terrains nus de ce groupe est double.
 			</div>
-		</div>
+		</div>-->
 		<div class="border-top border-dark" style="font-size: 12px; margin-left: 4px; margin-right: 4px">
 			<div style="margin-top: 5px">
 				<strong> Prix des maisons : </strong>
@@ -75,39 +87,42 @@ function propertyCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, 
 	</div>`;
 }
 
-function servicesCard(){
-    return `<div id="serviceCard" className="border border-dark"
-                style="width:220px; height:313px; margin-top: 10px; margin-left: 10px">
-        <div id="icon" style="font-size: 60px">
-            <p style="text-align:center; margin:0; padding:0"><i className="fa fa-tint" style="text-align :center"></i>
-            </p>
-            <!--<p style="text-align:center"><i class="fa fa-lightbulb-o" style="text-align :center"></i></p>-->
-        </div>
-        <div style="font-size: 17px; text-align : center">
-            <span><strong> Compagnie de distribution des eaux </strong></span>
+function companyCard(name){
+    let first;
+    if (name === "Compagnie de distribution d'electricite") {
+        first = `<div id="card" class="border border-dark" style="width:220px; margin-left: auto; margin-right: auto; margin-top: 10px">
+            <div id="icon" style="font-size: 60px">
+                <p style="text-align:center; margin:0; padding:0"><i class="fa fa-lightbulb-o" style="text-align :center"/>
+                </p></div>`;
+    }
+    else {
+        first = `<div id="card" class="border border-dark" style="width:220px; margin-left: auto; margin-right: auto; margin-top: 10px">
+            <div id="icon" style="font-size: 60px">
+                <p style="text-align:center; margin:0; padding:0"><i class="fa fa-tint" style="text-align :center"/>
+                </p></div>`;
+    }
+    let second = `<div style="font-size: 17px; text-align : center">
+            <span><strong>`+ name +`  </strong></span>
         <div>
         </div>
-            <div className="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 11.5px">
-                Si l'on possede UNE carte de compagnie de Service Public, le loyer est 4 fois le montant indique par les
-            <div className="text-center"
-                des.
-                par les des.
+            <div class="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 11.5px">
+                Si l'on possede UNE carte de compagnie de Service Public, le loyer est 4 fois le montant indique par les des.
             </div>
-                 style="margin-right: 5px; margin-left: 5px; font-size: 11.5px; margin-top: 6px">
-                Si l'on possede les DEUX cartes de compagnie de Service Public, le loyer est 10 fois le montant indique
+            <div class="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 11.5px; margin-top: 6px">
+                Si l'on possede les DEUX cartes de compagnie de Service Public, le loyer est 10 fois le montant indique par les des. 
             </div>
             <div style="font-size : 13px; text-align : center; margin-top: 8px">
                 <span> Valeur Hypothecaire : 75 €</span>
             </div>
         </div>
     </div>`;
+    return first + second;
 }
 
 function stationCard(name){
-    return `<div id="trainCard" className="border border-dark"
-                style="width:220px; height:313px; margin-top: 10px; margin-left: 10px">
+    return `<div id="card" class="border border-dark" style="width:220px; margin-left: auto; margin-right: auto; margin-top: 10px">
         <div id="icon" style="font-size: 70px">
-            <p style="text-align:center"><i className="fa fa-train" style="text-align :center"></i></p>
+            <p style="text-align:center"><i class="fa fa-train" style="text-align :center"/></p>
         <div style="font-size: 20px; text-align : center">
             <span><strong> `+ name +` </strong></span>
         </div>
@@ -117,8 +132,8 @@ function stationCard(name){
 				<span style="text-align:left;">
 				    Loyer : 
 				    <span style="float:right;">
-				    </span>
 				        25 €
+				    </span>
 				</span>
             </div>
             <div>
@@ -153,10 +168,17 @@ function stationCard(name){
 }
 
 
-function updateModalCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice, hypotheque, color){
+function updateModalCardProperty(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice, hypotheque, color){
     $("#card").replaceWith(propertyCard(name, rent,oneHouse,twoHouses,threeHouses,fourHouses,hotel,housePrice,hypotheque, color));
 }
 
+function updateModalCardStation(name){
+    $("#card").replaceWith(stationCard(name));
+}
+
+function updateModalCardCompany(name){
+    $("#card").replaceWith(companyCard(name));
+}
 
 function frontMoney(money = initialMoney){
     return `<div id="player-money">
@@ -187,7 +209,7 @@ function electricity_icon(i){
         return "";
     }
     return `<div id="electricity" style="margin-left: 10px">
-                <i class="fa fa-lightbulb-o" style="color:black"></i>
+                <i class="fa fa-lightbulb-o" style="color:black"/>
             </div>`;
 }
 
@@ -196,7 +218,7 @@ function water_icon(i){
         return "";
     }
     return `<div id="water" style="margin-left: 10px">
-                <i class="fa fa-tint" style="color:black"></i>
+                <i class="fa fa-tint" style="color:black"/>
             </div>`;
 }
 

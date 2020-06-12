@@ -16,6 +16,7 @@ let playerName = "{{ player_name }}";
 </script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
 <!-- MODAL PLAY TURN -->
@@ -111,7 +112,7 @@ let playerName = "{{ player_name }}";
         </div>
         <div class="row my-3 text-center">
           <div class="col-8 input-group mx-auto">
-            <input class="form-control" id="nbHousesInput" type="number" class="form-control" min="0" max="5" value="0">
+            <input id="nbHousesInput" type="number" class="form-control" min="0" max="5" value="0">
             <div class="input-group-append">
               <button type="button" id="modalBuyHousesYes" class="btn btn-secondary" data-dismiss="modal">
                 Acheter des maisons
