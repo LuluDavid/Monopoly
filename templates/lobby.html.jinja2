@@ -66,7 +66,7 @@ let playerName = "{{ player_name }}";
 <div class="modal fade" id="modalQuestion" tabindex="-1" role="dialog" aria-labelledby="modalQuestion" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" style="margin-right: auto; margin-left: auto">
         <h5 class="modal-title" id="modalQuestionLabel"></h5>
       </div>
       <div class="modal-body">
@@ -74,10 +74,11 @@ let playerName = "{{ player_name }}";
 
          </div>
          <div class="row my-4 text-center">
-           <div class="col-6"><button type="button" id="modalQuestion1" class="btn btn-secondary" data-dismiss="modal"></button></div>
-           <div class="col-6"><button type="button" id="modalQuestion2" class="btn btn-secondary" data-dismiss="modal"></button></div>
+           <div class="col-6"><button style="width:205px" type="button" id="modalQuestion1" class="btn btn-secondary" data-dismiss="modal"></button></div>
+           <div class="col-6"><button style="width:205px" type="button" id="modalQuestion2" class="btn btn-secondary" data-dismiss="modal"></button></div>
          </div>
-
+        <div id="card" class="border border-dark" style="width:220px; margin-left: auto; margin-right: auto; margin-top: 10px">
+        </div>
       </div>
     </div>
   </div>
