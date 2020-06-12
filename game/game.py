@@ -152,7 +152,7 @@ class Game:
                 return self.game_to_json(
                     action="ask_buy_houses",
                     box_name=pos.name,
-                    house_price=pos.price,
+                    house_price=pos.price_house,
                     buyable_houses=nb_houses_buyable,
                     changed_players=changed_players)
             else:
