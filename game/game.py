@@ -38,8 +38,9 @@ class Game:
                      card_message=None,
                      changed_players=None,
                      bought=None,
-                     go_to_prison=False
-                     ):
+                     go_to_prison=False,
+                     box_rent=None,
+                     box_color=None):
         player_turn_id = self.players_order[self.current_player_turn]
         response = {
             "state_array": {
@@ -53,7 +54,9 @@ class Game:
             "action": action,
             "box_name": box_name,
             "box_price": box_price,
+            "box_rent": box_rent,
             "house_price": house_price,
+            "box_color": box_color,
             "buyable_houses": buyable_houses,
             "card_type": card_type,
             "card_message": card_message,
@@ -132,15 +135,24 @@ class Game:
         if new_turn:
             changed_players[player.id] = {"money": player.money}
         if player.can_buy_good(pos):
+            color = None
+            rent = None
+            house_price = None
+            if pos.box_type == "street":
+                color = pos.color
+                rent = pos.rent
+                house_price = pos.price_house
             return self.game_to_json(action="ask_buy", box_name=pos.name,
-                                     box_price=pos.price, changed_players=changed_players)
+                                     box_price=pos.price, changed_players=changed_players,
+                                     card_type=pos.box_type, box_rent=rent,
+                                     house_price=house_price, box_color=color)
         elif pos.owner == player and pos.box_type == "street":
             nb_houses_buyable = player.can_buy_houses(pos)
             if nb_houses_buyable > 0:
                 return self.game_to_json(
                     action="ask_buy_houses",
                     box_name=pos.name,
-                    house_price=pos.price,
+                    house_price=pos.price_house,
                     buyable_houses=nb_houses_buyable,
                     changed_players=changed_players)
             else:
