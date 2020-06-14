@@ -81,11 +81,18 @@ $( document ).ready(function() {
         let bought = data["bought"];
         if (bought != null){
             let id = Object.keys(bought)[0];
+            let new_possession = bought[id];
             if (possessions[id] === undefined){
-                possessions[id] = [bought[id]]
+                possessions[id] = [new_possession];
+                $("#properties").append("<div id = \"properties"+ id +"\">" +
+                    "                         <h5 class=\"dropdown-header\">"+ idsToNames[id] +"</h5>\n" +
+                    "                         <a class = \"dropdown-item\" href=\"#\">"+ new_possession +"</a>\n" +
+                    "                     </div>" +
+                    "                     <div class=\"dropdown-divider\"></div>");
             }
             else{
-                possessions[id].push(bought[id]);
+                possessions[id].push(new_possession);
+                $("#properties"+id).append("<a class = \"dropdown-item\" href=\"#\">"+ new_possession +"</a>");
             }
         }
         // Update sidebar
@@ -166,6 +173,17 @@ $( document ).ready(function() {
                     prop2: "Je n'achète pas le terrain",
                     action: "buy"
                 };
+                if (data["card_type"]==="street"){
+                    updateModalCardProperty(data["box_name"], data["box_rent"][0], data["box_rent"][1], data["box_rent"][2],
+                    data["box_rent"][3], data["box_rent"][4], data["box_rent"][5], data["house_price"],
+                    parseInt(data["box_price"])/2, data["box_color"]);
+                }
+                else if (data["card_type"]=== "station"){
+                    updateModalCardStation(data["box_name"]);
+                }
+                else if (data["card_type"] === "public-company"){
+                    updateModalCardCompany(data["box_name"]);
+                }
                 showQuestionModal(questionData);
             }
             else if (data["action"] === "ask_buy_houses") {
@@ -259,7 +277,6 @@ $( document ).ready(function() {
         let action = $(this).attr("data-action");
         socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: action});
     });
-
 
 
     // Subsidiary functions (chat...)
