@@ -16,10 +16,15 @@ const view =
 		fov: 30,
 
 		updateCamera: function (camera, scene) {
+			// Look the dice if they are visible
+			if (scene.children[7] != null && scene.children[7].visible) {
+				camera.lookAt(scene.children[7].children[0].position)
+			}
 			// Look the board's center once its created
-			if (scene.children[2] != null) {
-				camera.lookAt(scene.children[2].position)
-			} else {
+			else if (scene.children[2] != null){
+				camera.lookAt(scene.children[2].position);
+			}
+			else {
 				camera.lookAt(scene.position)
 			}
 		}
@@ -189,6 +194,57 @@ scene.add(communityDeck);
 const chanceDeck = createChanceDeck();
 scene.add(chanceDeck);
 
+// Init world and dices
+world = new CANNON.World();
+world.gravity.set(0, 0, -9.82 * 20);
+world.broadphase = new CANNON.NaiveBroadphase();
+world.solver.iterations = 64;
+
+DiceManager.setWorld(world);
+
+// Floor
+let floorBody = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.floorBodyMaterial});
+world.add(floorBody);
+
+var dice = [];
+var diceGroup = new THREE.Group();
+let dice1 = new DiceD6({size: 3, backColor: "#ff0000"});
+dice.push(dice1);
+diceGroup.add(dice1.getObject());
+let dice2 = new DiceD6({size: 3, backColor: "#ff0000"});
+dice.push(dice2);
+diceGroup.add(dice2.getObject());
+diceGroup.visible = false;
+
+scene.add(diceGroup);
+
+async function randomDiceThrow(x=[1,1]) {
+	let diceValues = [];
+	for (let i = 0; i<2; i++) {
+		let zRand = Math.random() * 20;
+		dice[i].getObject().position.x = -15 - (i % 3) * 1.5;
+		dice[i].getObject().position.y = 15 - (i % 3) * 1.5;
+		dice[i].getObject().position.z = 2 + Math.floor(i / 3) * 1.5;
+		dice[i].getObject().quaternion.x = (Math.random() * 90 - 45) * Math.PI / 180;
+		dice[i].getObject().quaternion.y = -(Math.random() * 90 - 45) * Math.PI / 180;
+		dice[i].updateBodyFromMesh();
+		let rand = Math.random() * 5;
+		dice[i].getObject().body.velocity.set(10 + rand, 40 - rand, 40 + zRand);
+		dice[i].getObject().body.angularVelocity.set(20 * Math.random() - 10, 20 * Math.random() - 10, 20 * Math.random() - 10);
+		diceValues.push({dice: dice[i], value: x[i]});
+	}
+	diceGroup.visible = true;
+	DiceManager.prepareValues(diceValues);
+	await (setTimeout(() => { diceGroup.visible = false; }, 3000));
+}
+
+function updatePhysics() {
+    world.step(1.0 / 60.0);
+    for (var i in dice) {
+		dice[i].updateMeshFromBody();
+	}
+}
+
 function updatePawns(){
 	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
 	let pawnObjects = createPawns(numberOfPawns);
@@ -246,7 +302,7 @@ function animateCard(type){
 	let lateralAngle = controls.getAzimuthalAngle()+Math.PI/4;
 	let lateralAngleStep = lateralAngle*step;
 	let t = 0;
-	var object = scene.children[7];
+	var object = scene.children[8];
 	let initialPosition = object.position.clone();
 	let goalPosition = new THREE.Vector3(view.camera.position.x,
 										 view.camera.position.y,
@@ -279,7 +335,7 @@ function loopCard2(step, t) {
 		let fps = 60;           // seconds
 		let step = 1 / (tReveal * fps);  // t-step per frame
 		let angleStep = -revealAngle*step;
-		return semiReveal(scene.children[7], step, 0, angleStep);
+		return semiReveal(scene.children[8], step, 0, angleStep);
 	}
 	requestAnimationFrame(() => loopCard2(step, t));
 }
@@ -291,7 +347,6 @@ function norm(v) {
 function semiReveal(object, step, t, angleStep){
 	t += step;
 	if (t >= 1) {
-		console.log("Done");
 		removeCard();
 		movingCard = false;
 		controls.enabled = true;
@@ -303,11 +358,11 @@ function semiReveal(object, step, t, angleStep){
 }
 
 function removeCard() {
-	scene.remove(scene.children[7]);
+	scene.remove(scene.children[8]);
 }
 
 function init() {
-	animate();
+    requestAnimationFrame( animate );
 }
 
 
@@ -317,6 +372,7 @@ function init() {
 
 function animate() {
 	controls.update();
+    updatePhysics();
 	render();
 	requestAnimationFrame(animate);
 }
@@ -463,7 +519,6 @@ function loop(object, initialPosition, initialPositionCam, goalPosition, goalPos
 function loop2(step, t) {
 	t = t + step;
 	if (t >= 1 / coverRatio) {
-		console.log("Tour fini");
 		incrementing = false;
 		closeViewDisplay = false;
 		closeView.camera.position.set(closeView.eye[0], closeView.eye[1], closeView.eye[2]);
