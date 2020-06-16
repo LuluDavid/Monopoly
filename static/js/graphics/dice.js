@@ -83,13 +83,13 @@ class DiceObject {
      * @constructor
      * @param {object} options
      * @param {Number} [options.size = 100]
-     * @param {Number} [options.fontColor = '#000000']
+     * @param {Number} [options.fontColor = '#ffffff']
      * @param {Number} [options.backColor = '#ffffff']
      */
     constructor(options) {
         options = this.setDefaults(options, {
             size: 100,
-            fontColor: '#000000',
+            fontColor: '#ffffff',
             backColor: '#ffffff'
         });
 

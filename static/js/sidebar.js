@@ -259,9 +259,8 @@ function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
 }
 
 function openPropositionModal(id, possession){
-    $("body").append(propositionModal(id, possession));
+    $("#modalMakeOffer").replaceWith(propositionModal(id, possession));
     $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
-    // TODO: delete on close
 }
 
 function propositionModal(id, possession){
@@ -275,7 +274,9 @@ function propositionModal(id, possession){
         "        <form action=\"/game\" method=\"POST\">\n" +
         "          <input name=\"request_type\" type=\"hidden\" value=\"join\">\n" +
         "          <div class=\"modal-body\">\n" +
-        "            <div class=\"form-group\">\n" +
+        "          <p> Vous pouvez échanger la propriété " + possession
+        + " au joueur " + idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent. </p>\n" +
+        "           <div class=\"form-group\">\n" +
         "              <label for=\"player_name_join\">Montant</label>\n" +
         "              <input type=\"text\" class=\"form-control\" placeholder=\"Votre nom\" id=\"player_name_join\" name=\"player_name\" required>\n" +
         "            </div>\n" +
@@ -285,7 +286,9 @@ function propositionModal(id, possession){
         "            </div>\n" +
         "          </div>\n" +
         "          <div class=\"modal-footer\">\n" +
-        "            <button type=\"submit\" class=\"btn btn-primary\">Soumettre l'offre</button>\n" +
+        "            <button type=\"button\" id=\"modalBuyHousesNo\" class=\"btn btn-secondary\" data-dismiss=\"modal\">" +
+        "               Soumettre l'offre" +
+        "            </button>\n" +
         "          </div>\n" +
         "        </form>\n" +
         "      </div>\n" +

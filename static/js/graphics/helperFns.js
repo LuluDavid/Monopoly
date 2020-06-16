@@ -204,10 +204,10 @@ world.add(floorBody);
 
 var dice = [];
 var diceGroup = new THREE.Group();
-let dice1 = new DiceD6({size: 3, backColor: "#ff0000"});
+let dice1 = new DiceD6({size: 4, backColor: "#ff0000"});
 dice.push(dice1);
 diceGroup.add(dice1.getObject());
-let dice2 = new DiceD6({size: 3, backColor: "#ff0000"});
+let dice2 = new DiceD6({size: 4, backColor: "#ff0000"});
 dice.push(dice2);
 diceGroup.add(dice2.getObject());
 diceGroup.visible = false;
@@ -225,7 +225,7 @@ async function randomDiceThrow(x=[1,1]) {
 		dice[i].getObject().quaternion.y = -(Math.random() * 90 - 45) * Math.PI / 180;
 		dice[i].updateBodyFromMesh();
 		let rand = Math.random() * 5;
-		dice[i].getObject().body.velocity.set(10 + rand, 40 - rand, 40 + zRand);
+		dice[i].getObject().body.velocity.set(10 - rand, 50 + rand, 40 + zRand);
 		dice[i].getObject().body.angularVelocity.set(20 * Math.random() - 10, 20 * Math.random() - 10, 20 * Math.random() - 10);
 		diceValues.push({dice: dice[i], value: x[i]});
 	}
