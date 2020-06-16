@@ -258,6 +258,41 @@ function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
         </div>` ;
 }
 
+function openPropositionModal(id, possession){
+    $("body").append(propositionModal(id, possession));
+    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
+    // TODO: delete on close
+}
+
+function propositionModal(id, possession){
+    return "<div class=\"modal\" id=\"modalMakeOffer\">\n" +
+        "    <div class=\"modal-dialog\">\n" +
+        "      <div class=\"modal-content\">\n" +
+        "        <div class=\"modal-header\">\n" +
+        "          <h4 class=\"modal-title\">Proposition d'échange</h4>\n" +
+        "          <button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>\n" +
+        "        </div>\n" +
+        "        <form action=\"/game\" method=\"POST\">\n" +
+        "          <input name=\"request_type\" type=\"hidden\" value=\"join\">\n" +
+        "          <div class=\"modal-body\">\n" +
+        "            <div class=\"form-group\">\n" +
+        "              <label for=\"player_name_join\">Montant</label>\n" +
+        "              <input type=\"text\" class=\"form-control\" placeholder=\"Votre nom\" id=\"player_name_join\" name=\"player_name\" required>\n" +
+        "            </div>\n" +
+        "            <div class=\"form-group\">\n" +
+        "              <label for=\"game_id\">Propri&eacute;t&eacute;</label>\n" +
+        "              <input type=\"text\" class=\"form-control\" placeholder=\"L'identifiant de la partie\" id=\"game_id\" name=\"game_id\" required>\n" +
+        "            </div>\n" +
+        "          </div>\n" +
+        "          <div class=\"modal-footer\">\n" +
+        "            <button type=\"submit\" class=\"btn btn-primary\">Soumettre l'offre</button>\n" +
+        "          </div>\n" +
+        "        </form>\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  </div>";
+}
+
 const frontGoods = frontMoney()+frontPossessions();
 
 function updateSidebar(){

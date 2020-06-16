@@ -81,18 +81,20 @@ $( document ).ready(function() {
         let bought = data["bought"];
         if (bought != null){
             let id = Object.keys(bought)[0];
-            let new_possession = bought[id];
+            let newPossession = bought[id];
+            let item = "<a class = \"dropdown-item\" href=\"#\" " +
+                    "onclick=\"return openPropositionModal("+ id + ", '" + newPossession +"');\">"+ newPossession +"</a>\n";
             if (possessions[id] === undefined){
-                possessions[id] = [new_possession];
+                possessions[id] = [newPossession];
                 $("#properties").append("<div id = \"properties"+ id +"\">" +
-                    "                         <h5 class=\"dropdown-header\">"+ idsToNames[id] +"</h5>\n" +
-                    "                         <a class = \"dropdown-item\" href=\"#\">"+ new_possession +"</a>\n" +
+                    "                         <h5 class=\"dropdown-header\">"+ idsToNames[id] +"</h5>\n"
+                    + item +
                     "                     </div>" +
                     "                     <div class=\"dropdown-divider\"></div>");
             }
             else{
-                possessions[id].push(new_possession);
-                $("#properties"+id).append("<a class = \"dropdown-item\" href=\"#\">"+ new_possession +"</a>");
+                possessions[id].push(newPossession);
+                $("#properties"+id).append(item);
             }
         }
         // Update sidebar
@@ -110,6 +112,7 @@ $( document ).ready(function() {
         }
         let dices = data["dices"];
         if (dices != null){
+            console.log("dices");
             await randomDiceThrow(dices);
             await waitDices(data);
         }

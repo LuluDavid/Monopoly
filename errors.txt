@@ -1,5 +1,3 @@
 Exception: ('This card type does not exist : ', 'card-out-jail')
 
-No animation when card moves the pan to the starting box
-
 Luxury tax does not work

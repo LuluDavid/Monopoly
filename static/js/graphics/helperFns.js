@@ -16,12 +16,8 @@ const view =
 		fov: 30,
 
 		updateCamera: function (camera, scene) {
-			// Look the dice if they are visible
-			if (scene.children[7] != null && scene.children[7].visible) {
-				camera.lookAt(scene.children[7].children[0].position)
-			}
 			// Look the board's center once its created
-			else if (scene.children[2] != null){
+			if (scene.children[2] != null){
 				camera.lookAt(scene.children[2].position);
 			}
 			else {
@@ -284,6 +280,11 @@ function disableControls(){
 	controls.autoRotate = false;
 }
 
+function enableControls(){
+	controls.enabled = true;
+	controls.autoRotate = true;
+}
+
 function animateCard(type){
 	disableControls();
 	if (movingCard){
@@ -349,8 +350,7 @@ function semiReveal(object, step, t, angleStep){
 	if (t >= 1) {
 		removeCard();
 		movingCard = false;
-		controls.enabled = true;
-		controls.autoRotate = true;
+		enableControls();
 		return;
 	}
 	object.rotateOnAxis(cardAxis, angleStep);
@@ -451,17 +451,17 @@ function updateAllPlayers(){
 			let pawnNumber = idsToPawns[playerId];
 			let pawn = scene.children[3].children[pawnNumber];
 			if (pawn.currentBox !== i){
-				translatePawnToBox(pawnNumber, i);
+				translatePawnToBox(pawnNumber, i, pawn.currentBox);
 			}
 		}
 	}
 }
 
 // Translate pawn n°i to box n°j
-function translatePawnToBox(i, j) {
+function translatePawnToBox(i, j, k) {
 	let boxCardinal = Math.max(positions[j].length, new_positions[j].length);
 	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal];
-	let deltaT = tMotion * Math.pow(j / numberOfBoxes, 1 / 3);
+	let deltaT = tMotion * Math.pow(Math.abs(j-k) / numberOfBoxes, 1 / 3);
 	translate(i, j, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight / 2 + cardboardHeight), deltaT);
 }
 
@@ -1026,7 +1026,7 @@ function getBoxesPositions(L) {
 		10: L - h / 2 + houseWidthBox
 	};
 	return {
-		0: {x: h / 2, y: h / 2, isW: true, isH: true},
+		0: {x: h / 2, y: h / 2, isW: true, isH: true, isFull: false},
 		1: {x: axCoords[0], y: axCoords[1], isW: false, isH: true, isFull: false},
 		2: {x: axCoords[0], y: axCoords[2], isW: false, isH: true, isFull: false},
 		3: {x: axCoords[0], y: axCoords[3], isW: false, isH: true, isFull: false},

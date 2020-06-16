@@ -82,8 +82,8 @@ class Game:
         return self.players_order[previous_inc]
 
     def jail_turn(self, player, choice):
+        dices = player.throw_dices()
         if choice == "double":
-            dices = player.throw_dices()
             if dices[0] == dices[1]:
                 player.leave_jail()
                 player.update_position(dices, self.board)
@@ -95,12 +95,11 @@ class Game:
                 return self.game_to_json(dices=dices)
         elif choice == "pay" and player.money > JAIL_FEE:
             player.leave_jail()
-            player.update_position(player.throw_dices(), self.board)
-            return self.landing_on_position(player, self.board.boxes[player.position])
+            player.update_position(dices, self.board)
+            return self.landing_on_position(player, self.board.boxes[player.position], dices=dices)
         elif choice == "card" and player.card_leave_jail > 0:
             player.card_leave_jail -= 1
             player.leave_jail()
-            dices = player.throw_dices()
             player.update_position(dices, self.board)
             return self.landing_on_position(player, self.board.boxes[player.position], dices=dices)
         else:
