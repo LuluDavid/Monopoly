@@ -108,6 +108,26 @@ $( document ).ready(function() {
                 }
             }
         }
+        let dices = data["dices"];
+        if (dices != null){
+            await randomDiceThrow(dices);
+            await waitDices(data);
+        }
+        else{
+            await updatePawn(data);
+        }
+    });
+
+    async function waitDices(data){
+        if (!scene.children[7].visible){
+            await updatePawn(data);
+        }
+        else{
+            requestAnimationFrame(() => waitDices(data));
+        }
+    }
+
+    async function updatePawn(data){
         // Update current pawn and array
         currentPawn = idsToPawns[data["player_turn"]];
         stateArray = data["state_array"];
@@ -125,7 +145,7 @@ $( document ).ready(function() {
         }
         waitForMotion();
         await waitForModal(data);
-    });
+    }
 
     function waitForMotion(){
         // Block the following if still animating pawns
@@ -198,7 +218,6 @@ $( document ).ready(function() {
                 animateCard(data["card_type"]);
                 // Wait for the animation to stop
                 await new Promise(r => setTimeout(r, 1000*(tReveal+tTravel/coverRatio)));
-                console.log("Awaited executor");
                 let labels = {"community-fund": "Caisse de communauté", "chance": "Chance"};
                 let infoData = {
                     label: labels[data["card_type"]],
