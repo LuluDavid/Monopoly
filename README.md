@@ -1,10 +1,11 @@
 # Monopoly
 
 <p align="center">
-  <img src="./pictures/moving.png">
+  <img src="./pictures/moving.png" width = 850>
 </p>
-
-<img src="./pictures/property.png" width=450 height=400>  <img src="./pictures/dices.png" width=450 height=400>
+<p align="center">
+  <img src="./pictures/property.png" width=430 height=400>  <img src="./pictures/dices.png" width=430 height=400>
+</p>
 
 ## External features
 
