@@ -1,6 +1,8 @@
 # Monopoly
 
+## External features
 
+This project uses the Github repo [threejs-dice](https://github.com/byWulf/threejs-dice) from byWulf, which allows us to throw predetermined dices in the game.
 
 ## Project's Architecture
 ```
@@ -16,28 +18,21 @@ Monopoly
         └──graphics : js module with all the graphic interface
 ```
 
+## How to test it
+
+The master branch is deployed on heroku at [this link](https://monolopy.herokuapp.com). It is not persistent yet, so you will need to avoid refreshing the page. You just need to create a game, share the id with the other players, and all click the ready button.
+Once this is done, the game will run between different pages. The trading system is not implemented yet, and the game lacks a bit of information (notifications), but it is coming soon.
 
 ## How to test
 
 ### Game unittests
+
 In the root folder :
 ```
 export PYTHONPATH=.
 python -m unittest discover -s tests -t tests
 ```
-
-### Graphics
-Run `python -m http.server`. Then go into your webbrowser like Firefox and search for :
-```
-http://localhost:8000/static/js/graphics/main.html
-```      
-
-### Share your URL
-Install ngrok (https://ngrok.com/download), run webapp.py (on port X) and run ```ngrok http X```.
-Ngrok then gives you the public URL which you can connect on from other devices.
-You just need to create a game from one end, and then use the "Copier l'id" button to copy the game
-id, which you can use from other devices to connect to the same game.
-
+The tests are automatically ran by the CircleCI on the project, which allows to deploy the new version if the test passed.
 
 ## Game
 
