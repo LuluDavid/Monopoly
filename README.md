@@ -1,5 +1,11 @@
 # Monopoly
 
+<p align="center">
+  <img src="./pictures/moving.png">
+</p>
+
+<img src="./pictures/property.png" width=450 height=400>  <img src="./pictures/dices.png" width=450 height=400>
+
 ## External features
 
 This project uses the Github repo [threejs-dice](https://github.com/byWulf/threejs-dice) from byWulf, which allows us to throw predetermined dices in the game.
