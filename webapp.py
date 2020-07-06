@@ -71,6 +71,19 @@ def on_join(data):
         emit('error', {'error': 'Unable to join room. Room does not exist.'})
 
 
+@socketio.on("offer")
+def on_offer(data):
+    game_id = data["game_id"]
+    emit("offer", data, room=game_id)
+
+
+@socketio.on("trade")
+def on_trade(data):
+    game_id = data["game_id"]
+    response = GAMES[game_id]["game"].trade(data)
+    emit("trade", response, room=game_id)
+
+
 @socketio.on('start_game')
 def on_start_game(data):
     game_id = data["game_id"]
@@ -78,7 +91,7 @@ def on_start_game(data):
     game_state = GAMES[game_id]["game"].game_to_json()
     player_id = data["player_id"]
     player_name = GAMES[game_id]["players"][player_id]
-    response = {"newPlayer": {"id": player_id, "name": player_name}, "gameState": game_state};
+    response = {"newPlayer": {"id": player_id, "name": player_name}, "gameState": game_state}
     emit("start_game", response, room=game_id)
 
 

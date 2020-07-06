@@ -19,6 +19,48 @@ const color_hex = {
     "green": "color:green",
     "dark-blue": "color:blue"
 };
+
+function propositionModal(id, possession){
+    return "<div class=\"modal\" id=\"modalMakeOffer\">\n" +
+        "    <div class=\"modal-dialog\">\n" +
+        "      <div class=\"modal-content\">\n" +
+        "        <div class=\"modal-header\">\n" +
+        "          <h4 class=\"modal-title\">Proposition d'échange</h4>\n" +
+        "          <button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>\n" +
+        "        </div>\n" +
+        "        <form action=\"/game\" method=\"POST\">\n" +
+        "          <input name=\"request_type\" type=\"hidden\" value=\"join\">\n" +
+        "          <div class=\"modal-body\">\n" +
+        "          <p> Vous pouvez échanger la propriété " + possession
+        + " au joueur " + idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent. </p>\n" +
+        "           <div class=\"form-group\">\n" +
+        "              <label for=\"player_name_join\">Montant</label>\n" +
+        "              <input type=\"text\" class=\"form-control\" placeholder=\"Votre nom\" id=\"player_name_join\" name=\"player_name\" required>\n" +
+        "            </div>\n" +
+        "            <div class=\"form-group\">\n" +
+        "              <label for=\"game_id\">Propri&eacute;t&eacute;</label>\n" +
+        "              <input type=\"text\" class=\"form-control\" placeholder=\"L'identifiant de la partie\" id=\"game_id\" name=\"game_id\" required>\n" +
+        "            </div>\n" +
+        "          </div>\n" +
+        "          <div class=\"modal-footer\">\n" +
+        "            <button type=\"button\" id=\"modalSendOffer\" class=\"btn btn-secondary\" data-dismiss=\"modal\">" +
+        "               Soumettre l'offre" +
+        "            </button>\n" +
+        "          </div>\n" +
+        "        </form>\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  </div>";
+}
+
+function openPropositionModal(id, possession){
+    $("#modalMakeOffer").replaceWith(propositionModal(id, possession));
+    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#modalSendOffer").click(function(){
+        socket.emit('offer', {game_id: gameId, player_id: playerId, action: "offer"});
+    });
+}
+
 function propertyCard(name, rent, oneHouse, twoHouses, threeHouses, fourHouses, hotel, housePrice,
                       hypotheque, color){
     return `<div id="card" class="border border-dark" style="width:220px; margin-left: auto; margin-right: auto; margin-top: 10px">
@@ -256,44 +298,6 @@ function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
                 ${water_div}
             </div>
         </div>` ;
-}
-
-function openPropositionModal(id, possession){
-    $("#modalMakeOffer").replaceWith(propositionModal(id, possession));
-    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
-}
-
-function propositionModal(id, possession){
-    return "<div class=\"modal\" id=\"modalMakeOffer\">\n" +
-        "    <div class=\"modal-dialog\">\n" +
-        "      <div class=\"modal-content\">\n" +
-        "        <div class=\"modal-header\">\n" +
-        "          <h4 class=\"modal-title\">Proposition d'échange</h4>\n" +
-        "          <button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>\n" +
-        "        </div>\n" +
-        "        <form action=\"/game\" method=\"POST\">\n" +
-        "          <input name=\"request_type\" type=\"hidden\" value=\"join\">\n" +
-        "          <div class=\"modal-body\">\n" +
-        "          <p> Vous pouvez échanger la propriété " + possession
-        + " au joueur " + idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent. </p>\n" +
-        "           <div class=\"form-group\">\n" +
-        "              <label for=\"player_name_join\">Montant</label>\n" +
-        "              <input type=\"text\" class=\"form-control\" placeholder=\"Votre nom\" id=\"player_name_join\" name=\"player_name\" required>\n" +
-        "            </div>\n" +
-        "            <div class=\"form-group\">\n" +
-        "              <label for=\"game_id\">Propri&eacute;t&eacute;</label>\n" +
-        "              <input type=\"text\" class=\"form-control\" placeholder=\"L'identifiant de la partie\" id=\"game_id\" name=\"game_id\" required>\n" +
-        "            </div>\n" +
-        "          </div>\n" +
-        "          <div class=\"modal-footer\">\n" +
-        "            <button type=\"button\" id=\"modalBuyHousesNo\" class=\"btn btn-secondary\" data-dismiss=\"modal\">" +
-        "               Soumettre l'offre" +
-        "            </button>\n" +
-        "          </div>\n" +
-        "        </form>\n" +
-        "      </div>\n" +
-        "    </div>\n" +
-        "  </div>";
 }
 
 const frontGoods = frontMoney()+frontPossessions();

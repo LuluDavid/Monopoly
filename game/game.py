@@ -7,13 +7,13 @@ import time
 
 class Game:
     """"A simple class to describe the game globally"""
+
     def __init__(self, players):
         self.players = self.init_players(players)
         self.board = Board()
         self.players_order = self.order_players(self.players)
         self.current_player_turn = 0
         self.board.boxes[0].players = list(players.keys())
-
 
     @staticmethod
     def init_players(players):
@@ -78,7 +78,7 @@ class Game:
     def get_previous_player(self):
         previous_inc = self.current_player_turn - 1
         if previous_inc < 0:
-            previous_inc = len(self.players_order)-1
+            previous_inc = len(self.players_order) - 1
         return self.players_order[previous_inc]
 
     def jail_turn(self, player, choice):
@@ -201,6 +201,39 @@ class Game:
         return self.game_to_json(changed_players=changed_players, dices=dices)
         # TODO: Message "X earned the park money"
 
+    @staticmethod
+    def update_good(buyer, owner, good, changed_players):
+        if good.box_type == "street":
+            color = good.color
+            changed_players[buyer.id][color] -= 1
+            changed_players[owner.id][color] += 1
+        elif good.box_type == "station":
+            changed_players[buyer.id]["station"] -= 1
+            changed_players[owner.id]["station"] += 1
+        elif good.box_type == "public-company":
+            if good.name == "Compagnie de distribution des eaux":
+                changed_players[buyer.id]["water"] -= 1
+                changed_players[owner.id]["water"] += 1
+            elif good.name == "Compagnie de distribution d'electricite":
+                changed_players[buyer.id]["electricity"] -= 1
+                changed_players[owner.id]["electricity"] += 1
+        buyer.goods.remove(good)
+        owner.add(good)
+        return changed_players
+
+    def trade(self, buyer, owner, good, goods, money):
+        # Exchange money
+        buyer.money -= money
+        owner.money += money
+        # Give the goods to the owner
+        changed_players = {buyer.id: {"money": buyer.money}, owner.id: {"money": owner.money}}
+        for good_ in goods:
+            changed_players = self.update_good(buyer, owner, good_, changed_players)
+        # Give the bought good to the buyer
+        changed_players = self.update_good(buyer, owner, good, changed_players)
+        return self.game_to_json(changed_players=changed_players)
+        # TODO: update from the properties sidebar the properties
+
     def play_turn(self, data):
         action = data["action"]
         player = self.players[self.players_order[self.current_player_turn]]
@@ -263,3 +296,11 @@ class Game:
             else:
                 self.next_player()
                 return self.game_to_json(changed_players=changed_players)
+
+        elif action == "trade":
+            buyer = self.players[data["buyer"]]
+            owner = self.players[data["owner"]]
+            good = self.board.boxes[data["good"]]
+            goods = map(lambda pos: self.board.boxes[pos], data["goods"])
+            money = int(data["money"])
+            return self.trade(buyer, owner, good, goods, money)

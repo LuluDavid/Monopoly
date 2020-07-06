@@ -1,5 +1,6 @@
+let socket = io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
+
 $( document ).ready(function() {
-    let socket = io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
@@ -43,7 +44,6 @@ $( document ).ready(function() {
         $("#player_list").append(playerHtmlLine);
     }
 
-
     $("#startGame").click(function(){
         console.log("Adding a new player to the game");
         $("#startGame").hide();
@@ -75,7 +75,30 @@ $( document ).ready(function() {
             }
         }
     });
-    
+
+    socket.on("offer", function(data){
+        let target = data["owner"];
+        if (playerId === target){
+            console.log("ok")
+        }
+    });
+
+    socket.on("trade", function(data) {
+        // Update sidebar
+        let changedPlayers = data["changed_players"];
+        if (changedPlayers != null) {
+            for (let pid of Object.keys(changedPlayers)) {
+                let playerChanges = changedPlayers[pid];
+                for (let prop of Object.keys(playerChanges)) {
+                    let changes = {};
+                    changes[prop] = playerChanges[prop];
+                    idsToPossessions[pid] = Object.assign({}, idsToPossessions[pid], changes);
+                    updateSidebarId(pid);
+                }
+            }
+        }
+    });
+
     socket.on('play_turn', async function(data) {
         // Add user <-> property dep
         let bought = data["bought"];
@@ -347,5 +370,12 @@ $( document ).ready(function() {
 
 });
 
+function openPropositionModal(id, possession){
+    $("#modalMakeOffer").replaceWith(propositionModal(id, possession));
+    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#modalSendOffer").click(function(){
+        socket.emit('offer', {game_id: gameId, player_id: playerId, action: "offer"});
+    });
+}
 
 
