@@ -12,11 +12,15 @@ $( document ).ready(function() {
       socket.emit('join', {game_id: gameId, player_id: playerId});
     }
 
+    socket.on('error', function(data){
+            console.log(data['error']);
+        });
+
     socket.on('join_game', function(data) {
+        console.log("Joining game "+gameId);
         let newPlayer = data["new_player"];
         let newPlayerName = newPlayer["name"];
         let newPlayerId = newPlayer["id"];
-        // idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
         idsToNames[newPlayerId] = newPlayerName;
         let playersInGame = data["players_in_game"];
         let ids = Object.keys(playersInGame);
@@ -27,15 +31,26 @@ $( document ).ready(function() {
                 // idsToPawns[ids[i]] = i;
                 idsToNames[ids[i]] = names[i];
                 let id = ids[i];
+                let name = names[i];
                 if (parseInt(id) !== playerId){
-                    addPlayerNameToSidebar(names[i], id);
+                    addPlayerNameToSidebar(name, id);
+                    addPlayerNameToNavbar(name, id);
                 }
             }
+            addPlayerNameToNavbar(newPlayerName, newPlayerId);
         }
         else{
+            console.log("New player "+newPlayerName);
             addPlayerNameToSidebar(newPlayerName, newPlayerId);
+            addPlayerNameToNavbar(newPlayerName, newPlayerId);
         }
     });
+
+    function addPlayerNameToNavbar(pn, pid){
+        $("#properties").append('<a href = "#" id = "possessions'+pid+'"' +
+            'onclick=\"return openPropositionModal('+ pid +');\"' +
+            '>'+pn+'</a><div class="dropdown-divider"></div>')
+    }
 
     function addPlayerNameToSidebar(nameToAdd, id){
         let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light"><div id="top-info" style="color: black; font-size: 18px">';
@@ -105,19 +120,18 @@ $( document ).ready(function() {
         if (bought != null){
             let id = Object.keys(bought)[0];
             let newPossession = bought[id];
-            let item = "<a class = \"dropdown-item\" href=\"#\" " +
-                    "onclick=\"return openPropositionModal("+ id + ", '" + newPossession +"');\">"+ newPossession +"</a>\n";
+            let new_pos = "<div class=\"form-check\">" +
+                "<input class=\"form-check-input\" type=\"checkbox\" value=\"\">\n" +
+                "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + newPossession + "</label></div>";
+            if (parseInt(data["previous_player"]) === playerId) {
+                $("#properties_to_offer").append(new_pos);
+            }
             if (possessions[id] === undefined){
                 possessions[id] = [newPossession];
-                $("#properties").append("<div id = \"properties"+ id +"\">" +
-                    "                         <h5 class=\"dropdown-header\">"+ idsToNames[id] +"</h5>\n"
-                    + item +
-                    "                     </div>" +
-                    "                     <div class=\"dropdown-divider\"></div>");
             }
             else{
                 possessions[id].push(newPossession);
-                $("#properties"+id).append(item);
+                // $("#properties"+id).append(item); TODO
             }
         }
         // Update sidebar
@@ -370,8 +384,22 @@ $( document ).ready(function() {
 
 });
 
-function openPropositionModal(id, possession){
-    $("#modalMakeOffer").replaceWith(propositionModal(id, possession));
+function openPropositionModal(id){
+    let currentMoney = idsToPossessions[playerId]["money"];
+    let otherMoney = idsToPossessions[id]["money"];
+    $("#text-offer").replaceWith("<p>Vous pouvez échanger plusieurs propriétés au joueur "
+        + idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent.</p>");
+    $("#myRange").attr("max", currentMoney);
+    $("#myRange").attr("min", -parseInt(otherMoney));
+    $("properties_to_buy").innerHTML = '';
+    let posses =  possessions[id];
+    for (let i = 0; i < posses.length; i++) {
+        let pos = posses[i];
+        let new_pos = "<div class=\"form-check\">" +
+            "<input class=\"form-check-input\" type=\"checkbox\" value=\"\">\n" +
+            "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
+        $("#properties_to_buy").append(new_pos);
+    }
     $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
     $("#modalSendOffer").click(function(){
         socket.emit('offer', {game_id: gameId, player_id: playerId, action: "offer"});

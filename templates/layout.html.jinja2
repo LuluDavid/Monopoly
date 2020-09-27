@@ -26,13 +26,13 @@
     <a class="navbar-brand" href="{{ url_for("home")}}">Monopoly</a>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav mx-auto">
-             <li class="nav-item dropdown text-center">
-                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Propriétés
-                 </a>
-                 <div id = "properties" class="dropdown-menu dropdown-menu-center" aria-labelledby="navbarDropdown">
-                 </div>
-              </li>
+            <li class="nav-item dropdown text-center">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Trading
+                </a>
+                <div id = "properties" class="dropdown-menu dropdown-menu-center" aria-labelledby="navbarDropdown">
+                </div>
+            </li>
         </ul>
     </div>
 </nav>
@@ -41,45 +41,45 @@
 
 <div class="d-flex" id="wrapper">
     {% if game_id %}
-    <div class="bg-light border-right" id="sidebar-wrapper">
-        <div class="sidebar-heading">
-          {{ game_id }} <span class="badge badge-success align-middle mx-2" id="copy">Copier</span> <br>
-          <button type="button" class="btn btn-outline-info btn-sm" id="startGame">Lancer la partie</button>
-        </div>
-        <div class="list-group list-group-flush" id="player_list">
-            <div id="{{ player_id }}" class="list-group-item list-group-item-action bg-light">
-                <div id="top-info">
-                    <strong style="font-size:20px; color:black">{{ player_name }}</strong>
-                    <svg class="bi bi-x" style="float : right" width="2em" height="2em" viewBox="0 0 16 16" fill="red" xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd"></path>
-                      <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div id="player-money">
-                    <i class="fa fa-money" style="color:green"> 1500 €</i>
-                </div>
-                <div id="player-goods">
-                    <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                {{ game_id }} <span class="badge badge-success align-middle mx-2" id="copy">Copier</span> <br>
+                <button type="button" class="btn btn-outline-info btn-sm" id="startGame">Lancer la partie</button>
+            </div>
+            <div class="list-group list-group-flush" id="player_list">
+                <div id="{{ player_id }}" class="list-group-item list-group-item-action bg-light">
+                    <div id="top-info">
+                        <strong style="font-size:20px; color:black">{{ player_name }}</strong>
+                        <svg class="bi bi-x" style="float : right" width="2em" height="2em" viewBox="0 0 16 16" fill="red" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd"></path>
+                            <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd"></path>
+                        </svg>
                     </div>
-                    <div id="player-station-services" style="display : flex; flex-direction: row">
+                    <div id="player-money">
+                        <i class="fa fa-money" style="color:green"> 1500 €</i>
+                    </div>
+                    <div id="player-goods">
+                        <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
+                        </div>
+                        <div id="player-station-services" style="display : flex; flex-direction: row">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="chatbox">
-            <div id="messages"></div>
-            <input type="text" name="msgInput" id="msgInput" placeholder="Entrez votre message">
+            <div id="chatbox">
+                <div id="messages"></div>
+                <input type="text" name="msgInput" id="msgInput" placeholder="Entrez votre message">
+            </div>
         </div>
-    </div>
     {% endif %}
 
     <main>
 
-      <div>
-        {% block body %}
-        {% endblock %}
-      </div>
+        <div>
+            {% block body %}
+            {% endblock %}
+        </div>
 
     </main>
 
