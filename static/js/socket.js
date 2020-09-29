@@ -92,9 +92,9 @@ $( document ).ready(function() {
     });
 
     socket.on("offer", function(data){
-        let target = data["owner"];
+        let target = data["receiver"];
         if (playerId === target){
-            console.log("ok")
+            $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
         }
     });
 
@@ -402,7 +402,7 @@ function openPropositionModal(id){
     }
     $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
     $("#modalSendOffer").click(function(){
-        socket.emit('offer', {game_id: gameId, player_id: playerId, action: "offer"});
+        socket.emit('offer', {game_id: gameId, player_id: playerId, receiver: id, action: "offer"});
     });
 }
 
