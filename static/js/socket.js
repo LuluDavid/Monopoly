@@ -37,7 +37,6 @@ $( document ).ready(function() {
                     addPlayerNameToNavbar(name, id);
                 }
             }
-            addPlayerNameToNavbar(newPlayerName, newPlayerId);
         }
         else{
             console.log("New player "+newPlayerName);
@@ -94,7 +93,11 @@ $( document ).ready(function() {
     socket.on("offer", function(data){
         let target = data["receiver"];
         if (playerId === target){
-            $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
+            let pid = data["player_id"];
+            let offeredProperties = data["offered_properties"];
+            let wantedProperties = data["wanted_properties"];
+            let money = data["money"];
+            openOfferModal(pid, money, offeredProperties, wantedProperties);
         }
     });
 
@@ -121,7 +124,7 @@ $( document ).ready(function() {
             let id = Object.keys(bought)[0];
             let newPossession = bought[id];
             let new_pos = "<div class=\"form-check\">" +
-                "<input class=\"form-check-input\" type=\"checkbox\" value=\"\">\n" +
+                "<input class=\"form-check-input\" type=\"checkbox\" value=\""+newPossession+"\">\n" +
                 "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + newPossession + "</label></div>";
             if (parseInt(data["previous_player"]) === playerId) {
                 $("#properties_to_offer").append(new_pos);
@@ -396,14 +399,61 @@ function openPropositionModal(id){
     for (let i = 0; i < posses.length; i++) {
         let pos = posses[i];
         let new_pos = "<div class=\"form-check\">" +
-            "<input class=\"form-check-input\" type=\"checkbox\" value=\"\">\n" +
+            "<input class=\"form-check-input\" type=\"checkbox\" value=\""+pos+"\">\n" +
             "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
         $("#properties_to_buy").append(new_pos);
     }
     $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
-    $("#modalSendOffer").click(function(){
-        socket.emit('offer', {game_id: gameId, player_id: playerId, receiver: id, action: "offer"});
+    $("#modalSendOffer").click(
+        function(){
+            let money = $("#myRange")[0].value;
+            let buy = [];
+            let checked_prop = $("#properties_to_buy input:checked:enabled");
+            for (let i = 0; i<checked_prop.length; i++){
+                let prop = checked_prop[i];
+                buy.push(prop["value"]);
+            }
+            let offer = [];
+            checked_prop = $("#properties_to_offer input:checked:enabled");
+            for (let i = 0; i<checked_prop.length; i++){
+                let prop = checked_prop[i];
+                offer.push(prop["value"]);
+            }
+            socket.emit('offer',
+                {game_id: gameId, player_id: playerId, receiver: id,
+                    money: money,
+                    offered_properties: buy,
+                    wanted_properties: offer,
+                    action: "offer"});
     });
+}
+
+function openOfferModal(pid, money, offered, wanted){
+    let offer = "Le joueur <b>"+idsToNames[pid]+"</b> veut acquérir vos propriétés" +
+        "<ul>";
+    for (let i = 0; i<offered.length; i++){
+        let prop = offered[i];
+        offer += "<li>"+prop+"</li>";
+    }
+    offer += "</ul>";
+    if (money >= 0) {
+        offer += "<br>En te proposant la modique somme de <b>" + money +"</b>";
+    }
+    else{
+        offer += "<br>En te réclamant en plus la somme de <b>" + money +"</b>";
+    }
+    if (wanted.length>0) {
+        offer += "Et en échange des propriétés";
+        offer += "<ul class=\"list-group\">";
+        for (let i = 0; i < wanted.length; i++) {
+            let prop = offered[i];
+            offer += "<li class=\"list-group-item\">" + prop + "</li>";
+        }
+        offer += "</ul>"
+    }
+    offer += "Acceptes-tu ?";
+    $("#proposition").replaceWith(offer);
+    $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
 }
 
 

@@ -82,11 +82,23 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Vous avez reçu une offre</h5>
+                    <h5 class="modal-title"><b>Vous avez reçu une offre !</b></h5>
                 </div>
                 <div class="modal-body">
-                    <div class="my-3 text-center">
-                        <button type="button" id="playTurn" class="btn btn-secondary" data-dismiss="modal">Ack</button>
+                    <div  id="proposition" class="text-center">
+                        TO BE FILLED
+                    </div>
+                    <div class="row my-3 text-center">
+                        <div class="col-8 input-group mx-auto">
+                           <button type="button" id="acceptOffer" class="btn btn-success" data-dismiss="modal">
+                                J'accepte l'offre
+                            </button>
+                        </div>
+                        <div class="col-4 text-center">
+                            <button type="button" id="refuseOffer" class="btn btn-danger" data-dismiss="modal">
+                                Je refuse l'offre
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
