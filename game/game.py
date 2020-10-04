@@ -212,7 +212,7 @@ class Game:
             changed_players[owner.id][color] = owner.get_number_of_color(color)
         elif good.box_type == "station":
             changed_players[buyer.id]["station"] = buyer.get_number_of_stations()
-            changed_players[owner.id]["station"] = buyer.get_number_of_stations()
+            changed_players[owner.id]["station"] = owner.get_number_of_stations()
         elif good.box_type == "public-company":
             if good.name == "Compagnie de distribution des eaux":
                 changed_players[buyer.id]["water"] = 1
