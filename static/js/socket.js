@@ -1,5 +1,6 @@
+let socket = io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
+
 $( document ).ready(function() {
-    let socket = io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
@@ -11,11 +12,15 @@ $( document ).ready(function() {
       socket.emit('join', {game_id: gameId, player_id: playerId});
     }
 
+    socket.on('error', function(data){
+            console.log(data['error']);
+        });
+
     socket.on('join_game', function(data) {
+        console.log("Joining game "+gameId);
         let newPlayer = data["new_player"];
         let newPlayerName = newPlayer["name"];
         let newPlayerId = newPlayer["id"];
-        // idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
         idsToNames[newPlayerId] = newPlayerName;
         let playersInGame = data["players_in_game"];
         let ids = Object.keys(playersInGame);
@@ -26,15 +31,25 @@ $( document ).ready(function() {
                 // idsToPawns[ids[i]] = i;
                 idsToNames[ids[i]] = names[i];
                 let id = ids[i];
+                let name = names[i];
                 if (parseInt(id) !== playerId){
-                    addPlayerNameToSidebar(names[i], id);
+                    addPlayerNameToSidebar(name, id);
+                    addPlayerNameToNavbar(name, id);
                 }
             }
         }
         else{
+            console.log("New player "+newPlayerName);
             addPlayerNameToSidebar(newPlayerName, newPlayerId);
+            addPlayerNameToNavbar(newPlayerName, newPlayerId);
         }
     });
+
+    function addPlayerNameToNavbar(pn, pid){
+        $("#properties").append('<a href = "#" id = "possessions'+pid+'"' +
+            'onclick=\"return openPropositionModal('+ pid +');\"' +
+            '>'+pn+'</a><div class="dropdown-divider"></div>')
+    }
 
     function addPlayerNameToSidebar(nameToAdd, id){
         let playerHtmlLine = '<div id="'+id+'" class="list-group-item list-group-item-action bg-light"><div id="top-info" style="color: black; font-size: 18px">';
@@ -42,7 +57,6 @@ $( document ).ready(function() {
         playerHtmlLine += uncheck+'</div>'+frontGoods+'</div>';
         $("#player_list").append(playerHtmlLine);
     }
-
 
     $("#startGame").click(function(){
         console.log("Adding a new player to the game");
@@ -75,26 +89,69 @@ $( document ).ready(function() {
             }
         }
     });
-    
+
+    socket.on('accepted', function(data){
+        let sender = data["sender"];
+        let receiver = data["receiver"];
+        let money = parseInt(data["money"]);
+        let offered = data["offered"];
+        let wanted = data["wanted"];
+        let display = "Le joueur "+idsToNames[sender]+" vient d'échanger ses propriétés "+offered;
+        if (money > 0)
+            display += " et de donner "+money+"€";
+        display += " au joueur "+idsToNames[receiver]+" en échange";
+        if (money < 0)
+            display += " de "+(-1)*money+ " et ";
+        if (wanted.length !== 0)
+            display += " des propriéts "+wanted;
+        console.log(display);
+    });
+
+    socket.on("offer", function(data){
+        let target = data["receiver"];
+        if (playerId === target){
+            let pid = data["player_id"];
+            let offeredProperties = data["offered_properties"];
+            let wantedProperties = data["wanted_properties"];
+            let money = data["money"];
+            openOfferModal(pid, money, offeredProperties, wantedProperties);
+        }
+    });
+
+    socket.on("trade", function(data) {
+        // Update sidebar
+        let changedPlayers = data["changed_players"];
+        if (changedPlayers != null) {
+            for (let pid of Object.keys(changedPlayers)) {
+                let playerChanges = changedPlayers[pid];
+                for (let prop of Object.keys(playerChanges)) {
+                    let changes = {};
+                    changes[prop] = playerChanges[prop];
+                    idsToPossessions[pid] = Object.assign({}, idsToPossessions[pid], changes);
+                    updateSidebarId(pid);
+                }
+            }
+        }
+    });
+
     socket.on('play_turn', async function(data) {
         // Add user <-> property dep
         let bought = data["bought"];
         if (bought != null){
             let id = Object.keys(bought)[0];
             let newPossession = bought[id];
-            let item = "<a class = \"dropdown-item\" href=\"#\" " +
-                    "onclick=\"return openPropositionModal("+ id + ", '" + newPossession +"');\">"+ newPossession +"</a>\n";
+            let new_pos = "<div class=\"form-check\">" +
+                "<input class=\"form-check-input\" type=\"checkbox\" value=\""+newPossession+"\">\n" +
+                "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + newPossession + "</label></div>";
+            if (parseInt(data["previous_player"]) === playerId) {
+                $("#properties_to_offer").append(new_pos);
+            }
             if (possessions[id] === undefined){
                 possessions[id] = [newPossession];
-                $("#properties").append("<div id = \"properties"+ id +"\">" +
-                    "                         <h5 class=\"dropdown-header\">"+ idsToNames[id] +"</h5>\n"
-                    + item +
-                    "                     </div>" +
-                    "                     <div class=\"dropdown-divider\"></div>");
             }
             else{
                 possessions[id].push(newPossession);
-                $("#properties"+id).append(item);
+                // $("#properties"+id).append(item); TODO
             }
         }
         // Update sidebar
@@ -347,5 +404,80 @@ $( document ).ready(function() {
 
 });
 
+function openPropositionModal(id){
+    let currentMoney = idsToPossessions[playerId]["money"];
+    let otherMoney = idsToPossessions[id]["money"];
+    $("#text-offer").replaceWith("<p>Vous pouvez échanger plusieurs propriétés au joueur "
+        + idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent.</p>");
+    $("#myRange").attr("max", currentMoney);
+    $("#myRange").attr("min", -parseInt(otherMoney));
+    $("properties_to_buy").innerHTML = '';
+    let posses =  possessions[id];
+    for (let i = 0; i < posses.length; i++) {
+        let pos = posses[i];
+        let new_pos = "<div class=\"form-check\">" +
+            "<input class=\"form-check-input\" type=\"checkbox\" value=\""+pos+"\">\n" +
+            "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
+        $("#properties_to_buy").append(new_pos);
+    }
+    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#modalSendOffer").click(
+        function(){
+            let money = $("#myRange")[0].value;
+            let buy = [];
+            let checked_prop = $("#properties_to_buy input:checked:enabled");
+            for (let i = 0; i<checked_prop.length; i++){
+                let prop = checked_prop[i];
+                buy.push(prop["value"]);
+            }
+            let offer = [];
+            checked_prop = $("#properties_to_offer input:checked:enabled");
+            for (let i = 0; i<checked_prop.length; i++){
+                let prop = checked_prop[i];
+                offer.push(prop["value"]);
+            }
+            socket.emit('offer',
+                {game_id: gameId, player_id: playerId, receiver: id,
+                    money: money,
+                    offered_properties: buy,
+                    wanted_properties: offer,
+                    action: "offer"});
+    });
+}
+
+function openOfferModal(pid, money, offered, wanted){
+    let offer = "Le joueur <b>"+idsToNames[pid]+"</b> veut acquérir vos propriétés" +
+        "<ul class=\"list-group\">";
+    for (let i = 0; i<offered.length; i++){
+        let prop = offered[i];
+        offer += "<li class=\"list-group-item\">"+prop+"</li>";
+    }
+    offer += "</ul>";
+    if (money >= 0) {
+        offer += "<br>En te proposant la modique somme de <b>" + money +"€</b><br>";
+    }
+    else{
+        offer += "<br>En te réclamant en plus la somme de <b>" + money +"€</b><br>";
+    }
+    if (wanted.length>0) {
+        offer += "Et en échange des propriétés";
+        offer += "<ul class=\"list-group\">";
+        for (let i = 0; i < wanted.length; i++) {
+            let prop = wanted[i];
+            offer += "<li class=\"list-group-item\">" + prop + "</li>";
+        }
+        offer += "</ul>"
+    }
+    offer += "Acceptes-tu ?";
+    $("#proposition").replaceWith(offer);
+    $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#acceptOffer").click(
+        function(){
+            socket.emit('accepted',
+                {game_id: gameId, sender: pid, receiver:playerId, money:money,
+                    offered:offered, wanted:wanted, action:'accepted'});
+        }
+    );
+}
 
 

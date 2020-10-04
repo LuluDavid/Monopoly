@@ -747,10 +747,6 @@ function createPawn(position, id, j) {
 	return pawn;
 }
 
-function getKeyByValue(object, value) {
-  return Object.keys(object).find(key => object[key] === value);
-}
-
 function addText(name, material, parent) {
 	new THREE.FontLoader().load('static/js/graphics/fonts/gentilis_regular.typeface.json',
 		function (font){
