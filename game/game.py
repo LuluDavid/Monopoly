@@ -203,36 +203,47 @@ class Game:
 
     @staticmethod
     def update_good(buyer, owner, good, changed_players):
+        owner.goods.remove(good)
+        buyer.goods.append(good)
+        good.owner = buyer
         if good.box_type == "street":
             color = good.color
-            changed_players[buyer.id][color] -= 1
-            changed_players[owner.id][color] += 1
+            changed_players[buyer.id][color] = buyer.get_number_of_color(color)
+            changed_players[owner.id][color] = owner.get_number_of_color(color)
         elif good.box_type == "station":
-            changed_players[buyer.id]["station"] -= 1
-            changed_players[owner.id]["station"] += 1
+            changed_players[buyer.id]["station"] = buyer.get_number_of_stations()
+            changed_players[owner.id]["station"] = buyer.get_number_of_stations()
         elif good.box_type == "public-company":
             if good.name == "Compagnie de distribution des eaux":
-                changed_players[buyer.id]["water"] -= 1
-                changed_players[owner.id]["water"] += 1
+                changed_players[buyer.id]["water"] = 1
+                changed_players[owner.id]["water"] = 0
             elif good.name == "Compagnie de distribution d'electricite":
-                changed_players[buyer.id]["electricity"] -= 1
-                changed_players[owner.id]["electricity"] += 1
-        buyer.goods.remove(good)
-        owner.add(good)
+                changed_players[buyer.id]["electricity"] = 1
+                changed_players[owner.id]["electricity"] = 0
         return changed_players
 
-    def trade(self, buyer, owner, good, goods, money):
+    def trade(self, buyer_id, owner_id, offered_names, bought_names, money):
+        offered = []
+        bought = []
+        for name in offered_names:
+            good_id = self.board.names_to_ids[name]
+            offered.append(self.board.boxes[good_id])
+        for name in bought_names:
+            good_id = self.board.names_to_ids[name]
+            bought.append(self.board.boxes[good_id])
+        buyer = self.players[buyer_id]
+        owner = self.players[owner_id]
         # Exchange money
         buyer.money -= money
         owner.money += money
-        # Give the goods to the owner
         changed_players = {buyer.id: {"money": buyer.money}, owner.id: {"money": owner.money}}
-        for good_ in goods:
-            changed_players = self.update_good(buyer, owner, good_, changed_players)
-        # Give the bought good to the buyer
-        changed_players = self.update_good(buyer, owner, good, changed_players)
+        # Give the offered goods to the owner
+        for good in offered:
+            changed_players = self.update_good(buyer, owner, good, changed_players)
+        # Give the bought goods to the buyer
+        for good in bought:
+            changed_players = self.update_good(owner, buyer, good, changed_players)
         return self.game_to_json(changed_players=changed_players)
-        # TODO: update from the properties sidebar the properties
 
     def play_turn(self, data):
         action = data["action"]
@@ -296,11 +307,3 @@ class Game:
             else:
                 self.next_player()
                 return self.game_to_json(changed_players=changed_players)
-
-        elif action == "trade":
-            buyer = self.players[data["buyer"]]
-            owner = self.players[data["owner"]]
-            good = self.board.boxes[data["good"]]
-            goods = map(lambda pos: self.board.boxes[pos], data["goods"])
-            money = int(data["money"])
-            return self.trade(buyer, owner, good, goods, money)

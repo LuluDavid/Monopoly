@@ -77,10 +77,11 @@ def on_offer(data):
     emit("offer", data, room=game_id)
 
 
-@socketio.on("trade")
-def on_trade(data):
+@socketio.on("accepted")
+def on_accepted(data):
     game_id = data["game_id"]
-    response = GAMES[game_id]["game"].trade(data)
+    response = GAMES[game_id]["game"]\
+        .trade(data["sender"], data["receiver"], data["offered"], data["wanted"], int(data["money"]))
     emit("trade", response, room=game_id)
 
 

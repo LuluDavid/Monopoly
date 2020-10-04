@@ -90,6 +90,23 @@ $( document ).ready(function() {
         }
     });
 
+    socket.on('accepted', function(data){
+        let sender = data["sender"];
+        let receiver = data["receiver"];
+        let money = parseInt(data["money"]);
+        let offered = data["offered"];
+        let wanted = data["wanted"];
+        let display = "Le joueur "+idsToNames[sender]+" vient d'échanger ses propriétés "+offered;
+        if (money > 0)
+            display += " et de donner "+money+"€";
+        display += " au joueur "+idsToNames[receiver]+" en échange";
+        if (money < 0)
+            display += " de "+(-1)*money+ " et ";
+        if (wanted.length !== 0)
+            display += " des propriéts "+wanted;
+        console.log(display);
+    });
+
     socket.on("offer", function(data){
         let target = data["receiver"];
         if (playerId === target){
@@ -430,23 +447,23 @@ function openPropositionModal(id){
 
 function openOfferModal(pid, money, offered, wanted){
     let offer = "Le joueur <b>"+idsToNames[pid]+"</b> veut acquérir vos propriétés" +
-        "<ul>";
+        "<ul class=\"list-group\">";
     for (let i = 0; i<offered.length; i++){
         let prop = offered[i];
-        offer += "<li>"+prop+"</li>";
+        offer += "<li class=\"list-group-item\">"+prop+"</li>";
     }
     offer += "</ul>";
     if (money >= 0) {
-        offer += "<br>En te proposant la modique somme de <b>" + money +"</b>";
+        offer += "<br>En te proposant la modique somme de <b>" + money +"€</b><br>";
     }
     else{
-        offer += "<br>En te réclamant en plus la somme de <b>" + money +"</b>";
+        offer += "<br>En te réclamant en plus la somme de <b>" + money +"€</b><br>";
     }
     if (wanted.length>0) {
         offer += "Et en échange des propriétés";
         offer += "<ul class=\"list-group\">";
         for (let i = 0; i < wanted.length; i++) {
-            let prop = offered[i];
+            let prop = wanted[i];
             offer += "<li class=\"list-group-item\">" + prop + "</li>";
         }
         offer += "</ul>"
@@ -454,6 +471,13 @@ function openOfferModal(pid, money, offered, wanted){
     offer += "Acceptes-tu ?";
     $("#proposition").replaceWith(offer);
     $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#acceptOffer").click(
+        function(){
+            socket.emit('accepted',
+                {game_id: gameId, sender: pid, receiver:playerId, money:money,
+                    offered:offered, wanted:wanted, action:'accepted'});
+        }
+    );
 }
 
 

@@ -7,7 +7,7 @@ class Board:
     """A simple class to describe the board"""
 
     def __init__(self, park_money=0, boxes_filename="game/data/boxes.json", cards_filename="game/data/cards.json"):
-        self.boxes = self.make_boxes(boxes_filename)
+        self.boxes, self.names_to_ids = self.make_boxes(boxes_filename)
         self.cards = self.make_cards(cards_filename)
         self.park_money = park_money
         self.last_open_card = None
@@ -17,8 +17,10 @@ class Board:
         with open(boxes_filename) as boxes_file:
             json_boxes = json.loads(boxes_file.read())
         boxes = {}
+        name_to_ids = {}
         for box in json_boxes:
             box_id = int(box)
+            name_to_ids[json_boxes[box]["name"]] = box_id
             if json_boxes[box]["type"] == "street":
                 boxes[box_id] = Street(
                     box_id,
@@ -55,7 +57,7 @@ class Board:
                     json_boxes[box]["type"],
                     json_boxes[box]["name"]
                 )
-        return boxes
+        return boxes, name_to_ids
         
     @staticmethod
     def make_cards(cards_filename):
