@@ -1,3 +1,6 @@
+const THREE = window.THREE;
+const CANNON = window.CANNON;
+
 class DiceManagerClass {
     constructor() {
         this.world = null;
@@ -390,7 +393,7 @@ class DiceObject {
     }
 }
 
-class DiceD6 extends DiceObject {
+export class DiceD6 extends DiceObject {
     constructor(options) {
         super(options);
 
@@ -413,4 +416,4 @@ class DiceD6 extends DiceObject {
     }
 }
 
-const DiceManager = new DiceManagerClass();
+export const DiceManager = new DiceManagerClass();

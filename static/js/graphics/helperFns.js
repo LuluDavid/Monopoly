@@ -1,8 +1,28 @@
 // MAIN FUNCTION
 
 // Whose turns it is
-var currentPawn;
-var windowWidth, windowHeight;
+import * as ORBIT from "./OrbitControls.js";
+import {DiceManager, DiceD6} from "./dice.js";
+import {initialMoney} from "../sidebar.js";
+
+function incrementPawnNumber() {
+	numberOfPawns++;
+}
+
+export function addNewPlayer(newPlayerId){
+	incrementPawnNumber();
+	idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
+	idsToPossessions[newPlayerId] = initPossessions();
+}
+
+
+const $ = window.$;
+const THREE = window.THREE;
+const CANNON = window.CANNON;
+init();
+
+export let currentPawn;
+let windowWidth, windowHeight;
 const view =
 	{
 		near: 1,
@@ -56,7 +76,7 @@ const cardboardWidth = 110;
 // Number of boxes
 const numberOfBoxes = 40;
 // Pawns
-var numberOfPawns = 0;
+export let numberOfPawns = 0;
 
 const pawnHeight = 2;
 const pawnRadius = 0.5;
@@ -64,11 +84,10 @@ const pawnRadius = 0.5;
 const houseRatio = 1 / 7;
 const houseColor = 0x00ff00;
 // Box
-const coverRatio = 0.7;
+export const coverRatio = 0.7;
 const boxWidth = cardboardWidth / 12.2;
 const boxHeight = 1.6 * boxWidth;
 const boxHeightHouse = boxHeight * (1 - houseRatio);
-const boxHeightHouseBand = boxHeight * houseRatio;
 const maxNumberOfHouse = 4;
 // House band width
 const houseWidthBox = boxHeight * houseRatio;
@@ -77,33 +96,30 @@ const houseWidth = 1;
 const houseHeight = houseWidth / 2;
 const roofAngle = Math.PI / 4;
 // Box positions
-var boxes = getBoxesPositions(cardboardWidth);
-// Accuracy for pawn motion
-const epsilon = 1;
-const coverMotion = 0.8;
+let boxes = getBoxesPositions(cardboardWidth);
 // Pawn motion
 const tMotion = 3; // duration to go to next case (seconds)
 // Text stuff
 const textSize = 2;
 const textHeight = 0.5;
 // Incrementing boolean to avoid multi-calls
-var incrementing = false;
+export let incrementing = false;
 // CloseView activation boolean
-var closeViewDisplay = false;
+let closeViewDisplay = false;
 const closeViewRatio = 0.35;
 const closeViewHeight = 50;
 const closeViewFurtherRatio = 2;
 // House relative position
 const houseRelativePos = getHouseRelativePositions();
-var housePositions = getHousesPositions(cardboardWidth);
+const housePositions = getHousesPositions(cardboardWidth);
 // The ratio the card travels to towards the player
 const cardUserRatio = 0.5;
-var movingCard = false;
+let movingCard = false;
 const cardAxis = new THREE.Vector3(0,-1,0).normalize();
 // The angle the cards has rotated when it reaches the player
 const revealAngle = 2*Math.PI/5;
-const tReveal = 0.5;
-const tTravel = 1;
+export const tReveal = 0.5;
+export const tTravel = 1;
 // Number of house per box
 // var numberOfHousesPerBox = noHousesPerBox();
 // Hotel
@@ -112,12 +128,13 @@ const hotelHouseRatio = 3;
 const deckRatio = 1.587;
 const heightRatio = 5.827;
 const deckSize = 20;
+export let possessions = {};
 
 /*
  * Build scene
  */
 // General camera
-var container = document.getElementById('container');
+let container = document.getElementById('container');
 view.camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, view.near, view.far);
 view.camera.position.fromArray(view.eye);
 view.camera.up.fromArray(view.up);
@@ -127,7 +144,7 @@ closeView.camera = new THREE.PerspectiveCamera(closeView.fov, window.innerWidth 
 closeView.camera.position.fromArray(closeView.eye);
 closeView.camera.up.fromArray(closeView.up);
 // Scene
-const scene = new THREE.Scene();
+export const scene = new THREE.Scene();
 const loader = new THREE.TextureLoader();
 loader.load('static/js/graphics/textures/clearSky.jpg', function (texture) {
 	scene.background = texture;
@@ -145,11 +162,15 @@ renderer.setSize(window.innerWidth, window.innerHeight - 54);
 renderer.shadowMap.enabled = true;
 renderer.shadowMapSoft = true;
 renderer.shadowMapDebug = true;
-renderer.domElement.style += "; position:relative; z-index:0; width:100%; height:100%";
+renderer.domElement.style.position = "relative";
+renderer.domElement.style.zIndex = "0";
+renderer.domElement.style.width = "100%";
+renderer.domElement.style.height = "100%";
+// renderer.domElement.style += "; position:relative; z-index:0; width:100%; height:100%";
 container.appendChild(renderer.domElement);
 
 // Orbit controls
-const controls = new THREE.OrbitControls(view.camera, renderer.domElement);
+const controls = new ORBIT.OrbitControls(view.camera, renderer.domElement);
 /*
  * Instantiate and add the objects
  */
@@ -164,24 +185,23 @@ cardboard.castShadow = true;
 cardboard.receiveShadow = true;
 
 // Pawn positions per box (where to put them to make them fit in)
-var pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
+let pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
 // To fill in when players start the game
-var pawns = new THREE.Group();
+let pawns = new THREE.Group();
 // Fill empty
 updatePawns();
 // Represents the current state for all players
-var stateArray = initState();
-var idsToPawns = {};
-var idsToNames = {};
-var idsToPossessions = {};
-var possessions = {};
+export let stateArray;
+export let idsToPawns = {};
+export let idsToNames = {};
+export let idsToPossessions = {};
+// Instantiate the state array
+initState();
 // Instantiate empty houses group
 updateAllHouses();
-
-
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
-var positions = initPositions();
-var new_positions = initPositions();
+let positions = initPositions();
+let new_positions = initPositions();
 
 // Create the deck of community cards
 const communityDeck = createCommunityDeck();
@@ -191,7 +211,7 @@ const chanceDeck = createChanceDeck();
 scene.add(chanceDeck);
 
 // Init world and dices
-world = new CANNON.World();
+let world = new CANNON.World();
 world.gravity.set(0, 0, -9.82 * 20);
 world.broadphase = new CANNON.NaiveBroadphase();
 world.solver.iterations = 64;
@@ -202,8 +222,8 @@ DiceManager.setWorld(world);
 let floorBody = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.floorBodyMaterial});
 world.add(floorBody);
 
-var dice = [];
-var diceGroup = new THREE.Group();
+let dice = [];
+let diceGroup = new THREE.Group();
 let dice1 = new DiceD6({size: 4, backColor: "#ff0000"});
 dice.push(dice1);
 diceGroup.add(dice1.getObject());
@@ -214,7 +234,7 @@ diceGroup.visible = false;
 
 scene.add(diceGroup);
 
-async function randomDiceThrow(x=[1,1]) {
+export async function randomDiceThrow(x=[1,1]) {
 	let diceValues = [];
 	for (let i = 0; i<2; i++) {
 		let zRand = Math.random() * 20;
@@ -226,7 +246,8 @@ async function randomDiceThrow(x=[1,1]) {
 		dice[i].updateBodyFromMesh();
 		let rand = Math.random() * 5;
 		dice[i].getObject().body.velocity.set(10 - rand, 50 + rand, 40 + zRand);
-		dice[i].getObject().body.angularVelocity.set(20 * Math.random() - 10, 20 * Math.random() - 10, 20 * Math.random() - 10);
+		dice[i].getObject().body.angularVelocity
+			.set(20 * Math.random() - 10, 20 * Math.random() - 10, 20 * Math.random() - 10);
 		diceValues.push({dice: dice[i], value: x[i]});
 	}
 	diceGroup.visible = true;
@@ -236,12 +257,12 @@ async function randomDiceThrow(x=[1,1]) {
 
 function updatePhysics() {
     world.step(1.0 / 60.0);
-    for (var i in dice) {
+    for (let i in dice) {
 		dice[i].updateMeshFromBody();
 	}
 }
 
-function updatePawns(){
+export function updatePawns(){
 	pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
 	let pawnObjects = createPawns(numberOfPawns);
 	pawns = new THREE.Group();
@@ -250,7 +271,7 @@ function updatePawns(){
 	scene.children[3] = pawns;
 }
 
-function initPossessions(){
+export function initPossessions(){
 	return {"money":initialMoney, "brown":0, "light-blue":0, "pink":0, "orange":0,
 			"red":0, "yellow":0, "green":0, "blue":0, "station":0, "electricity":0, "water":0};
 }
@@ -285,7 +306,7 @@ function enableControls(){
 	controls.autoRotate = true;
 }
 
-function animateCard(type){
+export function animateCard(type){
 	disableControls();
 	if (movingCard){
 		console.log("A card is already moving currently");
@@ -361,7 +382,7 @@ function removeCard() {
 	scene.remove(scene.children[8]);
 }
 
-function init() {
+export function init() {
     requestAnimationFrame( animate );
 }
 
@@ -393,10 +414,10 @@ function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1) {
 	// First view
 	view.updateCamera(view.camera, scene);
 
-	var left = Math.floor(windowWidth * vleft);
-	var top = Math.floor(windowHeight * vtop);
-	var width = Math.floor(windowWidth * vwidth);
-	var height = Math.floor(windowHeight * vheight);
+	let left = Math.floor(windowWidth * vleft);
+	let top = Math.floor(windowHeight * vtop);
+	let width = Math.floor(windowWidth * vwidth);
+	let height = Math.floor(windowHeight * vheight);
 
 	renderer.setViewport(left, top, width, height);
 	renderer.setScissor(left, top, width, height);
@@ -414,10 +435,10 @@ function updateCloseView(vleft = (graphicsRatio - closeViewRatio), vtop = (1 - c
 	// Second view
 	closeView.updateCamera(closeView.camera, scene);
 
-	var leftCloseView = Math.floor(windowWidth * vleft);
-	var topCloseView = Math.floor(windowHeight * vtop);
-	var widthCloseView = Math.floor(windowWidth * vwidth);
-	var heightCloseView = Math.floor(windowHeight * vheight);
+	let leftCloseView = Math.floor(windowWidth * vleft);
+	let topCloseView = Math.floor(windowHeight * vtop);
+	let widthCloseView = Math.floor(windowWidth * vwidth);
+	let heightCloseView = Math.floor(windowHeight * vheight);
 
 	renderer.setViewport(leftCloseView, topCloseView, widthCloseView, heightCloseView);
 	renderer.setScissor(leftCloseView, topCloseView, widthCloseView, heightCloseView);
@@ -443,7 +464,7 @@ function updateSize() {
  * Loop Utils
  */
 
-function updateAllPlayers(){
+export function updateAllPlayers(){
 	for (let i = 0; i<numberOfBoxes; i++){
 		let pawns = stateArray[i][0];
 		for (let j = 0; j<pawns.length; j++){
@@ -473,7 +494,7 @@ function translate(i, j, goalPosition, deltaT) {
 	let fps = 60;           // seconds
 	let step = 1 / (deltaT * fps);  // t-step per frame
 	let t = 0;
-	var object = scene.children[3].children[i];
+	let object = scene.children[3].children[i];
 	let initialPosition = object.position.clone();
 	let initialCameraPosition = closeView.camera.position.clone();
 	let goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight);
@@ -655,12 +676,12 @@ function getPawnPositions(i) {
  * Update houses per box
  */
 
-function updateAllHouses() {
+export function updateAllHouses() {
 	scene.children[4] = updateHouseGroup();
 }
 
 function updateHouseGroup() {
-	var housesPerBox = new THREE.Group();
+	let housesPerBox = new THREE.Group();
 	for (let i = 0; i < numberOfBoxes; i++) {
 		let houses = updateHouses(i);
 		housesPerBox.add(houses);
@@ -751,7 +772,7 @@ function addText(name, material, parent) {
 	new THREE.FontLoader().load('static/js/graphics/fonts/gentilis_regular.typeface.json',
 		function (font){
 			let textGeometry = new THREE.TextGeometry(name, {font:font, size: textSize, height: textHeight, curveSegments: 3});
-			textMesh = new THREE.Mesh(textGeometry, material);
+			let textMesh = new THREE.Mesh(textGeometry, material);
 			textMesh.translateX(-textSize);
 			textMesh.translateY(pawnHeight*1.1);
 			// Adjust to average camera position
@@ -780,7 +801,7 @@ function createHouse(clr, width, height) {
 	let normalVectorBack = new THREE.Vector3(-1, 0, 0);
 	roofBackGeometry.faces.push(new THREE.Face3(0, 1, 2, normalVectorBack));
 
-	var material = new THREE.MeshPhongMaterial({color: clr, side: 2});
+	let material = new THREE.MeshPhongMaterial({color: clr, side: 2});
 	let frontWall = new THREE.Mesh(wallGeometry, material);
 	let backWall = new THREE.Mesh(wallGeometry, material);
 	let leftWall = new THREE.Mesh(wallGeometry, material);
@@ -1073,7 +1094,7 @@ function getPawnsPositionsBoxes() {
 	return pawnsPositionsPerBox;
 }
 
-function initState(){
+export function initState(){
 	let players = [];
 	for (let i = 0; i<numberOfPawns; i++){
 		players.push(i);
@@ -1082,7 +1103,40 @@ function initState(){
 	for (let i = 1; i<numberOfBoxes; i++){
 		res[i]=[[], 0];
 	}
-	return res;
+	stateArray = res;
 }
 
-console.log("DBG: helperFns.js loaded");
+export function updateTurn(data){
+	currentPawn = idsToPawns[data];
+}
+
+export function updateState(data){
+	stateArray = data;
+}
+
+export function updatePlayerPossessions(pid, changes){
+	idsToPossessions[pid] = Object.assign({}, idsToPossessions[pid], changes);
+}
+
+export function registerPossession(id, newPossession) {
+	if (possessions[id] === undefined){
+		possessions[id] = [newPossession];
+	}
+	else{
+		possessions[id].push(newPossession);
+	}
+}
+
+export function recordPlayer(id, name){
+	idsToNames[id] = name;
+}
+
+export function goToJail(player){
+	// First go to the jail box
+	stateArray[10][0].pop();
+	stateArray[30][0].push(player);
+	updateAllPlayers();
+	// Then go to jail
+	stateArray[30][0].pop();
+	stateArray[10][0].push(player);
+}

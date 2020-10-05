@@ -3,14 +3,6 @@
 
 {% block body %}
     <div id = "container"></div>
-    <script src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/cannon.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/dice.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
-    <script>
-        init();
-    </script>
     <style>
         .slidecontainer {
             width: 100%; /* Width of the outside container */
@@ -56,16 +48,14 @@
         let playerId = {{ player_id }};
         let playerName = "{{ player_name }}";
     </script>
-    <script>
-        function setVisible() {
-            $('#trading').attr('style', 'visibility:visible');
-        }
-        setVisible();
-    </script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/cannon.min.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/dice.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/sidebar.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="module" src="{{ url_for('static',filename='js/socket.js') }}"></script>
 
     <!-- MODAL PLAY TURN -->
     <div class="modal fade" id="modalPlayTurn" tabindex="-1" role="dialog" aria-labelledby="modalPlayTurn" aria-hidden="true">
@@ -239,13 +229,4 @@
             </div>
         </div>
     </div>
-    <script>
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        output.innerHTML = slider.value;
-
-        slider.oninput = function() {
-            output.innerHTML = this.value;
-        };
-    </script>
 {% endblock %}
