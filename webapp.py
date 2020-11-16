@@ -40,8 +40,8 @@ def play_game():
         player_id = generate_id()
         while player_id in GAMES[game_id]["players"]:
             player_id = generate_id()
+        print("Find a game with players : ", GAMES[game_id]["players"])
         GAMES[game_id]["players"][player_id] = player_name
-
         return render_template(
             'lobby.html.jinja2',
             game_id=game_id,
@@ -91,8 +91,10 @@ def on_start_game(data):
     GAMES[game_id]["game"] = Game(GAMES[game_id]["players"])
     game_state = GAMES[game_id]["game"].game_to_json()
     player_id = data["player_id"]
-    player_name = GAMES[game_id]["players"][player_id]
+    player_name = data["player_name"]
     response = {"newPlayer": {"id": player_id, "name": player_name}, "gameState": game_state}
+    print("Sending back")
+    print(game_id)
     emit("start_game", response, room=game_id)
 
 

@@ -3,14 +3,6 @@
 
 {% block body %}
     <div id = "container"></div>
-    <script src="{{ url_for('static',filename='js/graphics/three.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/cannon.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/dice.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
-    <script>
-        init();
-    </script>
     <style>
         .slidecontainer {
             width: 100%; /* Width of the outside container */
@@ -56,17 +48,20 @@
         let playerId = {{ player_id }};
         let playerName = "{{ player_name }}";
     </script>
-    <script>
-        function setVisible() {
-            $('#trading').attr('style', 'visibility:visible');
-        }
-        setVisible();
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/three.js') }}"></script>
+    <script type = "text/javascript" src="{{ url_for('static',filename='js/graphics/cannon.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/OrbitControls.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/dice.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/sidebar.js') }}"></script>
+    <script type = "module" src="{{ url_for('static',filename='js/graphics/helperFns.js') }}"></script>
+    <script type= "text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="module" src="{{ url_for('static',filename='js/socket.js') }}"></script>
+    <script type="module">
+        // Will be used in the modals to trade
+        import {openPropositionModal, openOfferModal} from '../static/js/socket.js'
+        window.openPropositionModal = openPropositionModal;
+        window.openOfferModal = openOfferModal;
     </script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-
     <!-- MODAL PLAY TURN -->
     <div class="modal fade" id="modalPlayTurn" tabindex="-1" role="dialog" aria-labelledby="modalPlayTurn" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -188,7 +183,7 @@
                     </div>
                     <div class="row my-3 text-center">
                         <div class="col-8 input-group mx-auto">
-                            <input id="nbHousesInput" type="number" class="form-control" min="0" max="5" value="0">
+                            <label for="nbHousesInput"></label><input id="nbHousesInput" type="number" class="form-control" min="0" max="5" value="0">
                             <div class="input-group-append">
                                 <button type="button" id="modalBuyHousesYes" class="btn btn-secondary" data-dismiss="modal">
                                     Acheter des maisons
@@ -210,7 +205,7 @@
                     <h4 class="modal-title">Proposition d'échange</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                <form action="game" method="POST">
+                <form>
                     <input name="request_type" type="hidden" value="join">
                     <div class="modal-body">
                         <p id = "text-offer">
@@ -222,7 +217,7 @@
                             </div>
                             <label for="player_name_join">Transaction financière</label>
                             <div class="slidecontainer">
-                                <input type="range" min="0" max="1500" value="0" class="slider" id="myRange">
+                                <label for="myRange"></label><input type="range" min="0" max="1500" value="0" class="slider" id="myRange">
                                 <p>Montant proposé : <span id="demo"></span></p>
                             </div>
                             <div class="form-group" id = "properties_to_offer">
@@ -239,13 +234,4 @@
             </div>
         </div>
     </div>
-    <script>
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        output.innerHTML = slider.value;
-
-        slider.oninput = function() {
-            output.innerHTML = this.value;
-        };
-    </script>
 {% endblock %}

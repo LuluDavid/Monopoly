@@ -1,3 +1,6 @@
+import * as THREE from "./three.js"
+const CANNON = window.CANNON;
+
 class DiceManagerClass {
     constructor() {
         this.world = null;
@@ -79,6 +82,7 @@ class DiceManagerClass {
 }
 
 class DiceObject {
+    simulationRunning;
     /**
      * @constructor
      * @param {object} options
@@ -119,27 +123,6 @@ class DiceObject {
         }
 
         return options;
-    }
-
-    emulateThrow(callback) {
-        let stableCount = 0;
-
-        let check = () => {
-            if (this.isFinished()) {
-                stableCount++;
-
-                if (stableCount === 10) {
-                    DiceManager.world.removeEventListener('postStep', check);
-                    callback(this.getUpsideValue());
-                }
-            } else {
-                stableCount = 0;
-            }
-
-            DiceManager.world.step(DiceManager.world.dt);
-        };
-
-        DiceManager.world.addEventListener('postStep', check);
     }
 
     isFinished() {
@@ -210,7 +193,7 @@ class DiceObject {
         for (let i = 0; i < vectors.length; ++i) corner_faces[i] = [];
         for (let i = 0; i < faces.length; ++i) {
             let ii = faces[i], fl = ii.length - 1;
-            let center_point = new THREE.Vector3();
+            let center_point = new THREE.Vector3(0, 0, 0);
             let face = new Array(fl);
             for (let j = 0; j < fl; ++j) {
                 let vv = vectors[ii[j]].clone();
@@ -287,7 +270,7 @@ class DiceObject {
             }
         }
         geom.computeFaceNormals();
-        geom.boundingSphere = new THREE.Sphere(new THREE.Vector3(), radius);
+        geom.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), radius);
         return geom;
     }
 
@@ -308,7 +291,7 @@ class DiceObject {
 
         let vectors = new Array(this.vertices.length);
         for (let i = 0; i < this.vertices.length; ++i) {
-            vectors[i] = (new THREE.Vector3).fromArray(this.vertices[i]).normalize();
+            vectors[i] = (new THREE.Vector3(0, 0, 0)).fromArray(this.vertices[i]).normalize();
         }
 
         let chamferGeometry = this.getChamferGeometry(vectors, this.faces, this.chamfer);
@@ -343,12 +326,7 @@ class DiceObject {
         let materials = [];
         for (let i = 0; i < this.faceTexts.length; ++i) {
             let texture = null;
-            if (this.customTextTextureFunction) {
-                texture = this.customTextTextureFunction(this.faceTexts[i], this.labelColor, this.diceColor);
-            } else {
-                texture = this.createTextTexture(this.faceTexts[i], this.labelColor, this.diceColor);
-            }
-
+            texture = this.createTextTexture(this.faceTexts[i], this.labelColor, this.diceColor);
             materials.push(new THREE.MeshPhongMaterial(Object.assign({}, this.materialOptions, { map: texture })));
         }
         return materials;
@@ -372,7 +350,7 @@ class DiceObject {
         });
         this.object.body.linearDamping = 0.1;
         this.object.body.angularDamping = 0.1;
-        DiceManager.world.add(this.object.body);
+        DiceManager.world.addBody(this.object.body);
 
         return this.object;
     }
@@ -390,7 +368,7 @@ class DiceObject {
     }
 }
 
-class DiceD6 extends DiceObject {
+export class DiceD6 extends DiceObject {
     constructor(options) {
         super(options);
 
@@ -413,4 +391,4 @@ class DiceD6 extends DiceObject {
     }
 }
 
-const DiceManager = new DiceManagerClass();
+export const DiceManager = new DiceManagerClass();

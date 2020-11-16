@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <title>{{ page_title }}</title>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='css/favicon/favicon.ico') }}">
+    <link rel="icon" href="{{ url_for('static',filename='css/favicon/favicon.ico') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/sidebar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script>const initialMoney = 1500; // TODO</script>
-    <script src="{{ url_for('static',filename='js/sidebar.js') }}"></script>
     <style>
         .dropdown-menu-center {
             left: 50% !important;
@@ -59,7 +59,7 @@
                         <i class="fa fa-money" style="color:green"> 1500 €</i>
                     </div>
                     <div id="player-goods">
-                        <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
+                        <div id="player-houses" style="display : flex; flex-direction: row; font-size: 15px">
                         </div>
                         <div id="player-station-services" style="display : flex; flex-direction: row">
                         </div>
@@ -69,6 +69,7 @@
 
             <div id="chatbox">
                 <div id="messages"></div>
+                <label for="msgInput"></label>
                 <input type="text" name="msgInput" id="msgInput" placeholder="Entrez votre message">
             </div>
         </div>
@@ -84,9 +85,7 @@
     </main>
 
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-
 </body>
 </html>
