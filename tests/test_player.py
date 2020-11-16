@@ -95,7 +95,7 @@ class PlayerTest(unittest.TestCase):
         chloe = Player("Chloe", 0, money=600)
         board = Board()
         chloe.buy_good(board.boxes[1])
-        self.assertEqual(0, chloe.can_buy_houses(board.boxes[1])) # does not own all properties
+        self.assertEqual(0, chloe.can_buy_houses(board.boxes[1]))  # does not own all properties
         chloe.buy_good(board.boxes[3])
         self.assertEqual(0, chloe.can_buy_houses(board.boxes[5]))  # not a street
         self.assertEqual(5, chloe.can_buy_houses(board.boxes[1]))

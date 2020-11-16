@@ -1,6 +1,6 @@
 import unittest
 
-from game.boxes import Box, Street, Station, PublicCompany
+from game.boxes import Street, Station, PublicCompany
 from game.player import Player
 from game.board import Board
 
@@ -11,12 +11,11 @@ class BoxTest(unittest.TestCase):
         street = Street(1, "street", "Rue de Meudon", price=[60, 50], rent=[2, 10, 30, 90, 160, 250], color="yellow")
         station = Station(2, "station", "Gare de Dunkerque", price=200)
         company = PublicCompany(3, "public-service", "Centrale de Gravelines", price=40)
-        box = Box(4, "park", "Parc de Nantes")
         self.assertEqual(60, street.price)
         self.assertEqual(200, station.price)
         self.assertEqual(40, company.price)
         with self.assertRaises(AttributeError):
-            box.price
+            print("Box prices are not the good ones")
 
     def test_get_rent(self):
         chloe = Player("Chloe", 0)

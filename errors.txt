@@ -1,3 +1,0 @@
-Exception: ('This card type does not exist : ', 'card-out-jail')
-
-Luxury tax does not work

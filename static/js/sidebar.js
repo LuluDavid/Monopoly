@@ -1,6 +1,7 @@
 import {idsToPossessions} from "./graphics/helperFns.js";
 
 export const initialMoney = 1500;
+const $ = window.$;
 
 export const check =
     "<svg class=\"bi bi-check\" style=\"float : right\" width=\"2em\" height=\"2em\" viewBox=\"0 0 16 16\" fill=\"green\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
@@ -109,10 +110,10 @@ function companyCard(name) {
             <span><strong>` + name + `  </strong></span>
         <div>
         </div>
-            <div class="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 11.5px">
+            <div class="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 12px">
                 Si l'on possede UNE carte de compagnie de Service Public, le loyer est 4 fois le montant indique par les des.
             </div>
-            <div class="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 11.5px; margin-top: 6px">
+            <div class="text-center" style="margin-right: 5px; margin-left: 5px; font-size: 12px; margin-top: 6px">
                 Si l'on possede les DEUX cartes de compagnie de Service Public, le loyer est 10 fois le montant indique par les des. 
             </div>
             <div style="font-size : 13px; text-align : center; margin-top: 8px">
@@ -244,7 +245,7 @@ function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
     let water_div = water_icon(water);
 
     return `<div id="player-goods">
-            <div id="player-houses" style="display : flex; flex-direction: row; font-size: 14.7px">
+            <div id="player-houses" style="display : flex; flex-direction: row; font-size: 15px">
                 ${brown_div}
                 ${lightBlue_div}
                 ${pink_div}

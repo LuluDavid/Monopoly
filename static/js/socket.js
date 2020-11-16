@@ -2,22 +2,20 @@ import * as SIDEBAR from "./sidebar.js";
 import * as GRAPHICS from "./graphics/helperFns.js";
 import {
     coverRatio,
-    incrementing, initPossessions, initState,
-    randomDiceThrow,
-    stateArray, tReveal, tTravel,
-    updateAllHouses,
+    incrementing, initState,
+    randomDiceThrow, tReveal, tTravel,
     updateAllPlayers,
     updatePawns
 } from "./graphics/helperFns.js";
 
 const $ = window.$;
-let socket = window.io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
+const socket = window.io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
+joinGame();
 
 $( document ).ready(function() {
 
     socket.on('connect', function() {
         console.log('Websocket connected!');
-        joinGame();
     });
 
     socket.on('error', function(data){
@@ -109,7 +107,6 @@ $( document ).ready(function() {
         updateSidebar(data);
         let dices = data["dices"];
         if (dices != null){
-            console.log("dices");
             await randomDiceThrow(dices);
             await waitDices(data);
         }
@@ -124,7 +121,7 @@ $( document ).ready(function() {
         let cleanMsg = data["msg"];
         $("#messages")
             .append('<div>' + '<strong>' + newPlayerName + ': ' + '</strong>' + cleanMsg + '</div>')
-            .scrollTop(this[0].scrollHeight);
+            .scrollTop($("#messages")[0].scrollHeight);
     });
 
 });
@@ -132,6 +129,83 @@ $( document ).ready(function() {
 function joinGame() {
       console.log('Game id : ' + gameId);
       socket.emit('join', {game_id: gameId, player_id: playerId});
+}
+
+export function openPropositionModal(id){
+    let currentMoney = GRAPHICS.idsToPossessions[playerId]["money"];
+    let otherMoney = GRAPHICS.idsToPossessions[id]["money"];
+    $("#text-offer").replaceWith("<p>Vous pouvez échanger plusieurs propriétés au joueur "
+        + GRAPHICS.idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent.</p>");
+    $("#myRange")
+        .attr("max", currentMoney)
+        .attr("min", -parseInt(otherMoney));
+    $("properties_to_buy").innerHTML = '';
+    let posses =  GRAPHICS.possessions[id];
+    for (let i = 0; i < posses.length; i++) {
+        let pos = posses[i];
+        let new_pos = "<div class=\"form-check\">" +
+            "<input class=\"form-check-input\" type=\"checkbox\" value=\""+pos+"\">\n" +
+            "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
+        $("#properties_to_buy").append(new_pos);
+    }
+    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#modalSendOffer").click(
+        function(){
+            let money = $("#myRange")[0].value;
+            let buy = [];
+            let checked_prop = $("#properties_to_buy input:checked:enabled");
+            for (let i = 0; i<checked_prop.length; i++){
+                let prop = checked_prop[i];
+                buy.push(prop["value"]);
+            }
+            let offer = [];
+            checked_prop = $("#properties_to_offer input:checked:enabled");
+            for (let i = 0; i<checked_prop.length; i++){
+                let prop = checked_prop[i];
+                offer.push(prop["value"]);
+            }
+            socket.emit('offer',
+                {game_id: gameId, player_id: playerId, receiver: id,
+                    money: money,
+                    offered_properties: buy,
+                    wanted_properties: offer,
+                    action: "offer"});
+    });
+}
+
+export function openOfferModal(pid, money, offered, wanted){
+    let offer = "Le joueur <b>"+GRAPHICS.idsToNames[pid]+"</b> veut acquérir vos propriétés" +
+        "<ul class=\"list-group\">";
+    for (let i = 0; i<offered.length; i++){
+        let prop = offered[i];
+        offer += "<li class=\"list-group-item\">"+prop+"</li>";
+    }
+    offer += "</ul>";
+    if (money >= 0) {
+        offer += "<br>En te proposant la modique somme de <b>" + money +"€</b><br>";
+    }
+    else{
+        offer += "<br>En te réclamant en plus la somme de <b>" + money +"€</b><br>";
+    }
+    if (wanted.length>0) {
+        offer += "Et en échange des propriétés";
+        offer += "<ul class=\"list-group\">";
+        for (let i = 0; i < wanted.length; i++) {
+            let prop = wanted[i];
+            offer += "<li class=\"list-group-item\">" + prop + "</li>";
+        }
+        offer += "</ul>"
+    }
+    offer += "Acceptes-tu ?";
+    $("#proposition").replaceWith(offer);
+    $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
+    $("#acceptOffer").click(
+        function(){
+            socket.emit('accepted',
+                {game_id: gameId, sender: pid, receiver:playerId, money:money,
+                    offered:offered, wanted:wanted, action:'accepted'});
+        }
+    );
 }
 
 function addPlayerNameToNavbar(pn, pid){
@@ -349,8 +423,8 @@ $("#modalInfoOk").click(function(){
 
 $('#msgInput').on('keypress', function (e) {
     if(e.keyCode === 13){
-        let newMsg = escapeHtml(this.val());
-        this.val('');
+        let newMsg = escapeHtml(this.value);
+        this.value = '';
         socket.emit('new_msg', {game_id: gameId, player_name: playerName, msg: newMsg});
     }
 });
@@ -380,82 +454,3 @@ $("#copy").on('click', function() {
     document.execCommand("copy");
     temp.remove();
 });
-
-export function openPropositionModal(id){
-    let currentMoney = GRAPHICS.idsToPossessions[playerId]["money"];
-    let otherMoney = GRAPHICS.idsToPossessions[id]["money"];
-    $("#text-offer").replaceWith("<p>Vous pouvez échanger plusieurs propriétés au joueur "
-        + GRAPHICS.idsToNames[id] + " contre une ou plusieurs propriétés et/ou de l'argent.</p>");
-    $("#myRange")
-        .attr("max", currentMoney)
-        .attr("min", -parseInt(otherMoney));
-    $("properties_to_buy").innerHTML = '';
-    let posses =  GRAPHICS.possessions[id];
-    for (let i = 0; i < posses.length; i++) {
-        let pos = posses[i];
-        let new_pos = "<div class=\"form-check\">" +
-            "<input class=\"form-check-input\" type=\"checkbox\" value=\""+pos+"\">\n" +
-            "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
-        $("#properties_to_buy").append(new_pos);
-    }
-    $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
-    $("#modalSendOffer").click(
-        function(){
-            let money = $("#myRange")[0].value;
-            let buy = [];
-            let checked_prop = $("#properties_to_buy input:checked:enabled");
-            for (let i = 0; i<checked_prop.length; i++){
-                let prop = checked_prop[i];
-                buy.push(prop["value"]);
-            }
-            let offer = [];
-            checked_prop = $("#properties_to_offer input:checked:enabled");
-            for (let i = 0; i<checked_prop.length; i++){
-                let prop = checked_prop[i];
-                offer.push(prop["value"]);
-            }
-            socket.emit('offer',
-                {game_id: gameId, player_id: playerId, receiver: id,
-                    money: money,
-                    offered_properties: buy,
-                    wanted_properties: offer,
-                    action: "offer"});
-    });
-}
-
-export function openOfferModal(pid, money, offered, wanted){
-    let offer = "Le joueur <b>"+GRAPHICS.idsToNames[pid]+"</b> veut acquérir vos propriétés" +
-        "<ul class=\"list-group\">";
-    for (let i = 0; i<offered.length; i++){
-        let prop = offered[i];
-        offer += "<li class=\"list-group-item\">"+prop+"</li>";
-    }
-    offer += "</ul>";
-    if (money >= 0) {
-        offer += "<br>En te proposant la modique somme de <b>" + money +"€</b><br>";
-    }
-    else{
-        offer += "<br>En te réclamant en plus la somme de <b>" + money +"€</b><br>";
-    }
-    if (wanted.length>0) {
-        offer += "Et en échange des propriétés";
-        offer += "<ul class=\"list-group\">";
-        for (let i = 0; i < wanted.length; i++) {
-            let prop = wanted[i];
-            offer += "<li class=\"list-group-item\">" + prop + "</li>";
-        }
-        offer += "</ul>"
-    }
-    offer += "Acceptes-tu ?";
-    $("#proposition").replaceWith(offer);
-    $("#modalReceiveOffer").modal({ keyboard: false, backdrop: 'static' });
-    $("#acceptOffer").click(
-        function(){
-            socket.emit('accepted',
-                {game_id: gameId, sender: pid, receiver:playerId, money:money,
-                    offered:offered, wanted:wanted, action:'accepted'});
-        }
-    );
-}
-
-

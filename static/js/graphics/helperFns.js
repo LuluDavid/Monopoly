@@ -16,8 +16,8 @@ export function addNewPlayer(newPlayerId){
 }
 
 
-const $ = window.$;
-const THREE = window.THREE;
+// const $ = window.$;
+import * as THREE from "./three.js";
 const CANNON = window.CANNON;
 init();
 
@@ -46,25 +46,25 @@ const view =
 		}
 	};
 
-const closeView =
-	{
-		near: 0.1,
-		far: 1000,
-		background: new THREE.Color(255, 255, 255),
-
-		// The camera's position
-		eye: [55, 55, 30],
-		// The up vector (defines the human perspective)
-		up: [0, 0, 1],
-		fov: 20,
-
-		updateCamera: function (camera, scene) {
-			// Look the board's center once its created
-			if (currentPawn >= 0) {
-				camera.lookAt(scene.children[3].children[currentPawn].position)
-			}
-		}
-	};
+// const closeView =
+// 	{
+// 		near: 0.1,
+// 		far: 1000,
+// 		background: new THREE.Color(255, 255, 255),
+//
+// 		// The camera's position
+// 		eye: [55, 55, 30],
+// 		// The up vector (defines the human perspective)
+// 		up: [0, 0, 1],
+// 		fov: 20,
+//
+// 		updateCamera: function (camera, scene) {
+// 			// Look the board's center once its created
+// 			if (currentPawn >= 0) {
+// 				camera.lookAt(scene.children[3].children[currentPawn].position)
+// 			}
+// 		}
+// 	};
 
 
 // Ratio of graphics on the main page
@@ -105,10 +105,10 @@ const textHeight = 0.5;
 // Incrementing boolean to avoid multi-calls
 export let incrementing = false;
 // CloseView activation boolean
-let closeViewDisplay = false;
-const closeViewRatio = 0.35;
-const closeViewHeight = 50;
-const closeViewFurtherRatio = 2;
+// let closeViewDisplay = false;
+// const closeViewRatio = 0.35;
+// const closeViewHeight = 50;
+// const closeViewFurtherRatio = 2;
 // House relative position
 const houseRelativePos = getHouseRelativePositions();
 const housePositions = getHousesPositions(cardboardWidth);
@@ -139,11 +139,7 @@ view.camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.i
 view.camera.position.fromArray(view.eye);
 view.camera.up.fromArray(view.up);
 view.camera.layers.enable( 1 );
-// Close camera
-closeView.camera = new THREE.PerspectiveCamera(closeView.fov, window.innerWidth / window.innerHeight, closeView.near, closeView.far);
-closeView.camera.position.fromArray(closeView.eye);
-closeView.camera.up.fromArray(closeView.up);
-// Scene
+
 export const scene = new THREE.Scene();
 const loader = new THREE.TextureLoader();
 loader.load('static/js/graphics/textures/clearSky.jpg', function (texture) {
@@ -220,15 +216,15 @@ DiceManager.setWorld(world);
 
 // Floor
 let floorBody = new CANNON.Body({mass: 0, shape: new CANNON.Plane(), material: DiceManager.floorBodyMaterial});
-world.add(floorBody);
+world.addBody(floorBody);
 
-let dice = [];
+let dices = [];
 let diceGroup = new THREE.Group();
 let dice1 = new DiceD6({size: 4, backColor: "#ff0000"});
-dice.push(dice1);
+dices.push(dice1);
 diceGroup.add(dice1.getObject());
 let dice2 = new DiceD6({size: 4, backColor: "#ff0000"});
-dice.push(dice2);
+dices.push(dice2);
 diceGroup.add(dice2.getObject());
 diceGroup.visible = false;
 
@@ -236,19 +232,19 @@ scene.add(diceGroup);
 
 export async function randomDiceThrow(x=[1,1]) {
 	let diceValues = [];
-	for (let i = 0; i<2; i++) {
+	for (let i = 0; i<dices.length; i++) {
 		let zRand = Math.random() * 20;
-		dice[i].getObject().position.x = -15 - (i % 3) * 1.5;
-		dice[i].getObject().position.y = 15 - (i % 3) * 1.5;
-		dice[i].getObject().position.z = 2 + Math.floor(i / 3) * 1.5;
-		dice[i].getObject().quaternion.x = (Math.random() * 90 - 45) * Math.PI / 180;
-		dice[i].getObject().quaternion.y = -(Math.random() * 90 - 45) * Math.PI / 180;
-		dice[i].updateBodyFromMesh();
+		dices[i].getObject().position.x = -15 - (i % 3) * 1.5;
+		dices[i].getObject().position.y = 15 - (i % 3) * 1.5;
+		dices[i].getObject().position.z = 2 + Math.floor(i / 3) * 1.5;
+		dices[i].getObject().quaternion.x = (Math.random() * 90 - 45) * Math.PI / 180;
+		dices[i].getObject().quaternion.y = -(Math.random() * 90 - 45) * Math.PI / 180;
+		dices[i].updateBodyFromMesh();
 		let rand = Math.random() * 5;
-		dice[i].getObject().body.velocity.set(10 - rand, 50 + rand, 40 + zRand);
-		dice[i].getObject().body.angularVelocity
+		dices[i].getObject().body.velocity.set(10 - rand, 50 + rand, 40 + zRand);
+		dices[i].getObject().body.angularVelocity
 			.set(20 * Math.random() - 10, 20 * Math.random() - 10, 20 * Math.random() - 10);
-		diceValues.push({dice: dice[i], value: x[i]});
+		diceValues.push({dice: dices[i], value: x[i]});
 	}
 	diceGroup.visible = true;
 	DiceManager.prepareValues(diceValues);
@@ -257,8 +253,8 @@ export async function randomDiceThrow(x=[1,1]) {
 
 function updatePhysics() {
     world.step(1.0 / 60.0);
-    for (let i in dice) {
-		dice[i].updateMeshFromBody();
+    for (let i = 0; i<dices.length; i++) {
+		dices[i].updateMeshFromBody();
 	}
 }
 
@@ -324,7 +320,7 @@ export function animateCard(type){
 	let lateralAngle = controls.getAzimuthalAngle()+Math.PI/4;
 	let lateralAngleStep = lateralAngle*step;
 	let t = 0;
-	var object = scene.children[8];
+	let object = scene.children[8];
 	let initialPosition = object.position.clone();
 	let goalPosition = new THREE.Vector3(view.camera.position.x,
 										 view.camera.position.y,
@@ -400,14 +396,8 @@ function animate() {
 
 // Render the camera
 function render() {
-
 	updateSize();
-
-	if (!closeViewDisplay) updateView();
-	else {
-		updateView();
-		updateCloseView()
-	}
+	updateView();
 }
 
 function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1) {
@@ -428,27 +418,6 @@ function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1) {
 	view.camera.updateProjectionMatrix();
 
 	renderer.render(scene, view.camera);
-}
-
-function updateCloseView(vleft = (graphicsRatio - closeViewRatio), vtop = (1 - closeViewRatio),
-						 vwidth = closeViewRatio, vheight = closeViewRatio) {
-	// Second view
-	closeView.updateCamera(closeView.camera, scene);
-
-	let leftCloseView = Math.floor(windowWidth * vleft);
-	let topCloseView = Math.floor(windowHeight * vtop);
-	let widthCloseView = Math.floor(windowWidth * vwidth);
-	let heightCloseView = Math.floor(windowHeight * vheight);
-
-	renderer.setViewport(leftCloseView, topCloseView, widthCloseView, heightCloseView);
-	renderer.setScissor(leftCloseView, topCloseView, widthCloseView, heightCloseView);
-	renderer.setScissorTest(true);
-	renderer.setClearColor(closeView.background);
-
-	closeView.camera.aspect = widthCloseView / heightCloseView;
-	closeView.camera.updateProjectionMatrix();
-
-	renderer.render(scene, closeView.camera);
 }
 
 // Adapt to the screen size
@@ -489,16 +458,13 @@ function translatePawnToBox(i, j, k) {
 // Translate pawn n°i to goalPosition
 function translate(i, j, goalPosition, deltaT) {
 	incrementing = true;
-	closeViewDisplay = true;
 	render();
 	let fps = 60;           // seconds
 	let step = 1 / (deltaT * fps);  // t-step per frame
 	let t = 0;
 	let object = scene.children[3].children[i];
 	let initialPosition = object.position.clone();
-	let initialCameraPosition = closeView.camera.position.clone();
-	let goalPositionCamera = new THREE.Vector3(goalPosition.x, goalPosition.y, goalPosition.z + closeViewHeight);
-	loop(object, initialPosition, initialCameraPosition, goalPosition, goalPositionCamera, step, t);
+	loop(object, initialPosition, goalPosition, step, t);
 	awaitToUpdate(i, j);
 }
 
@@ -516,37 +482,19 @@ function translation(a, b, t) {
 }
 
 // Loop function
-function loop(object, initialPosition, initialPositionCam, goalPosition, goalPositionCam, step, t) {
+function loop(object, initialPosition, goalPosition, step, t) {
 	// Update the pawn's position
 	let X = translation(initialPosition.x, goalPosition.x, ease(t));   // interpolate between a and b where
 	let Y = translation(initialPosition.y, goalPosition.y, ease(t));   // t is first passed through a easing
 	let Z = translation(initialPosition.z, goalPosition.z, ease(t));   // function in this example.
 	object.position.set(X, Y, Z);  // set new position
-	// Update the camera's positions
-	let XCam = translation(initialPositionCam.x, goalPositionCam.x, soonerFaster(t * closeViewFurtherRatio));
-	let YCam = translation(initialPositionCam.y, goalPositionCam.y, soonerFaster(t * closeViewFurtherRatio));
-	let ZCam = translation(initialPositionCam.z, goalPositionCam.z, soonerFaster(t * closeViewFurtherRatio));
-	closeView.camera.position.set(XCam, YCam, ZCam);
-	// Increment the time and loop back
 	t = t + step;
 	if (t >= 1) {
-		loop2(step, t);
-	}
-	else{
-		requestAnimationFrame(() => loop(object, initialPosition, initialPositionCam, goalPosition, goalPositionCam, step, t))
-	}
-}
-
-function loop2(step, t) {
-	t = t + step;
-	if (t >= 1 / coverRatio) {
 		incrementing = false;
-		closeViewDisplay = false;
-		closeView.camera.position.set(closeView.eye[0], closeView.eye[1], closeView.eye[2]);
 		updatePositions();
 	}
-	else{
-		requestAnimationFrame(() => loop2(step, t))
+	else {
+		requestAnimationFrame(() => loop(object, initialPosition, goalPosition, step, t))
 	}
 }
 
@@ -573,19 +521,14 @@ function updatePositions() {
 	positions = $.extend(true, {}, new_positions);
 }
 
-// Distance between two points
-function distance(v1, v2) {
-	return v1.clone().distanceTo(v2.clone());
-}
-
 // Parabole to describe the motion inertia
 function ease(t) {
 	return -t * t + 2 * t
 }
 
-function soonerFaster(t) {
-	return Math.pow(t, 1 / 5);
-}
+// function soonerFaster(t) {
+// 	return Math.pow(t, 1 / 5);
+// }
 
 function getHouseRelativePositions() {
 
@@ -846,7 +789,6 @@ function createHouse(clr, width, height) {
 	return house;
 }
 
-// TODO: Max 8 players
 function initColors(){
 	let colors = {};
 	let red = new THREE.Color(255, 0, 0);

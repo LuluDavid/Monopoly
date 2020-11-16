@@ -40,8 +40,8 @@ def play_game():
         player_id = generate_id()
         while player_id in GAMES[game_id]["players"]:
             player_id = generate_id()
+        print("Find a game with players : ", GAMES[game_id]["players"])
         GAMES[game_id]["players"][player_id] = player_name
-
         return render_template(
             'lobby.html.jinja2',
             game_id=game_id,
