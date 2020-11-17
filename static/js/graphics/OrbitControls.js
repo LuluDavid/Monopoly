@@ -42,8 +42,8 @@ export const OrbitControls = function( object, domElement ) {
 
 	// How far you can orbit horizontally, upper and lower limits.
 	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-	this.minAzimuthAngle = - 1.2; // radians
-	this.maxAzimuthAngle = -0.4; // radians
+	this.minAzimuthAngle = - Math.PI; // radians
+	this.maxAzimuthAngle = Math.PI; // radians
 
 	// Set to true to enable damping (inertia)
 	// If damping is enabled, you must call controls.update() in your animation loop
@@ -67,7 +67,7 @@ export const OrbitControls = function( object, domElement ) {
 
 	// Set to true to automatically rotate around the target
 	// If auto-rotate is enabled, you must call controls.update() in your animation loop
-	this.autoRotate = true;
+	this.autoRotate = false;
 	this.autoRotateSpeed = 0.5; // 30 seconds per round when fps is 60
 
 	// Set to false to disable use of the keys

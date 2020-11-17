@@ -46,26 +46,6 @@ const view =
 		}
 	};
 
-// const closeView =
-// 	{
-// 		near: 0.1,
-// 		far: 1000,
-// 		background: new THREE.Color(255, 255, 255),
-//
-// 		// The camera's position
-// 		eye: [55, 55, 30],
-// 		// The up vector (defines the human perspective)
-// 		up: [0, 0, 1],
-// 		fov: 20,
-//
-// 		updateCamera: function (camera, scene) {
-// 			// Look the board's center once its created
-// 			if (currentPawn >= 0) {
-// 				camera.lookAt(scene.children[3].children[currentPawn].position)
-// 			}
-// 		}
-// 	};
-
 
 // Ratio of graphics on the main page
 const graphicsRatio = 1 - 0.167;
@@ -104,11 +84,6 @@ const textSize = 2;
 const textHeight = 0.5;
 // Incrementing boolean to avoid multi-calls
 export let incrementing = false;
-// CloseView activation boolean
-// let closeViewDisplay = false;
-// const closeViewRatio = 0.35;
-// const closeViewHeight = 50;
-// const closeViewFurtherRatio = 2;
 // House relative position
 const houseRelativePos = getHouseRelativePositions();
 const housePositions = getHousesPositions(cardboardWidth);
@@ -120,8 +95,6 @@ const cardAxis = new THREE.Vector3(0,-1,0).normalize();
 const revealAngle = 2*Math.PI/5;
 export const tReveal = 0.5;
 export const tTravel = 1;
-// Number of house per box
-// var numberOfHousesPerBox = noHousesPerBox();
 // Hotel
 const hotelHouseRatio = 3;
 // Deck stuff
@@ -292,18 +265,8 @@ function createChanceCard() {
 	return card;
 }
 
-function disableControls(){
-	controls.enabled = false;
-	controls.autoRotate = false;
-}
-
-function enableControls(){
-	controls.enabled = true;
-	controls.autoRotate = true;
-}
-
 export function animateCard(type){
-	disableControls();
+	// disableControls();
 	if (movingCard){
 		console.log("A card is already moving currently");
 		return;
@@ -367,7 +330,6 @@ function semiReveal(object, step, t, angleStep){
 	if (t >= 1) {
 		removeCard();
 		movingCard = false;
-		enableControls();
 		return;
 	}
 	object.rotateOnAxis(cardAxis, angleStep);
@@ -461,10 +423,11 @@ function translate(i, j, goalPosition, deltaT) {
 	render();
 	let fps = 60;           // seconds
 	let step = 1 / (deltaT * fps);  // t-step per frame
+	let angleStep = Math.PI/2 * step;
 	let t = 0;
 	let object = scene.children[3].children[i];
 	let initialPosition = object.position.clone();
-	loop(object, initialPosition, goalPosition, step, t);
+	loop(object, initialPosition, goalPosition, step, angleStep, t);
 	awaitToUpdate(i, j);
 }
 
@@ -482,7 +445,7 @@ function translation(a, b, t) {
 }
 
 // Loop function
-function loop(object, initialPosition, goalPosition, step, t) {
+function loop(object, initialPosition, goalPosition, step, angleStep, t) {
 	// Update the pawn's position
 	let X = translation(initialPosition.x, goalPosition.x, ease(t));   // interpolate between a and b where
 	let Y = translation(initialPosition.y, goalPosition.y, ease(t));   // t is first passed through a easing
@@ -494,7 +457,7 @@ function loop(object, initialPosition, goalPosition, step, t) {
 		updatePositions();
 	}
 	else {
-		requestAnimationFrame(() => loop(object, initialPosition, goalPosition, step, t))
+		requestAnimationFrame(() => loop(object, initialPosition, goalPosition, step, angleStep, t))
 	}
 }
 
@@ -525,10 +488,6 @@ function updatePositions() {
 function ease(t) {
 	return -t * t + 2 * t
 }
-
-// function soonerFaster(t) {
-// 	return Math.pow(t, 1 / 5);
-// }
 
 function getHouseRelativePositions() {
 
