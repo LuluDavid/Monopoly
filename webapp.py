@@ -82,7 +82,7 @@ def on_accepted(data):
     game_id = data["game_id"]
     response = GAMES[game_id]["game"]\
         .trade(data["sender"], data["receiver"], data["offered"], data["wanted"], int(data["money"]))
-    emit("trade", response, room=game_id)
+    emit("trade", {"data": data, "response": response}, room=game_id)
 
 
 @socketio.on('start_game')

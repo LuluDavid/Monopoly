@@ -1,7 +1,7 @@
 import * as SIDEBAR from "./sidebar.js";
 import * as GRAPHICS from "./graphics/helperFns.js";
 import {
-    coverRatio,
+    coverRatio, idsToNames,
     incrementing, initState,
     randomDiceThrow, tReveal, tTravel,
     updateAllPlayers,
@@ -73,10 +73,10 @@ $( document ).ready(function() {
         }
     });
 
-    socket.on("offer", function(data){
+    socket.on('offer', function(data){
+        let pid = data["player_id"];
         let target = data["receiver"];
         if (playerId === target){
-            let pid = data["player_id"];
             let offeredProperties = data["offered_properties"];
             let wantedProperties = data["wanted_properties"];
             let money = data["money"];
@@ -84,9 +84,12 @@ $( document ).ready(function() {
         }
     });
 
-    socket.on("trade", function(data) {
+    socket.on('trade', function(data) {
+        let logs = data["data"];
+        let msg = trade_msg(logs);
+        $.notify(msg, { position : 'top center', className: 'success' });
         // Update sidebar
-        updateSidebar(data);
+        updateSidebar(data["response"]);
     });
 
     socket.on('play_turn', async function(data) {
@@ -97,11 +100,15 @@ $( document ).ready(function() {
             let newPossession = bought[id];
             let new_pos = `<div class="form-check"><input class="form-check-input" type="checkbox" value="${newPossession}">
   <label class="form-check-label" for="defaultCheck1">${newPossession}</label></div>`;
-            if (parseInt(data["previous_player"]) === playerId) {
+            let buyerId = parseInt(data["previous_player"]);
+            if (buyerId === playerId) {
                 $("#properties_to_offer").append(new_pos);
             }
+            // else {
+            //     $.notify(idsToNames[playerId] + " just bought " + newPossession,
+            //         {position: 'top center', className: "info"});
+            // }
             GRAPHICS.registerPossession(id, newPossession);
-
         }
         // Update sidebar
         updateSidebar(data);
@@ -126,6 +133,15 @@ $( document ).ready(function() {
 
 });
 
+function trade_msg(logs){
+    let sender = idsToNames[logs["sender"]];
+    let receiver = idsToNames[logs["receiver"]];
+    let money = parseInt(logs["money"])
+    let given = money > 0;
+    return sender +" traded "+logs["offered"] + (given ? (" and " + money + "$") : "")
+            + " to "+receiver + " against " + logs["wanted"] + (!given ? (" and " + -money + "$") : "")
+}
+
 function joinGame() {
       console.log('Game id : ' + gameId);
       socket.emit('join', {game_id: gameId, player_id: playerId});
@@ -141,13 +157,14 @@ export function openPropositionModal(id){
         .attr("min", -parseInt(otherMoney));
     $("properties_to_buy").innerHTML = '';
     let posses =  GRAPHICS.possessions[id];
-    for (let i = 0; i < posses.length; i++) {
-        let pos = posses[i];
-        let new_pos = "<div class=\"form-check\">" +
-            "<input class=\"form-check-input\" type=\"checkbox\" value=\""+pos+"\">\n" +
-            "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
-        $("#properties_to_buy").append(new_pos);
-    }
+    if (posses != null)
+        for (let i = 0; i < posses.length; i++) {
+            let pos = posses[i];
+            let new_pos = "<div class=\"form-check\">" +
+                "<input class=\"form-check-input\" type=\"checkbox\" value=\""+pos+"\">\n" +
+                "  <label class=\"form-check-label\" for=\"defaultCheck1\">" + pos + "</label></div>";
+            $("#properties_to_buy").append(new_pos);
+        }
     $("#modalMakeOffer").modal({ keyboard: false, backdrop: 'static' });
     $("#modalSendOffer").click(
         function(){
