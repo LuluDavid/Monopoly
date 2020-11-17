@@ -14,8 +14,6 @@ class BoxTest(unittest.TestCase):
         self.assertEqual(60, street.price)
         self.assertEqual(200, station.price)
         self.assertEqual(40, company.price)
-        with self.assertRaises(AttributeError):
-            print("Box prices are not the good ones")
 
     def test_get_rent(self):
         chloe = Player("Chloe", 0)
