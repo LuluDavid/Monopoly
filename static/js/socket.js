@@ -1,7 +1,7 @@
 import * as SIDEBAR from "./sidebar.js";
 import * as GRAPHICS from "./graphics/helperFns.js";
 import {
-    coverRatio, idsToNames,
+    coverRatio,
     incrementing, initState,
     randomDiceThrow, tReveal, tTravel,
     updateAllPlayers,
@@ -12,6 +12,11 @@ const $ = window.$;
 const socket = window.io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
 joinGame();
 
+const default_size = 80;
+const default_time = 10000;
+const dice_throw_delay = 1000;
+
+$.notify.defaults({ className: "info" });
 $( document ).ready(function() {
 
     socket.on('connect', function() {
@@ -84,15 +89,14 @@ $( document ).ready(function() {
         }
     });
 
-    socket.on('trade', function(data) {
-        let logs = data["data"];
-        let msg = trade_msg(logs);
-        $.notify(msg, { position : 'top center', className: 'success' });
+    socket.on('trade', async function(data) {
+        await notify(data["msg"])
         // Update sidebar
         updateSidebar(data["response"]);
     });
 
     socket.on('play_turn', async function(data) {
+        await notify(data["msg"])
         // Add user <-> property dep
         let bought = data["bought"];
         if (bought != null){
@@ -104,10 +108,6 @@ $( document ).ready(function() {
             if (buyerId === playerId) {
                 $("#properties_to_offer").append(new_pos);
             }
-            // else {
-            //     $.notify(idsToNames[playerId] + " just bought " + newPossession,
-            //         {position: 'top center', className: "info"});
-            // }
             GRAPHICS.registerPossession(id, newPossession);
         }
         // Update sidebar
@@ -133,18 +133,19 @@ $( document ).ready(function() {
 
 });
 
-function trade_msg(logs){
-    let sender = idsToNames[logs["sender"]];
-    let receiver = idsToNames[logs["receiver"]];
-    let money = parseInt(logs["money"])
-    let given = money > 0;
-    return sender +" traded "+logs["offered"] + (given ? (" and " + money + "$") : "")
-            + " to "+receiver + " against " + logs["wanted"] + (!given ? (" and " + -money + "$") : "")
-}
-
 function joinGame() {
       console.log('Game id : ' + gameId);
       socket.emit('join', {game_id: gameId, player_id: playerId});
+}
+
+async function notify(msg) {
+    if (msg != null){
+        let delay = default_time*msg.length/default_size
+        let waiting_time = dice_throw_delay + Math.max(tReveal*1000, tTravel*1000);
+        setTimeout(
+            function() { $.notify(msg, {position:'top center', autoHideDelay: delay}); },
+        waiting_time);
+    }
 }
 
 export function openPropositionModal(id){
@@ -155,7 +156,7 @@ export function openPropositionModal(id){
     $("#myRange")
         .attr("max", currentMoney)
         .attr("min", -parseInt(otherMoney));
-    $("properties_to_buy").innerHTML = '';
+    $("#properties_to_buy").each(function () { this.innerHTML = ""; });
     let posses =  GRAPHICS.possessions[id];
     if (posses != null)
         for (let i = 0; i < posses.length; i++) {
@@ -345,14 +346,17 @@ async function switchModal(data){
         else if (data["action"] === "draw_card") {
             GRAPHICS.animateCard(data["card_type"]);
             // Wait for the animation to stop
-            await new Promise(r => setTimeout(r, 1000*(tReveal+tTravel/coverRatio)));
-            let labels = {"community-fund": "Caisse de communauté", "chance": "Chance"};
-            let infoData = {
-                label: labels[data["card_type"]],
-                content: data["card_message"],
-                action: "execute_card"
-            };
-            showInfoModal(infoData);
+            setTimeout(
+                function(){
+                    let labels = {"community-fund": "Caisse de communauté", "chance": "Chance"};
+                    let infoData = {
+                        label: labels[data["card_type"]],
+                        content: data["card_message"],
+                        action: "execute_card"
+                    };
+                    showInfoModal(infoData);
+                },
+                1000*(tReveal+tTravel/coverRatio));
         }
     }
 }

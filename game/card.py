@@ -10,15 +10,18 @@ class Card:
         self.value = value
 
     def execute(self, player, players, board):
+        msg = None
         changed_players = None
         if self.card_type == "earn-money":
             player.earn_money(self.value)
             changed_players = {player.id: {"money": player.money}}
+            msg = player.name + " earns "+str(self.value) + "$"
 
         elif self.card_type == "loose-money":
             player.loose_money(self.value)
             changed_players = {player.id: {"money": player.money}}
             board.park_money += self.value
+            msg = player.name + " owes " + str(self.value) + "$"
 
         elif self.card_type == "taxes":
             nb_houses, nb_hotels = player.get_number_of_buildings()
@@ -26,6 +29,7 @@ class Card:
             player.loose_money(amount)
             changed_players = {player.id: {"money": player.money}}
             board.park_money += amount
+            msg = player.name + " owes " + str(self.value) + "$"
 
         elif self.card_type == "backwards":
             player.update_position([-self.value], board)
@@ -46,6 +50,7 @@ class Card:
             for payer in filter(lambda p: p != player, players.values()):
                 payer.pay_player(player, self.value)
                 changed_players[player.id] = {"money": player.money}
+            msg = player.name + " earns " + str(self.value) + "$ from each player for his birthday"
 
         elif self.card_type == "loose-money-or-chance":
             # TODO: or chance ?
@@ -56,6 +61,6 @@ class Card:
         elif self.card_type == "leave-jail":
             player.card_leave_jail += 1
 
-        return changed_players
+        return changed_players, msg
         # else:
         #    raise Exception("This card type does not exist : ", self.card_type)

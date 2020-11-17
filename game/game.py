@@ -41,7 +41,9 @@ class Game:
                      bought=None,
                      go_to_prison=False,
                      box_rent=None,
-                     box_color=None):
+                     box_color=None,
+                     msg=None
+                     ):
         player_turn_id = self.players_order[self.current_player_turn]
         response = {
             "state_array": {
@@ -65,7 +67,8 @@ class Game:
             "changed_players": changed_players,
             "bought": bought,
             "go_to_prison": go_to_prison,
-            "previous_player": self.get_previous_player()
+            "previous_player": self.get_previous_player(),
+            "msg": msg
         }
         return response
 
@@ -89,10 +92,10 @@ class Game:
                 player.update_position(dices, self.board)
                 return self.landing_on_position(player, self.board.boxes[player.position], dices=dices)
             else:
-                player.loose_money(JAIL_FEE)
+                # player.loose_money(JAIL_FEE) TODO
                 player.jail_turn += 1
                 self.next_player()
-                return self.game_to_json(dices=dices)
+                return self.game_to_json(dices=dices, msg=player.name + " failed to do a double")
         elif choice == "pay" and player.money > JAIL_FEE:
             player.leave_jail()
             player.update_position(dices, self.board)
@@ -119,7 +122,8 @@ class Game:
         elif pos.box_type == "to-jail":
             player.go_to_jail(self.board)
             self.next_player()
-            return self.game_to_json(changed_players=changed_players, go_to_prison=True, dices=dices)
+            return self.game_to_json(changed_players=changed_players, go_to_prison=True, dices=dices,
+                                     msg=player.name + " landed in jail")
         else:
             return self.do_nothing(player, new_turn, changed_players=changed_players, dices=dices)
 
@@ -161,10 +165,13 @@ class Game:
             else:
                 return self.do_nothing(player, new_turn)
         elif pos.owner is not None:
-            player.pay_player(pos.owner, pos.get_rent(player))
+            rent = pos.get_rent(player)
+            player.pay_player(pos.owner, rent)
             self.next_player()
             changed_players[player.id] = {"money": player.money}
-            return self.game_to_json(changed_players=changed_players, dices=dices)  # TODO: Message "X payed Y"
+            return self.game_to_json(changed_players=changed_players, dices=dices,
+                                     msg=player.name + " payed a rent of " + str(rent) + "$ to " + pos.owner.name)
+            # TODO: Message "X payed Y"
         else:
             return self.do_nothing(dices=dices)
 
@@ -189,17 +196,19 @@ class Game:
         self.board.park_money += pos.rent
         self.next_player()
         changed_players[player.id] = {"money": player.money}
-        return self.game_to_json(changed_players=changed_players, dices=dices)
+        return self.game_to_json(changed_players=changed_players, dices=dices,
+                                 msg=player.name + " pays a tax of " + str(pos.rent) + "$")
 
     def landing_on_park(self, player, changed_players=None, dices=None):
         if changed_players is None:
             changed_players = {}
-        player.earn_money(self.board.park_money)
+        earned = self.board.park_money
+        player.earn_money(earned)
         self.board.park_money = 0
         self.next_player()
         changed_players[player.id] = {"money": player.money}
-        return self.game_to_json(changed_players=changed_players, dices=dices)
-        # TODO: Message "X earned the park money"
+        return self.game_to_json(changed_players=changed_players, dices=dices,
+                                 msg=player.name + " earns " + str(earned) + "$ from the park")
 
     @staticmethod
     def update_good(buyer, owner, good, changed_players):
@@ -243,7 +252,14 @@ class Game:
         # Give the bought goods to the buyer
         for good in bought:
             changed_players = self.update_good(owner, buyer, good, changed_players)
-        return self.game_to_json(changed_players=changed_players)
+        given = money > 0
+        is_offered = len(offered_names) != 0
+        is_wanted = len(bought_names) != 0
+        msg = buyer.name + " traded " + str(offered_names) + ("\nand " if given and is_offered else "") \
+              + ((str(money) + "$") if given else "") + "\nto" + owner.name + " against " + str(bought_names) \
+              + ("\nand " if given and is_wanted else "") + ((str(-money) + "$") if given else "")
+        print(len(msg))
+        return self.game_to_json(changed_players=changed_players, msg=msg)
 
     def play_turn(self, data):
         action = data["action"]
@@ -268,8 +284,10 @@ class Game:
         elif action == "buy":
             changes = {}
             bought = {}
+            msg = None
             if data["action_value"]:
                 bought_box = self.board.boxes[player.position]
+                msg = player.name + " bought " + bought_box.name
                 bought[player.id] = bought_box.name
                 player.buy_good(bought_box)
                 changes["money"] = player.money
@@ -286,24 +304,27 @@ class Game:
                         changes["water"] = 1
             changed_players = {player.id: changes}
             self.next_player()
-            return self.game_to_json(changed_players=changed_players, bought=bought)
+            return self.game_to_json(changed_players=changed_players, bought=bought, msg=msg)
 
         elif action == "buy_houses":
             changed_players = None
             nb_houses = int(data["action_value"])
+            msg = None
             if nb_houses > 0:
-                player.buy_houses(self.board.boxes[player.position], nb_houses)
+                box = self.board.boxes[player.position]
+                player.buy_houses(box, nb_houses)
                 changed_players = {player.id: {"money": player.money}}
+                msg = player.name + " bought " + str(nb_houses) + " for the property " + box.name
                 # TODO: display number of houses on sidebar ?
             self.next_player()
-            return self.game_to_json(changed_players=changed_players)
+            return self.game_to_json(changed_players=changed_players, msg=msg)
 
         elif action == "execute_card":
             init_pos = player.position
-            changed_players = self.board.last_open_card.execute(player, self.players, self.board)
+            changed_players, msg = self.board.last_open_card.execute(player, self.players, self.board)
             new_pos = player.position
             if init_pos != new_pos and not player.in_jail:
                 return self.landing_on_position(player, self.board.boxes[new_pos], changed_players=changed_players)
             else:
                 self.next_player()
-                return self.game_to_json(changed_players=changed_players)
+                return self.game_to_json(changed_players=changed_players, msg=msg)
