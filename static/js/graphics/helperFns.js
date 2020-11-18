@@ -78,7 +78,7 @@ const roofAngle = Math.PI / 4;
 // Box positions
 let boxes = getBoxesPositions(cardboardWidth);
 // Pawn motion
-const tMotion = 3; // duration to go to next case (seconds)
+export const tMotion = 3; // duration to go to next case (seconds)
 // Text stuff
 const textSize = 2;
 const textHeight = 0.5;

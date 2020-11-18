@@ -12,9 +12,10 @@ const $ = window.$;
 const socket = window.io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
 joinGame();
 
-const default_size = 80;
-const default_time = 10000;
-const dice_throw_delay = 1000;
+const defaultSize = 80;
+const defaultTime = 10000;
+const diceThrowDelay = 1000;
+const timeInterval = 100;
 
 $.notify.defaults({ className: "info" });
 $( document ).ready(function() {
@@ -96,7 +97,6 @@ $( document ).ready(function() {
     });
 
     socket.on('play_turn', async function(data) {
-        await notify(data["msg"])
         // Add user <-> property dep
         let bought = data["bought"];
         if (bought != null){
@@ -112,6 +112,7 @@ $( document ).ready(function() {
         }
         // Update sidebar
         updateSidebar(data);
+        await notify(data["msg"])
         let dices = data["dices"];
         if (dices != null){
             await randomDiceThrow(dices);
@@ -140,8 +141,8 @@ function joinGame() {
 
 async function notify(msg) {
     if (msg != null){
-        let delay = default_time*msg.length/default_size
-        let waiting_time = dice_throw_delay + Math.max(tReveal*1000, tTravel*1000);
+        let delay = defaultTime*msg.length/defaultSize
+        let waiting_time = diceThrowDelay + Math.max(tReveal*1000, tTravel*1000);
         setTimeout(
             function() { $.notify(msg, {position:'top center', autoHideDelay: delay}); },
         waiting_time);
@@ -406,8 +407,11 @@ $("#startGame").click(function(){
     socket.emit('start_game', {game_id: gameId, player_id: playerId, player_name: playerName});
 });
 
-$("#playTurn").click(function(){
-    if (GRAPHICS.incrementing) console.log("Last turn's animation is not finished yet");
+$("#playTurn").click(function playTurn(){
+    if (GRAPHICS.incrementing) {
+        console.log("Last turn's animation is not finished yet");
+        setTimeout(playTurn, timeInterval);
+    }
     else socket.emit('play_turn', {game_id: gameId, player_id: playerId, action: "play_turn"});
 });
 $("#jailTurnDouble").click(function(){

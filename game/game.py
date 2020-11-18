@@ -92,7 +92,6 @@ class Game:
                 player.update_position(dices, self.board)
                 return self.landing_on_position(player, self.board.boxes[player.position], dices=dices)
             else:
-                # player.loose_money(JAIL_FEE) TODO
                 player.jail_turn += 1
                 self.next_player()
                 return self.game_to_json(dices=dices, msg=player.name + " failed to do a double")
@@ -171,7 +170,7 @@ class Game:
             changed_players[player.id] = {"money": player.money}
             return self.game_to_json(changed_players=changed_players, dices=dices,
                                      msg=player.name + " payed a rent of " + str(rent) + "$ to " + pos.owner.name)
-            # TODO: Message "X payed Y"
+
         else:
             return self.do_nothing(dices=dices)
 
@@ -258,7 +257,6 @@ class Game:
         msg = buyer.name + " traded " + str(offered_names) + ("\nand " if given and is_offered else "") \
               + ((str(money) + "$") if given else "") + "\nto" + owner.name + " against " + str(bought_names) \
               + ("\nand " if given and is_wanted else "") + ((str(-money) + "$") if given else "")
-        print(len(msg))
         return self.game_to_json(changed_players=changed_players, msg=msg)
 
     def play_turn(self, data):
@@ -315,7 +313,6 @@ class Game:
                 player.buy_houses(box, nb_houses)
                 changed_players = {player.id: {"money": player.money}}
                 msg = player.name + " bought " + str(nb_houses) + " for the property " + box.name
-                # TODO: display number of houses on sidebar ?
             self.next_player()
             return self.game_to_json(changed_players=changed_players, msg=msg)
 
