@@ -1,7 +1,7 @@
 import * as SIDEBAR from "./sidebar.js";
 import * as GRAPHICS from "./graphics/helperFns.js";
 import {
-    coverRatio,
+    coverRatio, timeInterval,
     incrementing, initState,
     randomDiceThrow, tReveal, tTravel,
     updateAllPlayers,
@@ -15,7 +15,6 @@ joinGame();
 const defaultSize = 80;
 const defaultTime = 10000;
 const diceThrowDelay = 1000;
-const timeInterval = 100;
 
 $.notify.defaults({ className: "info" });
 $( document ).ready(function() {
@@ -259,7 +258,7 @@ async function waitDices(data){
         await updatePawn(data);
     }
     else{
-        requestAnimationFrame(() => waitDices(data));
+        setTimeout(() => waitDices(data), timeInterval);
     }
 }
 
@@ -283,7 +282,7 @@ function waitForMotion(){
         updateAllPlayers();
     }
     else{
-        requestAnimationFrame(() => waitForMotion());
+        setTimeout(() => waitForMotion(), timeInterval);
     }
 }
 
@@ -293,7 +292,7 @@ async function waitForModal(data){
         await switchModal(data);
     }
     else{
-        requestAnimationFrame(() => waitForModal(data));
+        setTimeout(() => waitForModal(data), timeInterval);
     }
 }
 

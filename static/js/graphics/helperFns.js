@@ -45,8 +45,8 @@ const view =
 			}
 		}
 	};
-
-
+// The time interval between callbacks
+export const timeInterval = 100;
 // Ratio of graphics on the main page
 const graphicsRatio = 1 - 0.167;
 const colors = initColors();
@@ -306,8 +306,10 @@ function loopCard(object, initialPosition, goalPosition, step, t, angleStep, lat
 	if (t >= 1) {
 		return loopCard2(step, t);
 	}
-	requestAnimationFrame(() => loopCard(object, initialPosition, goalPosition,
-												  step, t, angleStep, lateralAngleStep))
+	else {
+		requestAnimationFrame(() => loopCard(object, initialPosition, goalPosition,
+			step, t, angleStep, lateralAngleStep));
+	}
 }
 
 function loopCard2(step, t) {
@@ -318,7 +320,9 @@ function loopCard2(step, t) {
 		let angleStep = -revealAngle*step;
 		return semiReveal(scene.children[8], step, 0, angleStep);
 	}
-	requestAnimationFrame(() => loopCard2(step, t));
+	else {
+		requestAnimationFrame(() => loopCard2(step, t));
+	}
 }
 
 function norm(v) {
@@ -330,10 +334,11 @@ function semiReveal(object, step, t, angleStep){
 	if (t >= 1) {
 		removeCard();
 		movingCard = false;
-		return;
 	}
-	object.rotateOnAxis(cardAxis, angleStep);
-	requestAnimationFrame(() => semiReveal(object, step, t, angleStep));
+	else {
+		object.rotateOnAxis(cardAxis, angleStep);
+		requestAnimationFrame(() => semiReveal(object, step, t, angleStep));
+	}
 }
 
 function removeCard() {
@@ -341,7 +346,7 @@ function removeCard() {
 }
 
 export function init() {
-    requestAnimationFrame( animate );
+    animate();
 }
 
 
@@ -350,10 +355,14 @@ export function init() {
  */
 
 function animate() {
+	animateOnce();
+	requestAnimationFrame(animate);
+}
+
+function animateOnce(){
 	controls.update();
     updatePhysics();
 	render();
-	requestAnimationFrame(animate);
 }
 
 // Render the camera
@@ -436,7 +445,9 @@ function awaitToUpdate(i, j){
 		scene.children[3].children[i].currentBox = j;
 		updateNewPositions();
 	}
-	requestAnimationFrame(() => awaitToUpdate(i, j));
+	else {
+		setTimeout(() => awaitToUpdate(i, j), timeInterval);
+	}
 }
 
 // Translation from a to b's parametric equation
