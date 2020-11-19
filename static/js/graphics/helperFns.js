@@ -19,7 +19,6 @@ export function addNewPlayer(newPlayerId){
 // const $ = window.$;
 import * as THREE from "./three.js";
 const CANNON = window.CANNON;
-init();
 
 export let currentPawn;
 let windowWidth, windowHeight;
@@ -202,6 +201,9 @@ diceGroup.add(dice2.getObject());
 diceGroup.visible = false;
 
 scene.add(diceGroup);
+
+// Now we can init
+init();
 
 export async function randomDiceThrow(x=[1,1]) {
 	let diceValues = [];
