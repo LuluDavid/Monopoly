@@ -258,7 +258,7 @@ async function waitDices(data){
         await updatePawn(data);
     }
     else{
-        setTimeout(() => waitDices(data), timeInterval);
+        requestAnimationFrame(() => waitDices(data));
     }
 }
 
@@ -282,7 +282,7 @@ function waitForMotion(){
         updateAllPlayers();
     }
     else{
-        setTimeout(() => waitForMotion(), timeInterval);
+        requestAnimationFrame(() => waitForMotion());
     }
 }
 
@@ -292,7 +292,7 @@ async function waitForModal(data){
         await switchModal(data);
     }
     else{
-        setTimeout(() => waitForModal(data), timeInterval);
+        requestAnimationFrame(() => waitForModal(data));
     }
 }
 
