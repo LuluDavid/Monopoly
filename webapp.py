@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, make_response
 from flask_socketio import SocketIO, join_room, emit
 import random as rd
 from game.game import Game
@@ -9,48 +9,64 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
 GAMES = {}
-
+PLAYERS = {}
 
 @app.route('/')
 def home():
     return render_template('home.html.jinja2')
 
 
-@app.route('/game', methods=['POST'])
+@app.route('/game', methods=['GET', 'POST'])
 def play_game():
-    try:
-        if request.form.get('request_type') == "create":
-            game_id = generate_id()
-            while game_id in GAMES:
+    if request.method == 'POST':
+        try:
+            if request.form.get('request_type') == "create":
                 game_id = generate_id()
-            GAMES[game_id] = {
-                "game": None,
-                "players": {}
-            }
+                while game_id in GAMES:
+                    game_id = generate_id()
+                GAMES[game_id] = {
+                    "game": None,
+                    "players": {}
+                }
 
-        elif request.form.get('request_type') == "join":
-            game_id = int(request.form.get('game_id'))
-            if game_id not in GAMES:
-                print("Game id does not exist")
+            elif request.form.get('request_type') == "join":
+                game_id = int(request.form.get('game_id'))
+                if game_id not in GAMES:
+                    print("Game id does not exist")
+                    return redirect_home()
+            else:
                 return redirect_home()
-        else:
-            return redirect_home()
 
-        player_name = request.form.get('player_name')
-        player_id = generate_id()
-        while player_id in GAMES[game_id]["players"]:
+            player_name = request.form.get('player_name')
             player_id = generate_id()
-        GAMES[game_id]["players"][player_id] = player_name
-        return render_template(
-            'lobby.html.jinja2',
-            game_id=game_id,
-            player_id=player_id,
-            player_name=player_name
-        )
-
-    except ValueError:
-        print("Impossible to create/join the room")
-        return redirect_home()
+            while player_id in GAMES[game_id]["players"]:
+                player_id = generate_id()
+            GAMES[game_id]["players"][player_id] = player_name
+            PLAYERS[player_id] = (player_name, game_id)
+            resp = make_response(render_template(
+                'lobby.html.jinja2',
+                game_id=game_id,
+                player_id=player_id,
+                player_name=player_name
+            ))
+            resp.set_cookie('uid', str(player_id))
+            return resp
+        except ValueError:
+            print("Impossible to create/join the room")
+            return redirect_home()
+    pid = request.cookies.get('uid')
+    if pid is None:
+        redirect_home()
+    player_id = int(pid)
+    player_name, gid = PLAYERS[player_id]
+    game_id = int(gid)
+    print("Redirecting ", player_name, " in room ", player_id)
+    return render_template(
+        'lobby.html.jinja2',
+        game_id=game_id,
+        player_id=player_id,
+        player_name=player_name
+    )
 
 
 @socketio.on('join')
@@ -127,4 +143,4 @@ def generate_id():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app)

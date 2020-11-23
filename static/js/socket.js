@@ -7,10 +7,11 @@ import {
     updateAllPlayers,
     updatePawns
 } from "./graphics/helperFns.js";
-
 const $ = window.$;
-const socket = window.io.connect(window.location.protocol+'//' + document.domain + ':' + location.port, {secure: true});
-joinGame();
+const io = window.io;
+
+let url = window.location.protocol+'//' + document.domain + ':' + location.port;
+let socket = io.connect(url);
 
 const defaultSize = 80;
 const defaultTime = 10000;
@@ -28,7 +29,6 @@ $( document ).ready(function() {
     });
 
     socket.on('join_game', function(data) {
-        console.log("Joining game "+gameId);
         let newPlayer = data["new_player"];
         let newPlayerName = newPlayer["name"];
         let newPlayerId = newPlayer["id"];
@@ -49,7 +49,6 @@ $( document ).ready(function() {
             }
         }
         else{
-            console.log("New player "+newPlayerName);
             addPlayerNameToSidebar(newPlayerName, newPlayerId);
             addPlayerNameToNavbar(newPlayerName, newPlayerId);
         }
@@ -57,7 +56,6 @@ $( document ).ready(function() {
 
 
     socket.on('start_game', function(data) {
-        console.log("Start game");
         let newPlayerId = data["newPlayer"]["id"];
         $("#"+newPlayerId+" svg").remove();
         $("#"+newPlayerId+" #top-info").append(SIDEBAR.check);
@@ -124,7 +122,6 @@ $( document ).ready(function() {
 
     socket.on('print_new_msg', function(data) {
         let newPlayerName = data["player_name"];
-        console.log(newPlayerName + " a posté un message");
         let cleanMsg = data["msg"];
         $("#messages")
             .append('<div>' + '<strong>' + newPlayerName + ': ' + '</strong>' + cleanMsg + '</div>')
@@ -133,8 +130,9 @@ $( document ).ready(function() {
 
 });
 
+joinGame();
+
 function joinGame() {
-      console.log('Game id : ' + gameId);
       socket.emit('join', {game_id: gameId, player_id: playerId});
 }
 
@@ -400,8 +398,6 @@ function showBuyHousesModal(buyHousesData){
 }
 
 $("#startGame").click(function(){
-    console.log("Adding a new player to the game");
-    console.log(gameId);
     $("#startGame").hide();
     socket.emit('start_game', {game_id: gameId, player_id: playerId, player_name: playerName});
 });
