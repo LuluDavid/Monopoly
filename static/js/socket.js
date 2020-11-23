@@ -247,7 +247,7 @@ function updateSidebar(data){
                 let changes = {};
                 changes[prop] = playerChanges[prop];
                 GRAPHICS.updatePlayerPossessions(pid, changes);
-                SIDEBAR.updateSidebarId(pid);
+                GRAPHICS.updateSidebarId(pid);
             }
         }
     }

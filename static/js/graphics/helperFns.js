@@ -1,23 +1,13 @@
 // MAIN FUNCTION
 
 // Whose turns it is
-import * as ORBIT from "./OrbitControls.js";
-import {DiceManager, DiceD6} from "./dice.js";
-import {initialMoney} from "../sidebar.js";
-
-function incrementPawnNumber() {
-	numberOfPawns++;
-}
-
-export function addNewPlayer(newPlayerId){
-	incrementPawnNumber();
-	idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
-	idsToPossessions[newPlayerId] = initPossessions();
-}
-
-
-// const $ = window.$;
 import * as THREE from "./three.js";
+import * as ORBIT from "./OrbitControls.js";
+import Stats from "./stats.js";
+import {DiceManager, DiceD6} from "./dice.js";
+import {initialMoney, frontMoney, frontPossessions} from "../sidebar.js";
+
+const $ = window.$;
 const CANNON = window.CANNON;
 
 export let currentPawn;
@@ -169,7 +159,7 @@ initState();
 updateAllHouses();
 // Set the positions of the pawns on the cardboard in positions (fast access to positions)
 let positions = initPositions();
-let new_positions = initPositions();
+let newPositions = initPositions();
 
 // Create the deck of community cards
 const communityDeck = createCommunityDeck();
@@ -202,8 +192,23 @@ diceGroup.visible = false;
 
 scene.add(diceGroup);
 
+// Stats
+let stats = Stats();
+stats.showPanel(2);
+document.body.appendChild( stats.dom );
+
 // Now we can init
 init();
+
+function incrementPawnNumber() {
+	numberOfPawns++;
+}
+
+export function addNewPlayer(newPlayerId){
+	incrementPawnNumber();
+	idsToPawns[newPlayerId] = Object.keys(idsToPawns).length;
+	idsToPossessions[newPlayerId] = initPossessions();
+}
 
 export async function randomDiceThrow(x=[1,1]) {
 	let diceValues = [];
@@ -347,8 +352,8 @@ function removeCard() {
 	scene.remove(scene.children[8]);
 }
 
-export function init() {
-    animate();
+function init() {
+    requestAnimationFrame(animate);
 }
 
 
@@ -357,13 +362,17 @@ export function init() {
  */
 
 function animate() {
+	stats.begin();
 	animateOnce();
+	stats.end();
 	requestAnimationFrame(animate);
 }
 
 function animateOnce(){
 	controls.update();
-    updatePhysics();
+	if (scene.children[7].visible) {
+		updatePhysics();
+	}
 	render();
 }
 
@@ -422,8 +431,12 @@ export function updateAllPlayers(){
 
 // Translate pawn n°i to box n°j
 function translatePawnToBox(i, j, k) {
-	let boxCardinal = Math.max(positions[j].length, new_positions[j].length);
-	let pawnPosition = pawnsPositionsPerBox[j][boxCardinal];
+	let boxCardinal = Math.max(positions[j].length, newPositions[j].length);
+	let pawnPositions = pawnsPositionsPerBox[j]
+	let pawnPosition = pawnPositions[boxCardinal]
+	if (pawnPosition == null){
+		pawnPosition = pawnPositions[0];
+	}
 	let deltaT = tMotion * Math.pow(Math.abs(j-k) / numberOfBoxes, 1 / 3);
 	translate(i, j, new THREE.Vector3(pawnPosition.x, pawnPosition.y, pawnHeight / 2 + cardboardHeight), deltaT);
 }
@@ -438,18 +451,7 @@ function translate(i, j, goalPosition, deltaT) {
 	let t = 0;
 	let object = scene.children[3].children[i];
 	let initialPosition = object.position.clone();
-	loop(object, initialPosition, goalPosition, step, angleStep, t);
-	awaitToUpdate(i, j);
-}
-
-function awaitToUpdate(i, j){
-	if (!incrementing){
-		scene.children[3].children[i].currentBox = j;
-		updateNewPositions();
-	}
-	else {
-		setTimeout(() => awaitToUpdate(i, j), timeInterval);
-	}
+	loop(object, i, j, initialPosition, goalPosition, step, angleStep, t);
 }
 
 // Translation from a to b's parametric equation
@@ -458,7 +460,7 @@ function translation(a, b, t) {
 }
 
 // Loop function
-function loop(object, initialPosition, goalPosition, step, angleStep, t) {
+function loop(object, i, j, initialPosition, goalPosition, step, angleStep, t) {
 	// Update the pawn's position
 	let X = translation(initialPosition.x, goalPosition.x, ease(t));   // interpolate between a and b where
 	let Y = translation(initialPosition.y, goalPosition.y, ease(t));   // t is first passed through a easing
@@ -467,10 +469,12 @@ function loop(object, initialPosition, goalPosition, step, angleStep, t) {
 	t = t + step;
 	if (t >= 1) {
 		incrementing = false;
+		scene.children[3].children[i].currentBox = j;
 		updatePositions();
+		updateNewPositions();
 	}
 	else {
-		requestAnimationFrame(() => loop(object, initialPosition, goalPosition, step, angleStep, t))
+		requestAnimationFrame(() => loop(object, i, j, initialPosition, goalPosition, step, angleStep, t))
 	}
 }
 
@@ -486,15 +490,15 @@ function emptyPositions() {
 
 // Use the currentBox param stored in every pawn to fill the positions dictionary
 function updateNewPositions() {
-	new_positions = emptyPositions();
+	newPositions = emptyPositions();
 	for (let i = 0; i < numberOfPawns; i++) {
 		let box = scene.children[3].children[i].currentBox;
-		new_positions[box].push(i);
+		newPositions[box].push(i);
 	}
 }
 
 function updatePositions() {
-	positions = $.extend(true, {}, new_positions);
+	positions = $.extend(true, {}, newPositions);
 }
 
 // Parabole to describe the motion inertia
@@ -1053,4 +1057,26 @@ export function goToJail(player){
 	// Then go to jail
 	stateArray[30][0].pop();
 	stateArray[10][0].push(player);
+}
+
+export function updateSidebarId(pid) {
+    let possessions;
+    let money, brown, lightBlue, pink, orange, red, yellow, green, darkBlue, station, electricity, water;
+    possessions = idsToPossessions[pid];
+    money = possessions["money"];
+    brown = possessions["brown"];
+    lightBlue = possessions["light-blue"];
+    pink = possessions["pink"];
+    orange = possessions["orange"];
+    red = possessions["red"];
+    yellow = possessions["yellow"];
+    green = possessions["green"];
+    darkBlue = possessions["dark-blue"];
+    station = possessions["station"];
+    electricity = possessions["electricity"];
+    water = possessions["water"];
+
+    $("#" + pid + " #player-money").replaceWith(frontMoney(money));
+    $("#" + pid + " #player-goods").replaceWith(frontPossessions(brown, lightBlue, pink, orange, red,
+        yellow, green, darkBlue, station, electricity, water));
 }

@@ -1,5 +1,3 @@
-import {idsToPossessions} from "./graphics/helperFns.js";
-
 export const initialMoney = 1500;
 const $ = window.$;
 
@@ -185,7 +183,7 @@ export function updateModalCardCompany(name) {
     $("#card").replaceWith(companyCard(name));
 }
 
-function frontMoney(money = initialMoney) {
+export function frontMoney(money = initialMoney) {
     return `<div id="player-money">
                 <i class="fa fa-money" style="color:green"> ` + money + `€</i></div>`;
 }
@@ -227,7 +225,7 @@ function water_icon(i) {
             </div>`;
 }
 
-function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
+export function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
                           red = 0, yellow = 0, green = 0, darkBlue = 0,
                           station = 0, electricity = 0, water = 0) {
     // Street divs
@@ -264,28 +262,6 @@ function frontPossessions(brown = 0, lightBlue = 0, pink = 0, orange = 0,
 }
 
 export const frontGoods = frontMoney() + frontPossessions();
-
-export function updateSidebarId(pid) {
-    let possessions;
-    let money, brown, lightBlue, pink, orange, red, yellow, green, darkBlue, station, electricity, water;
-    possessions = idsToPossessions[pid];
-    money = possessions["money"];
-    brown = possessions["brown"];
-    lightBlue = possessions["light-blue"];
-    pink = possessions["pink"];
-    orange = possessions["orange"];
-    red = possessions["red"];
-    yellow = possessions["yellow"];
-    green = possessions["green"];
-    darkBlue = possessions["dark-blue"];
-    station = possessions["station"];
-    electricity = possessions["electricity"];
-    water = possessions["water"];
-
-    $("#" + pid + " #player-money").replaceWith(frontMoney(money));
-    $("#" + pid + " #player-goods").replaceWith(frontPossessions(brown, lightBlue, pink, orange, red,
-        yellow, green, darkBlue, station, electricity, water));
-}
 
 function setVisible() {
     $('#trading').attr('style', 'visibility:visible');
