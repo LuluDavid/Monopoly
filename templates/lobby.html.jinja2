@@ -193,8 +193,10 @@
     <script type="module">
         // Will be used in the modals to trade
         import {openPropositionModal, openOfferModal} from '../static/js/socket.js'
+        import {renderer} from '../static/js/graphics/helperFns.js'
         window.openPropositionModal = openPropositionModal;
         window.openOfferModal = openOfferModal;
+        window.renderer = renderer;
     </script>
 
 {% endblock %}

@@ -91,7 +91,7 @@ const deckRatio = 1.587;
 const heightRatio = 5.827;
 const deckSize = 20;
 export let possessions = {};
-
+const padding = 35
 /*
  * Build scene
  */
@@ -112,11 +112,11 @@ scene.background = new THREE.Color(0x0000ff);
 /*
  * Renderer Settings
  */
-const renderer = new THREE.WebGLRenderer({antialias: true});
+export const renderer = new THREE.WebGLRenderer({antialias: true});
 // Enable extension
 renderer.getContext().getExtension('EXT_color_buffer_half_float');
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight - 54);
+renderer.setSize(window.innerWidth, window.innerHeight - padding);
 renderer.shadowMap.enabled = true;
 renderer.shadowMapSoft = true;
 renderer.shadowMapDebug = true;
@@ -349,10 +349,29 @@ function semiReveal(object, step, t, angleStep){
 }
 
 function removeCard() {
+	let card = scene.children[8];
 	scene.remove(scene.children[8]);
+	remove(card)
+}
+
+function remove(object) {
+	if (object.material) {
+		if (object.material.length) {
+			for (let i = 0; i < object.material.length; ++i) {
+				object.material[i].dispose()
+			}
+		} else {
+			object.material.dispose()
+		}
+	}
+	if (object.geometry)
+		object.geometry.dispose();
+	renderer.dispose()
 }
 
 function init() {
+	updateSize();
+	window.addEventListener( 'resize', updateSize, false );
     requestAnimationFrame(animate);
 }
 
@@ -378,27 +397,11 @@ function animateOnce(){
 
 // Render the camera
 function render() {
-	updateSize();
 	updateView();
 }
 
-function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1) {
-	// First view
+function updateView() {
 	view.updateCamera(view.camera, scene);
-
-	let left = Math.floor(windowWidth * vleft);
-	let top = Math.floor(windowHeight * vtop);
-	let width = Math.floor(windowWidth * vwidth);
-	let height = Math.floor(windowHeight * vheight);
-
-	renderer.setViewport(left, top, width, height);
-	renderer.setScissor(left, top, width, height);
-	renderer.setScissorTest(true);
-	renderer.setClearColor(view.background);
-
-	view.camera.aspect = width / height;
-	view.camera.updateProjectionMatrix();
-
 	renderer.render(scene, view.camera);
 }
 
@@ -406,9 +409,21 @@ function updateView(vleft = 0, vtop = 0, vwidth = graphicsRatio, vheight = 1) {
 function updateSize() {
 	if (windowWidth !== window.innerWidth) {
 		windowWidth = window.innerWidth;
-		windowHeight = window.innerHeight - 54;
+		windowHeight = window.innerHeight - padding;
 		renderer.setSize(windowWidth, windowHeight);
 	}
+	let left = Math.floor(0);
+	let top = Math.floor(0);
+	let width = Math.floor(windowWidth * graphicsRatio);
+	let height = Math.floor(windowHeight);
+
+	view.camera.aspect = width / height;
+	view.camera.updateProjectionMatrix();
+
+	renderer.setViewport(left, top, width, height);
+	renderer.setScissor(left, top, width, height);
+	renderer.setScissorTest(true);
+	renderer.setClearColor(view.background);
 }
 
 /*
