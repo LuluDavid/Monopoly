@@ -91,7 +91,7 @@ const deckRatio = 1.587;
 const heightRatio = 5.827;
 const deckSize = 20;
 export let possessions = {};
-const padding = 35
+const padding = 56 // Should be 54 for a bootstrap navbar, but anyway
 /*
  * Build scene
  */
@@ -118,8 +118,7 @@ renderer.getContext().getExtension('EXT_color_buffer_half_float');
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight - padding);
 renderer.shadowMap.enabled = true;
-renderer.shadowMapSoft = true;
-renderer.shadowMapDebug = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.domElement.style.position = "relative";
 renderer.domElement.style.zIndex = "0";
 renderer.domElement.style.width = "100%";
