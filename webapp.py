@@ -11,6 +11,7 @@ socketio = SocketIO(app)
 GAMES = {}
 PLAYERS = {}
 
+
 @app.route('/')
 def home():
     return render_template('home.html.jinja2')

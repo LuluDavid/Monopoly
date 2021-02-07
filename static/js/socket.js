@@ -98,14 +98,16 @@ $( document ).ready(function() {
         let bought = data["bought"];
         if (bought != null){
             let id = Object.keys(bought)[0];
-            let newPossession = bought[id];
-            let new_pos = `<div class="form-check"><input class="form-check-input" type="checkbox" value="${newPossession}">
+            if (id != null) {
+                let newPossession = bought[id];
+                let new_pos = `<div class="form-check"><input class="form-check-input" type="checkbox" value="${newPossession}">
   <label class="form-check-label" for="defaultCheck1">${newPossession}</label></div>`;
-            let buyerId = parseInt(data["previous_player"]);
-            if (buyerId === playerId) {
-                $("#properties_to_offer").append(new_pos);
+                let buyerId = parseInt(data["previous_player"]);
+                if (buyerId === playerId) {
+                    $("#properties_to_offer").append(new_pos);
+                }
+                GRAPHICS.registerPossession(id, newPossession);
             }
-            GRAPHICS.registerPossession(id, newPossession);
         }
         // Update sidebar
         updateSidebar(data);
