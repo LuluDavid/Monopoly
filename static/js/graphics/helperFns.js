@@ -720,13 +720,13 @@ function createHouse(clr, width, height) {
 	let house = new THREE.Group();
 	let wallGeometry = new THREE.PlaneBufferGeometry(width, height);
 	let roofGeometry = new THREE.PlaneBufferGeometry(width, roofSize);
-	let roofFrontGeometry = new THREE.BufferGeometry();
+	let roofFrontGeometry = new THREE.Geometry();
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-width / 2, width / 2, height));
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-width / 2, -width / 2, height));
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-width / 2, 0, height + width * Math.tan(roofAngle) / 2));
 	let normalVectorFront = new THREE.Vector3(-1, 0, 0);
 	roofFrontGeometry.faces.push(new THREE.Face3(0, 1, 2, normalVectorFront));
-	let roofBackGeometry = new THREE.BufferGeometry();
+	let roofBackGeometry = new THREE.Geometry();
 	roofBackGeometry.vertices.push(new THREE.Vector3(width / 2, width / 2, height));
 	roofBackGeometry.vertices.push(new THREE.Vector3(width / 2, -width / 2, height));
 	roofBackGeometry.vertices.push(new THREE.Vector3(width / 2, 0, height + width * Math.tan(roofAngle) / 2));
