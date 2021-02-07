@@ -90,7 +90,7 @@ $( document ).ready(function() {
     socket.on('trade', async function(data) {
         await notify(data["msg"])
         // Update sidebar
-        updateSidebar(data["response"]);
+        updateSidebar(data);
     });
 
     socket.on('play_turn', async function(data) {
