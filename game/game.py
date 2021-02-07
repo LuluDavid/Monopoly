@@ -169,7 +169,7 @@ class Game:
             self.next_player()
             changed_players[player.id] = {"money": player.money}
             return self.game_to_json(changed_players=changed_players, dices=dices,
-                                     msg=player.name + " payed a rent of " + str(rent) + "$ to " + pos.owner.name)
+                                     msg=player.name + " a payé un loyer de " + str(rent) + "€ à " + pos.owner.name)
 
         else:
             return self.do_nothing(dices=dices)
@@ -254,9 +254,9 @@ class Game:
         given = money > 0
         is_offered = len(offered_names) != 0
         is_wanted = len(bought_names) != 0
-        msg = buyer.name + " traded " + str(offered_names) + ("\nand " if given and is_offered else "") \
-              + ((str(money) + "$") if given else "") + "\nto" + owner.name + " against " + str(bought_names) \
-              + ("\nand " if given and is_wanted else "") + ((str(-money) + "$") if given else "")
+        msg = buyer.name + " échange " + ", ".join(offered_names) + ("\net " if given and is_offered else "") + \
+              ((str(money) + "€") if given else "") + "\nà " + owner.name + " contre " + ", ".join(bought_names) + \
+              ("\nand " if given and is_wanted else "") + ((str(-money) + "€") if given else "")
         return self.game_to_json(changed_players=changed_players, msg=msg)
 
     def play_turn(self, data):
@@ -285,7 +285,7 @@ class Game:
             msg = None
             if data["action_value"]:
                 bought_box = self.board.boxes[player.position]
-                msg = player.name + " bought " + bought_box.name
+                msg = player.name + " a acheté " + bought_box.name
                 bought[player.id] = bought_box.name
                 player.buy_good(bought_box)
                 changes["money"] = player.money
@@ -312,7 +312,7 @@ class Game:
                 box = self.board.boxes[player.position]
                 player.buy_houses(box, nb_houses)
                 changed_players = {player.id: {"money": player.money}}
-                msg = player.name + " bought " + str(nb_houses) + " for the property " + box.name
+                msg = player.name + " a acheté " + ("un hôtel" if nb_houses == 5 else str(nb_houses) + " maisons") + " pour sa propriété " + box.name
             self.next_player()
             return self.game_to_json(changed_players=changed_players, msg=msg)
 

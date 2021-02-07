@@ -21,7 +21,7 @@ class Card:
             player.loose_money(self.value)
             changed_players = {player.id: {"money": player.money}}
             board.park_money += self.value
-            msg = player.name + " doit payer " + str(self.value) + "$"
+            msg = player.name + " doit payer " + str(self.value) + "€"
 
         elif self.card_type == "taxes":
             nb_houses, nb_hotels = player.get_number_of_buildings()
@@ -29,7 +29,7 @@ class Card:
             player.loose_money(amount)
             changed_players = {player.id: {"money": player.money}}
             board.park_money += amount
-            msg = player.name + " doit payer " + str(amount) + "$"
+            msg = player.name + " doit payer " + str(amount) + "€"
 
         elif self.card_type == "backwards":
             player.update_position([-self.value], board)
@@ -50,7 +50,7 @@ class Card:
             for payer in filter(lambda p: p != player, players.values()):
                 payer.pay_player(player, self.value)
                 changed_players[player.id] = {"money": player.money}
-            msg = "Chaque joueur doit payer " + str(self.value) + "$ à " + player.name + " pour son anniversaire"
+            msg = "Chaque joueur doit payer " + str(self.value) + "€ à " + player.name + " pour son anniversaire"
 
         elif self.card_type == "loose-money-or-chance":
             # TODO: or chance ?

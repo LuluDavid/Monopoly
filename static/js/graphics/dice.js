@@ -32,8 +32,8 @@ class DiceManagerClass {
      *
      */
     prepareValues(diceValues) {
-        if (this.throwRunning) throw new Error('Cannot start another throw. Please wait, till the current throw is finished.');
-
+        while (this.throwRunning) // throw new Error('Cannot start another throw. Please wait, till the current throw is finished.');
+            requestAnimationFrame(() => this.prepareValues(diceValues))
         for (let i = 0; i < diceValues.length; i++) {
             if (diceValues[i].value < 1 || diceValues[i].dice.values < diceValues[i].value) {
                 throw new Error('Cannot throw die to value ' + diceValues[i].value + ', because it has only ' + diceValues[i].dice.values + ' sides.');
