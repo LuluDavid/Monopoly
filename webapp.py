@@ -55,7 +55,7 @@ def play_game():
             print("Impossible to create/join the room")
             return redirect_home()
     pid = request.cookies.get('uid')
-    if pid is None:
+    if pid is None or not isinstance(pid, str):
         redirect_home()
     player_id = int(pid)
     player_name, gid = PLAYERS[player_id]

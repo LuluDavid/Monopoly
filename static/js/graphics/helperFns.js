@@ -15,7 +15,7 @@ let windowWidth, windowHeight;
 const view =
 	{
 		near: 1,
-		far: 10000,
+		far: 1000,
 		background: new THREE.Color(255, 255, 255),
 
 		// The camera's position
@@ -103,27 +103,26 @@ view.camera.up.fromArray(view.up);
 view.camera.layers.enable( 1 );
 
 export const scene = new THREE.Scene();
-const loader = new THREE.TextureLoader();
-loader.load('static/js/graphics/textures/clearSky.jpg', function (texture) {
-	scene.background = texture;
-});
+// const loader = new THREE.TextureLoader();
+// loader.load('static/js/graphics/textures/clearSky.jpg', function (texture) {
+// 	scene.background = texture;
+// });
 scene.background = new THREE.Color(0x0000ff);
 
 /*
  * Renderer Settings
  */
-export const renderer = new THREE.WebGLRenderer({antialias: true});
+export const renderer = new THREE.WebGLRenderer({antialias: true, powerPreference:"high-performance"});
 // Enable extension
 renderer.getContext().getExtension('EXT_color_buffer_half_float');
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight - padding);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// renderer.shadowMap.enabled = true;
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.domElement.style.position = "relative";
 renderer.domElement.style.zIndex = "0";
 renderer.domElement.style.width = "100%";
 renderer.domElement.style.height = "100%";
-// renderer.domElement.style += "; position:relative; z-index:0; width:100%; height:100%";
 container.appendChild(renderer.domElement);
 
 // Orbit controls
@@ -136,10 +135,9 @@ addALight(scene);
 // Add a ground
 createGround(scene);
 // Add the cardboard
-const cardboard = createCardboard(cardboardWidth, scene);
-cardboard.rotateZ(Math.PI / 2);
-cardboard.castShadow = true;
-cardboard.receiveShadow = true;
+createCardboard(cardboardWidth, scene);
+// cardboard.castShadow = true;
+// cardboard.receiveShadow = true;
 
 // Pawn positions per box (where to put them to make them fit in)
 let pawnsPositionsPerBox = getPawnsPositionsBoxes(cardboardWidth);
@@ -252,7 +250,7 @@ export function initPossessions(){
 }
 
 function createCommunityCard() {
-	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
+	let cardGeometry = new THREE.PlaneBufferGeometry(deckSize/deckRatio, deckSize);
 	let topMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Community.jpg'), side:2});
 	let card = new THREE.Mesh(cardGeometry, topMaterial);
@@ -262,7 +260,7 @@ function createCommunityCard() {
 }
 
 function createChanceCard() {
-	let cardGeometry = new THREE.PlaneGeometry(deckSize/deckRatio, deckSize);
+	let cardGeometry = new THREE.PlaneBufferGeometry(deckSize/deckRatio, deckSize);
 	let topMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/Chance.jpg'), side:2});
 	let card = new THREE.Mesh(cardGeometry, topMaterial);
@@ -348,6 +346,7 @@ function semiReveal(object, step, t, angleStep){
 }
 
 function removeCard() {
+	// TODO: reset the position, and make it invisible
 	let card = scene.children[8];
 	scene.remove(scene.children[8]);
 	remove(card)
@@ -369,8 +368,8 @@ function remove(object) {
 }
 
 function init() {
+	// Instantiate once renderer size and camera
 	updateSize();
-	window.addEventListener( 'resize', updateSize, false );
     requestAnimationFrame(animate);
 }
 
@@ -386,20 +385,18 @@ function animate() {
 	requestAnimationFrame(animate);
 }
 
+// TODO: animate on demand ?
+// The game should be animated pretty much all the time,
+// so it is not that interesting to animate on demand
 function animateOnce(){
-	controls.update();
-	if (scene.children[7].visible) {
+	if (scene.children[7].visible)
 		updatePhysics();
-	}
 	render();
 }
 
 // Render the camera
 function render() {
-	updateView();
-}
-
-function updateView() {
+	controls.update();
 	view.updateCamera(view.camera, scene);
 	renderer.render(scene, view.camera);
 }
@@ -688,11 +685,11 @@ function createPawns(number, j = 0) {
 function createPawn(position, id, j) {
 	let pawn = new THREE.Group();
 	let clr = colors[j];
-	let geometry = new THREE.CylinderGeometry(pawnRadius, pawnRadius, pawnHeight, 32);
-	let material = new THREE.MeshPhongMaterial({color: clr});
+	let geometry = new THREE.CylinderBufferGeometry(pawnRadius, pawnRadius, pawnHeight, 32);
+	let material = new THREE.MeshBasicMaterial({color: clr});
 	let pawnMesh = new THREE.Mesh(geometry, material);
-	pawnMesh.castShadow = true;
-	pawnMesh.receiveShadow = true;
+	// pawnMesh.castShadow = true;
+	// pawnMesh.receiveShadow = true;
 	pawn.add(pawnMesh);
 	let name = idsToNames[id];
 	addText(name, material, pawn);
@@ -704,7 +701,7 @@ function createPawn(position, id, j) {
 function addText(name, material, parent) {
 	new THREE.FontLoader().load('static/js/graphics/fonts/gentilis_regular.typeface.json',
 		function (font){
-			let textGeometry = new THREE.TextGeometry(name, {font:font, size: textSize, height: textHeight, curveSegments: 3});
+			let textGeometry = new THREE.TextBufferGeometry(name, {font:font, size: textSize, height: textHeight, curveSegments: 3});
 			let textMesh = new THREE.Mesh(textGeometry, material);
 			textMesh.translateX(-textSize);
 			textMesh.translateY(pawnHeight*1.1);
@@ -712,6 +709,8 @@ function addText(name, material, parent) {
 			textMesh.rotateY(-Math.PI/4);
 			textMesh.rotateX(-Math.PI/4);
 			textMesh.layers.set(1);
+			// Static object
+			textMesh.matrixAutoUpdate = false;
 			parent.add(textMesh);
 		});
 }
@@ -719,22 +718,22 @@ function addText(name, material, parent) {
 function createHouse(clr, width, height) {
 	let roofSize = width / (2 * Math.cos(roofAngle));
 	let house = new THREE.Group();
-	let wallGeometry = new THREE.PlaneGeometry(width, height);
-	let roofGeometry = new THREE.PlaneGeometry(width, roofSize);
-	let roofFrontGeometry = new THREE.Geometry();
+	let wallGeometry = new THREE.PlaneBufferGeometry(width, height);
+	let roofGeometry = new THREE.PlaneBufferGeometry(width, roofSize);
+	let roofFrontGeometry = new THREE.BufferGeometry();
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-width / 2, width / 2, height));
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-width / 2, -width / 2, height));
 	roofFrontGeometry.vertices.push(new THREE.Vector3(-width / 2, 0, height + width * Math.tan(roofAngle) / 2));
 	let normalVectorFront = new THREE.Vector3(-1, 0, 0);
 	roofFrontGeometry.faces.push(new THREE.Face3(0, 1, 2, normalVectorFront));
-	let roofBackGeometry = new THREE.Geometry();
+	let roofBackGeometry = new THREE.BufferGeometry();
 	roofBackGeometry.vertices.push(new THREE.Vector3(width / 2, width / 2, height));
 	roofBackGeometry.vertices.push(new THREE.Vector3(width / 2, -width / 2, height));
 	roofBackGeometry.vertices.push(new THREE.Vector3(width / 2, 0, height + width * Math.tan(roofAngle) / 2));
 	let normalVectorBack = new THREE.Vector3(-1, 0, 0);
 	roofBackGeometry.faces.push(new THREE.Face3(0, 1, 2, normalVectorBack));
 
-	let material = new THREE.MeshPhongMaterial({color: clr, side: 2});
+	let material = new THREE.MeshBasicMaterial({color: clr, side: 2});
 	let frontWall = new THREE.Mesh(wallGeometry, material);
 	let backWall = new THREE.Mesh(wallGeometry, material);
 	let leftWall = new THREE.Mesh(wallGeometry, material);
@@ -744,14 +743,14 @@ function createHouse(clr, width, height) {
 	let roofFront = new THREE.Mesh(roofFrontGeometry, material);
 	let roofBack = new THREE.Mesh(roofBackGeometry, material);
 
-	frontWall.receiveShadow = true;
-	backWall.receiveShadow = true;
-	leftWall.receiveShadow = true;
-	rightWall.receiveShadow = true;
-	leftRoof.receiveShadow = true;
-	rightRoof.receiveShadow = true;
-	roofFront.receiveShadow = true;
-	roofBack.receiveShadow = true;
+	// frontWall.receiveShadow = true;
+	// backWall.receiveShadow = true;
+	// leftWall.receiveShadow = true;
+	// rightWall.receiveShadow = true;
+	// leftRoof.receiveShadow = true;
+	// rightRoof.receiveShadow = true;
+	// roofFront.receiveShadow = true;
+	// roofBack.receiveShadow = true;
 
 	frontWall.position.set(-width / 2, 0, height / 2);
 	backWall.position.set(width / 2, 0, height / 2);
@@ -801,31 +800,42 @@ function initColors(){
 }
 
 function createCardboard(width, parentNode) {
-	let cardboardGeometry = new THREE.PlaneGeometry(width, width);
+	let cardboardGeometry = new THREE.PlaneBufferGeometry(width, width);
 	let texture = new THREE.TextureLoader().load('static/js/graphics/textures/monopoly.jpg');
-	let cardboardMaterial = new THREE.MeshPhongMaterial({map: texture});
+	let cardboardMaterial = new THREE.MeshBasicMaterial({map: texture});
 	let cardboard = new THREE.Mesh(cardboardGeometry, cardboardMaterial);
+
+	// Static object
+	cardboard.matrixAutoUpdate = false;
+
 	cardboard.position.set(cardboardWidth / 2, cardboardWidth / 2, cardboardHeight);
-	cardboard.castShadow = true;
-	cardboard.receiveShadow = true;
+	cardboard.rotateZ(Math.PI / 2);
+
+	cardboard.updateMatrix();
+	// cardboard.castShadow = true;
+	// cardboard.receiveShadow = true;
 	parentNode.add(cardboard);
+
 	return cardboard;
 }
 
 function createGround(parentNode) {
-	let groundGeometry = new THREE.PlaneGeometry(2000, 2000);
+	let groundGeometry = new THREE.PlaneBufferGeometry(2000, 2000);
 	let texture = new THREE.TextureLoader().load('static/js/graphics/textures/herbe.jpg');
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(20, 20);
-	let groundMaterial = new THREE.MeshPhongMaterial({map: texture});
+	let groundMaterial = new THREE.MeshBasicMaterial({map: texture});
 	let ground = new THREE.Mesh(groundGeometry, groundMaterial);
+	// Static object
+	ground.matrixAutoUpdate = false;
+
 	parentNode.add(ground);
 	return ground;
 }
 
 function createCommunityDeck() {
-	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
+	let deckGeometry = new THREE.BoxBufferGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
 	let sideMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
 		});
@@ -840,13 +850,18 @@ function createCommunityDeck() {
 			topMaterial,
 			new THREE.MeshBasicMaterial()];
 	let deck = new THREE.Mesh(deckGeometry, materials);
+	// Static object
+	deck.matrixAutoUpdate = false;
+
 	deck.position.set(8/11*cardboardWidth, 8/11*cardboardWidth, cardboardHeight+deckSize/(2*heightRatio));
 	deck.rotateZ(Math.PI/4);
+
+	deck.updateMatrix();
 	return deck;
 }
 
 function createChanceDeck() {
-	let deckGeometry = new THREE.BoxGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
+	let deckGeometry = new THREE.BoxBufferGeometry(deckSize/deckRatio, deckSize, deckSize/heightRatio);
 	let sideMaterial = new THREE.MeshBasicMaterial(
 		{map: new THREE.TextureLoader().load('static/js/graphics/textures/pack.jpg')
 		});
@@ -861,27 +876,33 @@ function createChanceDeck() {
 			topMaterial,
 			new THREE.MeshBasicMaterial()];
 	let deck = new THREE.Mesh(deckGeometry, materials);
+	// Static object
+	deck.matrixAutoUpdate = false;
+
 	deck.position.set(3/11*cardboardWidth, 3/11*cardboardWidth, cardboardHeight+deckSize/(2*heightRatio));
 	deck.rotateZ(Math.PI/4);
+
+	deck.updateMatrix();
+
 	return deck;
 }
 
 function addALight(parentNode) {
 	let light = new THREE.DirectionalLight(0xffffff, 1);
 	light.position.set(-1, -1, 10);
-	light.castShadow = true;
-	light.shadow.mapSize.width = 2048;
-	light.shadow.mapSize.height = 2048;
-	light.shadow.mapSize.darkness = 0.75;
-	light.shadow.camera.near = 1;
-	light.shadow.camera.far = 1000;
-	light.shadow.darkness = 0.75;
-
-	/* since you have a directional light */
-	light.shadow.camera.left = -50;
-	light.shadow.camera.right = 50;
-	light.shadow.camera.top = 50;
-	light.shadow.camera.bottom = -50;
+	// light.castShadow = true;
+	// light.shadow.mapSize.width = 2048;
+	// light.shadow.mapSize.height = 2048;
+	// light.shadow.mapSize.darkness = 0.75;
+	// light.shadow.camera.near = 1;
+	// light.shadow.camera.far = 1000;
+	// light.shadow.darkness = 0.75;
+	//
+	// /* since you have a directional light */
+	// light.shadow.camera.left = -50;
+	// light.shadow.camera.right = 50;
+	// light.shadow.camera.top = 50;
+	// light.shadow.camera.bottom = -50;
 	parentNode.add(light);
 }
 
