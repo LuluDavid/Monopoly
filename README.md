@@ -3,13 +3,15 @@
 <p align="center">
   <img src="./pictures/moving.png" width = 850>
 </p>
-<p align="center">
-  <img src="./pictures/property.png" width=430 height=400>  <img src="./pictures/dices.png" width=430 height=400>
-</p>
+
+This project is a web implementation of the famous Monopoly game. It relies on [three.js](https://threejs.org/) for the graphics, [Flask](https://flask.palletsprojects.com/en/1.1.x/) for the web framework & [websockets](https://socket.io/) for the realtime updates with the backend. The application is hosted on Heroku at the following [address](https://monolopy.herokuapp.com/) if you want to test the game (sorry for non-french users).  
 
 ## External features
 
 This project uses the Github repo [threejs-dice](https://github.com/byWulf/threejs-dice) from byWulf, which allows us to throw predetermined dices in the game.
+<p align="center">
+  <img src="./pictures/property.png" width=430 height=400>  <img src="./pictures/dices.png" width=430 height=400>
+</p>
 
 ## Project's Architecture
 ```
@@ -25,24 +27,18 @@ Monopoly
         └──graphics : js module with all the graphic interface
 ```
 
-## How to test it
+## How to play
 
 The master branch is deployed on heroku at [this link](https://monolopy.herokuapp.com). It is not persistent yet, so you will need to avoid refreshing the page. You just need to create a game, share the id with the other players, and all click the ready button.
 Once this is done, the game will run between different pages. The trading system is not implemented yet, and the game lacks a bit of information (notifications), but it is coming soon.
 
-## How to test
+## How to test it locally
 
-### Game unittests
+You just need to run webapp.py and connect to localhost:8000.
 
-In the root folder :
-```
-export PYTHONPATH=.
-python -m unittest discover -s tests -t tests
-```
-The tests are automatically ran by the CircleCI on the project, which allows to deploy the new version if the test passed.
+## TODO-list
 
-## Game
-
-### Types of boxes
-
-`start`, `street`, `station`, `public-service`, `community-fund`, `chance`, `tax`, `jail`, `park`, `to-jail`
+* Add an ending scenario to the game
+* Implement a persistent interface to save the game on refresh (cookie uid)
+* Play A LOT to detect side effects
+* Integrate a proximity-chat (just kidding)
