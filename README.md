@@ -12,7 +12,8 @@ This project uses the Github repo [threejs-dice](https://github.com/byWulf/three
 <p align="center">
   <img src="./pictures/property.png" width=430 height=400>  <img src="./pictures/dices.png" width=430 height=400>
 </p>
-We also use [notify.js](https://notifyjs.jpillora.com/) to notify other players of the game changes.
+Because of that, we also use [cannon.js](https://schteppe.github.io/cannon.js/) for physics simulation on the dice throw.  
+Finally, we use [notify.js](https://notifyjs.jpillora.com/) to notify other players of the game changes.
 
 ## Project's Architecture
 ```
@@ -40,6 +41,7 @@ You just need to run webapp.py and connect to localhost:8000.
 ## TODO-list
 
 * Add an ending scenario to the game
+* Version the used libs (not possible for three-dices, but for the rest it should be alright)
 * Implement a persistent interface to save the game on refresh (cookie uid)
 * Refactor most of the socket interface to make it more readable
 * Handle more seriously asynchronous features (the notifications come sometimes early/late for instance)
